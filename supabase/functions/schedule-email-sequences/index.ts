@@ -1,5 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import React from 'npm:react@18.3.1';
+import { renderAsync } from 'npm:@react-email/components@0.0.22';
+import { SequenceEmail } from '../send-resource-email/_templates/sequence-email.tsx';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -59,6 +62,15 @@ serve(async (req) => {
       // If delay is 0 hours, send immediately
       if (sequence.delay_hours === 0 && RESEND_API_KEY) {
         try {
+          // Render email template using React Email
+          const html = await renderAsync(
+            React.createElement(SequenceEmail, {
+              fullName: emailCapture.full_name,
+              subject: sequence.subject,
+              bodyContent: sequence.body.replace(/\n/g, '<br>'),
+            })
+          );
+
           const emailResponse = await fetch("https://api.resend.com/emails", {
             method: "POST",
             headers: {
@@ -69,7 +81,7 @@ serve(async (req) => {
               from: "ShareKit <onboarding@resend.dev>",
               to: [emailCapture.email],
               subject: sequence.subject,
-              html: sequence.body.replace(/\n/g, '<br>'),
+              html,
             }),
           });
 
