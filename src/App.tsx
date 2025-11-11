@@ -8,6 +8,8 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import UploadResource from "./pages/UploadResource";
 import Resources from "./pages/Resources";
+import Pages from "./pages/Pages";
+import CreatePage from "./pages/CreatePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/upload" element={<UploadResource />} />
           <Route path="/dashboard/resources" element={<Resources />} />
+          <Route path="/dashboard/pages" element={<Pages />} />
+          <Route path="/dashboard/pages/create" element={<CreatePage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

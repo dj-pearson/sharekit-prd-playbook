@@ -105,6 +105,12 @@ const Dashboard = () => {
                       Resources
                     </Link>
                   </Button>
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link to="/dashboard/pages">
+                      <Eye className="w-4 h-4 mr-2" />
+                      Pages
+                    </Link>
+                  </Button>
                   <Button variant="ghost" className="w-full justify-start">
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Analytics
@@ -137,9 +143,9 @@ const Dashboard = () => {
                 asChild
                 className="bg-gradient-ocean hover:opacity-90 transition-opacity"
               >
-                <Link to="/dashboard/upload">
+                <Link to="/dashboard/pages/create">
                   <Plus className="w-4 h-4 mr-2" />
-                  New Share
+                  New Page
                 </Link>
               </Button>
             </div>
@@ -192,17 +198,17 @@ const Dashboard = () => {
                 <div className="w-16 h-16 rounded-full bg-gradient-ocean/10 flex items-center justify-center mx-auto mb-4">
                   <FileText className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Create your first share</h3>
+                <h3 className="text-xl font-semibold mb-2">Create your first page</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Upload a resource, customize your page, and start sharing in minutes
+                  Build a landing page, add resources, and start collecting emails
                 </p>
                 <Button 
                   asChild
                   className="bg-gradient-ocean hover:opacity-90 transition-opacity"
                 >
-                  <Link to="/dashboard/upload">
+                  <Link to="/dashboard/pages/create">
                     <Plus className="w-4 h-4 mr-2" />
-                    Upload Your First Resource
+                    Create Your First Page
                   </Link>
                 </Button>
               </CardContent>
@@ -221,9 +227,9 @@ const Dashboard = () => {
                       1
                     </div>
                     <div>
-                      <div className="font-medium mb-1">Upload your resource</div>
+                      <div className="font-medium mb-1">Create a landing page</div>
                       <p className="text-sm text-muted-foreground">
-                        Upload a PDF, guide, or checklist you want to share
+                        Choose a template and customize it to match your brand
                       </p>
                     </div>
                   </div>
@@ -233,9 +239,9 @@ const Dashboard = () => {
                       2
                     </div>
                     <div>
-                      <div className="font-medium mb-1">Customize your page</div>
+                      <div className="font-medium mb-1">Add your resources</div>
                       <p className="text-sm text-muted-foreground">
-                        Choose a template and make it match your brand
+                        Upload PDFs, guides, or any files you want to share
                       </p>
                     </div>
                   </div>
@@ -245,9 +251,9 @@ const Dashboard = () => {
                       3
                     </div>
                     <div>
-                      <div className="font-medium mb-1">Share your link</div>
+                      <div className="font-medium mb-1">Publish and share</div>
                       <p className="text-sm text-muted-foreground">
-                        Get your unique link and share it anywhere
+                        Get your unique link and start collecting email signups
                       </p>
                     </div>
                   </div>
