@@ -6,6 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -45,33 +47,84 @@ serve(async (req) => {
       );
     }
 
-    // Schedule emails (in a real implementation, you'd use a job queue)
-    // For now, we'll just log that sequences would be sent
-    console.log(`Would schedule ${sequences.length} emails for ${emailCapture.email}`);
+    console.log(`Scheduling ${sequences.length} emails for ${emailCapture.email}`);
     
-    // Here you would integrate with an email service like Resend, SendGrid, etc.
-    // Example placeholder for email sending logic:
+    // Send or schedule emails for each sequence
     for (const sequence of sequences) {
       const scheduledTime = new Date(emailCapture.captured_at);
       scheduledTime.setHours(scheduledTime.getHours() + sequence.delay_hours);
       
-      console.log(`Sequence: ${sequence.name}`);
-      console.log(`Subject: ${sequence.subject}`);
-      console.log(`Scheduled for: ${scheduledTime.toISOString()}`);
+      console.log(`Sequence: ${sequence.name}, Subject: ${sequence.subject}, Scheduled: ${scheduledTime.toISOString()}`);
       
-      // Log the email send attempt
-      await supabaseClient
-        .from('email_sent_logs')
-        .insert({
-          sequence_id: sequence.id,
-          email_capture_id: emailCaptureId,
-          status: 'scheduled'
-        });
+      // If delay is 0 hours, send immediately
+      if (sequence.delay_hours === 0 && RESEND_API_KEY) {
+        try {
+          const emailResponse = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "ShareKit <onboarding@resend.dev>",
+              to: [emailCapture.email],
+              subject: sequence.subject,
+              html: sequence.body.replace(/\n/g, '<br>'),
+            }),
+          });
+
+          const emailData = await emailResponse.json();
+          
+          if (emailResponse.ok) {
+            console.log(`Sent sequence "${sequence.name}" immediately:`, emailData);
+            
+            // Log successful send
+            await supabaseClient
+              .from('email_sent_logs')
+              .insert({
+                sequence_id: sequence.id,
+                email_capture_id: emailCaptureId,
+                status: 'sent'
+              });
+          } else {
+            console.error(`Failed to send sequence "${sequence.name}":`, emailData);
+            
+            // Log failed send
+            await supabaseClient
+              .from('email_sent_logs')
+              .insert({
+                sequence_id: sequence.id,
+                email_capture_id: emailCaptureId,
+                status: 'failed'
+              });
+          }
+        } catch (emailError) {
+          console.error(`Error sending sequence "${sequence.name}":`, emailError);
+          
+          // Log error
+          await supabaseClient
+            .from('email_sent_logs')
+            .insert({
+              sequence_id: sequence.id,
+              email_capture_id: emailCaptureId,
+              status: 'failed'
+            });
+        }
+      } else {
+        // Log as scheduled for future sending
+        await supabaseClient
+          .from('email_sent_logs')
+          .insert({
+            sequence_id: sequence.id,
+            email_capture_id: emailCaptureId,
+            status: 'scheduled'
+          });
+      }
     }
 
     return new Response(
       JSON.stringify({ 
-        message: `Scheduled ${sequences.length} emails`,
+        message: `Processed ${sequences.length} email sequences`,
         sequences: sequences.map(s => ({ 
           name: s.name, 
           delay_hours: s.delay_hours 
