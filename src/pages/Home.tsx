@@ -45,11 +45,13 @@ const Home = () => {
             </div>
             
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              Share what matters
+              Share what matters,<br/>
+              <span className="text-transparent bg-clip-text bg-gradient-ocean">see signups in real-time</span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-              Beautiful pages that deliver your guides, checklists, and resources to people who want them
+              While others spend hours on setup, you'll be watching live signups in 3 minutes.
+              <strong className="text-foreground"> Beautiful by default. Generous, not salesy.</strong>
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
@@ -67,16 +69,16 @@ const Home = () => {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t">
               <div>
-                <div className="text-3xl font-bold text-primary mb-1">5 min</div>
-                <div className="text-sm text-muted-foreground">Average setup time</div>
+                <div className="text-3xl font-bold text-primary mb-1">3 min</div>
+                <div className="text-sm text-muted-foreground">Setup time, not hours</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-primary mb-1">$19/mo</div>
-                <div className="text-sm text-muted-foreground">Simple pricing</div>
+                <div className="text-3xl font-bold text-primary mb-1">Real-time</div>
+                <div className="text-sm text-muted-foreground">Live signup notifications</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-primary mb-1">20%+</div>
-                <div className="text-sm text-muted-foreground">Avg. signup rate</div>
+                <div className="text-3xl font-bold text-primary mb-1">$0-19</div>
+                <div className="text-sm text-muted-foreground">Start free forever</div>
               </div>
             </div>
           </div>
@@ -348,34 +350,34 @@ const Home = () => {
 
 const features = [
   {
-    icon: Sparkles,
-    title: "Beautiful pages in 5 minutes",
-    description: "Choose from professionally designed templates. No design skills needed."
-  },
-  {
-    icon: Mail,
-    title: "Simple signup, instant delivery",
-    description: "People enter their email and get your resource instantly. No friction."
+    icon: Zap,
+    title: "3-minute setup (not 5)",
+    description: "While ConvertKit users spend 2 hours in tutorials, you're already getting signups. Lightning-fast, zero learning curve."
   },
   {
     icon: BarChart3,
-    title: "See who's downloading",
-    description: "Track views, signups, and downloads with simple, clear analytics."
-  },
-  {
-    icon: Zap,
-    title: "Automatic delivery",
-    description: "Emails sent within seconds. We handle retries and delivery tracking."
-  },
-  {
-    icon: Users,
-    title: "Build your community",
-    description: "Stay connected with people who value your content. No spam."
+    title: "Real-time dopamine",
+    description: "Watch signups happen live with instant notifications. Every signup creates a moment of celebration. Addictive to check."
   },
   {
     icon: CheckCircle,
-    title: "Professional & generous",
-    description: "Language that feels good, not salesy. Your brand, your values."
+    title: "Generous positioning",
+    description: "Language that shares, not sells. 'Get my guide' not 'Buy now'. Your audience feels respected, not pressured."
+  },
+  {
+    icon: Sparkles,
+    title: "Beautiful by default",
+    description: "No design skills needed. Every template is stunning. Your page looks professional in 3 clicks. Zero customization required."
+  },
+  {
+    icon: Users,
+    title: "Viral attribution built-in",
+    description: "Every free page promotes ShareKit. Built-in word-of-mouth. Your success drives our growth. Remove branding on Pro."
+  },
+  {
+    icon: Mail,
+    title: "Instant delivery",
+    description: "People enter their email and get your resource in seconds. We handle everything: delivery, retries, tracking."
   }
 ];
 

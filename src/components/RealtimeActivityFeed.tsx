@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Mail, Download, Eye, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 
 interface ActivityEvent {
   id: string;
@@ -144,6 +145,12 @@ export function RealtimeActivityFeed() {
             };
 
             setActivities(prev => [newActivity, ...prev].slice(0, 15));
+
+            // Show toast notification for new signup
+            toast.success('🎉 New Signup!', {
+              description: `${payload.new.full_name || payload.new.email} just signed up for ${page.title}`,
+              duration: 5000,
+            });
           }
         }
       )
@@ -183,6 +190,14 @@ export function RealtimeActivityFeed() {
               };
 
               setActivities(prev => [newActivity, ...prev].slice(0, 15));
+
+              // Show toast notification for downloads
+              if (payload.new.event_type === 'download') {
+                toast.success('📥 New Download!', {
+                  description: `Someone downloaded ${resourceTitle || 'a resource'} from ${page.title}`,
+                  duration: 4000,
+                });
+              }
             }
           }
         }
