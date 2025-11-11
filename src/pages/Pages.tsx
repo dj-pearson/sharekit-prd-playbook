@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Edit, Trash2, Copy, ExternalLink } from "lucide-react";
+import { Plus, Eye, Edit, Trash2, Copy, ExternalLink, BarChart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -216,6 +216,16 @@ const Pages = () => {
                         </Button>
                       </>
                     )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                      title="View analytics"
+                    >
+                      <Link to={`/dashboard/pages/${page.id}/analytics`}>
+                        <BarChart className="w-4 h-4" />
+                      </Link>
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"

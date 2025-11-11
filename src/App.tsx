@@ -10,6 +10,7 @@ import UploadResource from "./pages/UploadResource";
 import Resources from "./pages/Resources";
 import Pages from "./pages/Pages";
 import CreatePage from "./pages/CreatePage";
+import PageAnalytics from "./pages/PageAnalytics";
 import PublicPage from "./pages/PublicPage";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/dashboard/resources" element={<Resources />} />
           <Route path="/dashboard/pages" element={<Pages />} />
           <Route path="/dashboard/pages/create" element={<CreatePage />} />
+          <Route path="/dashboard/pages/:id/analytics" element={<PageAnalytics />} />
           <Route path="/p/:slug" element={<PublicPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
