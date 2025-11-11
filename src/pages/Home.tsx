@@ -45,19 +45,19 @@ const Home = () => {
 
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center px-4 py-2 mb-8 rounded-full bg-primary/10 text-primary text-sm font-medium drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
+            <div className="inline-flex items-center px-4 py-2 mb-8 rounded-full bg-primary/10 text-primary text-sm font-medium drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
               <Sparkles className="w-4 h-4 mr-2" />
               Beautiful by design, simple by default
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight text-foreground drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] [text-shadow:_2px_2px_4px_rgb(0_0_0_/_80%)]">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight text-foreground drop-shadow-[0_4px_20px_rgba(255,255,255,0.8)] [text-shadow:_2px_2px_8px_rgb(255_255_255_/_60%),_0_0_40px_rgb(255_255_255_/_40%)]">
               Share what matters,<br/>
-              <span className="text-accent drop-shadow-[0_4px_16px_rgba(245,158,11,0.6)] [text-shadow:_2px_2px_8px_rgb(245_158_11_/_50%)]">see signups in real-time</span>
+              <span className="text-transparent bg-clip-text bg-gradient-ocean drop-shadow-[0_4px_16px_rgba(8,145,178,0.6)] [text-shadow:_0_0_30px_rgb(8_145_178_/_50%)]">see signups in real-time</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-foreground/90 mb-12 max-w-2xl mx-auto font-medium drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)] [text-shadow:_1px_1px_3px_rgb(0_0_0_/_70%)]">
+            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto drop-shadow-[0_3px_12px_rgba(255,255,255,0.6)] [text-shadow:_1px_1px_4px_rgb(255_255_255_/_50%)]">
               While others spend hours on setup, you'll be watching live signups in 3 minutes.
-              <strong className="text-foreground"> Beautiful by default. Generous, not salesy.</strong>
+              <strong className="text-foreground drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)]"> Beautiful by default. Generous, not salesy.</strong>
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
