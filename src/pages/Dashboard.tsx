@@ -123,6 +123,12 @@ const Dashboard = () => {
                       Webhooks
                     </Link>
                   </Button>
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link to="/dashboard/teams">
+                      <Users className="w-4 h-4 mr-2" />
+                      Teams
+                    </Link>
+                  </Button>
                   <Button variant="ghost" className="w-full justify-start">
                     <Settings className="w-4 h-4 mr-2" />
                     Settings
