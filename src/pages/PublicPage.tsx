@@ -249,11 +249,16 @@ const PublicPage = () => {
       {/* Footer */}
       <footer className="border-t py-8 mt-20">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>
+          <p className="mb-2">
             Powered by{" "}
             <Link to="/" className="underline hover:text-foreground">
               ShareKit
             </Link>
+          </p>
+          <p className="text-xs">
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+            {" · "}
+            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
           </p>
         </div>
       </footer>
