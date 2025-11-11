@@ -88,6 +88,72 @@ export type Database = {
           },
         ]
       }
+      email_sent_logs: {
+        Row: {
+          email_capture_id: string
+          error_message: string | null
+          id: string
+          sent_at: string
+          sequence_id: string
+          status: string
+        }
+        Insert: {
+          email_capture_id: string
+          error_message?: string | null
+          id?: string
+          sent_at?: string
+          sequence_id: string
+          status?: string
+        }
+        Update: {
+          email_capture_id?: string
+          error_message?: string | null
+          id?: string
+          sent_at?: string
+          sequence_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      email_sequences: {
+        Row: {
+          body: string
+          created_at: string
+          delay_hours: number
+          id: string
+          is_active: boolean
+          name: string
+          page_id: string
+          send_order: number
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          delay_hours?: number
+          id?: string
+          is_active?: boolean
+          name: string
+          page_id: string
+          send_order?: number
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          delay_hours?: number
+          id?: string
+          is_active?: boolean
+          name?: string
+          page_id?: string
+          send_order?: number
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       page_resources: {
         Row: {
           created_at: string

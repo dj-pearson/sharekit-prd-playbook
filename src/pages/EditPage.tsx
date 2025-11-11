@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -222,10 +222,19 @@ const EditPage = () => {
         </Button>
 
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2">Edit Page</h1>
-          <p className="text-muted-foreground mb-8">
-            Update your landing page settings and resources
-          </p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Edit Page</h1>
+              <p className="text-muted-foreground">
+                Update your landing page settings and resources
+              </p>
+            </div>
+            <Link to={`/dashboard/pages/${id}/sequences`}>
+              <Button variant="outline">
+                Email Sequences
+              </Button>
+            </Link>
+          </div>
 
           <form onSubmit={handleSave} className="space-y-6">
             {/* Basic Information */}

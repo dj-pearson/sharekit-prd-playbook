@@ -31,13 +31,15 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
 
     try {
       // Save email capture
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('email_captures')
         .insert({
           page_id: pageId,
           email,
           full_name: fullName || null,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -77,6 +79,13 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
           },
         },
       });
+
+      // Schedule email sequences
+      if (data?.id) {
+        await supabase.functions.invoke('schedule-email-sequences', {
+          body: { emailCaptureId: data.id }
+        });
+      }
 
       toast({
         title: "Success!",
