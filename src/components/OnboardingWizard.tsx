@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, Upload, FileText, Palette, Rocket, X } from "lucide-react";
+import { Sparkles, Upload, FileText, Palette, Rocket, X, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -137,83 +137,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       title: "Customize & Publish",
       description: "Make it yours and go live",
       icon: Palette,
-      content: (
-        <div className="space-y-4 py-6">
-          <p className="text-slate-600">
-            Customize your page with your brand colors, logo, and messaging.
-            When you're ready, publish it to get your unique shareable link.
-          </p>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-              <div className="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center shrink-0">
-                <span className="text-cyan-600 font-semibold">1</span>
-              </div>
-              <div>
-                <p className="font-medium">Add your headline</p>
-                <p className="text-sm text-slate-600">Tell people what they'll get</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-              <div className="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center shrink-0">
-                <span className="text-cyan-600 font-semibold">2</span>
-              </div>
-              <div>
-                <p className="font-medium">Customize colors</p>
-                <p className="text-sm text-slate-600">Match your brand</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-              <div className="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center shrink-0">
-                <span className="text-cyan-600 font-semibold">3</span>
-              </div>
-              <div>
-                <p className="font-medium">Publish & share</p>
-                <p className="text-sm text-slate-600">Get your unique link</p>
-              </div>
-            </div>
-          </div>
-          <Button
-            onClick={() => setCurrentStep(4)}
-            className="w-full bg-gradient-ocean hover:opacity-90"
-            size="lg"
-          >
-            Got it! Show me the dashboard
-          </Button>
-        </div>
-      ),
-    },
-    {
-      title: "You're All Set! 🎉",
-      description: "Start sharing your resources",
-      icon: Rocket,
-      content: (
-        <div className="space-y-4 text-center py-8">
-          <div className="w-20 h-20 rounded-full bg-gradient-ocean mx-auto flex items-center justify-center">
-            <Rocket className="w-10 h-10 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold">You're Ready to Go!</h2>
-          <p className="text-slate-600 max-w-md mx-auto">
-            You now know the basics of ShareKit. Create your first resource page
-            and start building your audience!
-          </p>
-          <div className="bg-gradient-to-r from-cyan-50 to-sky-50 border border-cyan-200 rounded-lg p-6 mt-6">
-            <h3 className="font-semibold mb-2">Quick Tips:</h3>
-            <ul className="text-sm text-slate-700 space-y-2 text-left">
-              <li>✓ Share your page link on social media</li>
-              <li>✓ Add it to your email signature</li>
-              <li>✓ Embed it on your website</li>
-              <li>✓ Track analytics to see what's working</li>
-            </ul>
-          </div>
-          <Button
-            onClick={handleComplete}
-            className="w-full bg-gradient-ocean hover:opacity-90"
-            size="lg"
-          >
-            Go to Dashboard
-          </Button>
-        </div>
-      ),
+      content: null, // Will be set after handleComplete is defined
     },
   ];
 
@@ -226,7 +150,6 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         .from('profiles')
         .update({
           onboarding_completed: true,
-          onboarding_step: steps.length,
         })
         .eq('id', user.id);
 
@@ -245,6 +168,40 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     }
   };
 
+  // Set the final step content after handleComplete is defined
+  steps[3].content = (
+    <div className="space-y-6">
+      <div className="text-center space-y-4">
+        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-ocean flex items-center justify-center">
+          <CheckCircle className="w-10 h-10 text-white" />
+        </div>
+        <div>
+          <h3 className="text-2xl font-bold mb-2">You're All Set! 🎉</h3>
+          <p className="text-slate-600">
+            Your lead magnet is ready to go. Start sharing and watch the signups roll in.
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-slate-50 p-6 rounded-lg">
+        <h3 className="font-semibold mb-2">Quick Tips:</h3>
+        <ul className="text-sm text-slate-700 space-y-2 text-left">
+          <li>✓ Share your page link on social media</li>
+          <li>✓ Add it to your email signature</li>
+          <li>✓ Embed it on your website</li>
+          <li>✓ Track analytics to see what's working</li>
+        </ul>
+      </div>
+      <Button
+        onClick={handleComplete}
+        className="w-full bg-gradient-ocean hover:opacity-90"
+        size="lg"
+      >
+        Go to Dashboard
+      </Button>
+    </div>
+  );
+
   const handleSkip = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -254,7 +211,6 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         .from('profiles')
         .update({
           onboarding_completed: true,
-          onboarding_skipped_at: new Date().toISOString(),
         })
         .eq('id', user.id);
 

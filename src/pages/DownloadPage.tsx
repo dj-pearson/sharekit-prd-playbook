@@ -121,9 +121,6 @@ export default function DownloadPage() {
 
   const handleDownload = async (resourceId: string, fileUrl: string, fileName: string) => {
     try {
-      // Increment download count
-      await supabase.rpc("increment_download_count", { token });
-
       // Track download event
       await supabase.from("analytics_events").insert({
         page_id: capture?.page_id,

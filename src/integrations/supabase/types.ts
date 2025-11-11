@@ -56,27 +56,72 @@ export type Database = {
           },
         ]
       }
+      custom_domains: {
+        Row: {
+          created_at: string | null
+          dns_verified_at: string | null
+          domain: string
+          id: string
+          is_verified: boolean | null
+          ssl_issued_at: string | null
+          updated_at: string | null
+          user_id: string
+          verification_token: string
+        }
+        Insert: {
+          created_at?: string | null
+          dns_verified_at?: string | null
+          domain: string
+          id?: string
+          is_verified?: boolean | null
+          ssl_issued_at?: string | null
+          updated_at?: string | null
+          user_id: string
+          verification_token: string
+        }
+        Update: {
+          created_at?: string | null
+          dns_verified_at?: string | null
+          domain?: string
+          id?: string
+          is_verified?: boolean | null
+          ssl_issued_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+          verification_token?: string
+        }
+        Relationships: []
+      }
       email_captures: {
         Row: {
           captured_at: string
+          download_count: number | null
+          download_token: string | null
           email: string
           full_name: string | null
           id: string
           page_id: string
+          token_expires_at: string | null
         }
         Insert: {
           captured_at?: string
+          download_count?: number | null
+          download_token?: string | null
           email: string
           full_name?: string | null
           id?: string
           page_id: string
+          token_expires_at?: string | null
         }
         Update: {
           captured_at?: string
+          download_count?: number | null
+          download_token?: string | null
           email?: string
           full_name?: string | null
           id?: string
           page_id?: string
+          token_expires_at?: string | null
         }
         Relationships: [
           {
@@ -299,6 +344,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          onboarding_completed: boolean | null
           updated_at: string
         }
         Insert: {
@@ -307,6 +353,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          onboarding_completed?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -315,6 +362,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          onboarding_completed?: boolean | null
           updated_at?: string
         }
         Relationships: []
@@ -609,6 +657,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_download_count: {
+        Args: { capture_id: string }
+        Returns: undefined
       }
       is_team_admin: {
         Args: { _team_id: string; _user_id: string }

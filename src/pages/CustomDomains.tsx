@@ -17,9 +17,10 @@ interface CustomDomain {
   is_verified: boolean;
   verification_token: string;
   dns_verified_at: string | null;
-  ssl_enabled: boolean;
+  ssl_issued_at: string | null;
   created_at: string;
-  page_id: string | null;
+  user_id: string;
+  updated_at: string;
 }
 
 export default function CustomDomains() {
@@ -71,16 +72,18 @@ export default function CustomDomains() {
 
       const { data, error } = await supabase
         .from('custom_domains')
-        .insert({
+        .insert([{
           user_id: user.id,
           domain: newDomain.toLowerCase(),
-        })
+          verification_token: crypto.randomUUID(),
+        }])
         .select()
         .single();
 
       if (error) throw error;
+      if (!data) throw new Error("Failed to create domain");
 
-      setDomains([data, ...domains]);
+      setDomains([data as CustomDomain, ...domains]);
       setNewDomain("");
 
       toast({
@@ -285,7 +288,7 @@ export default function CustomDomains() {
                           )}
                         </TableCell>
                         <TableCell>
-                          {domain.ssl_enabled ? (
+                          {domain.ssl_issued_at ? (
                             <Badge variant="outline">Enabled</Badge>
                           ) : (
                             <Badge variant="outline" className="text-muted-foreground">
