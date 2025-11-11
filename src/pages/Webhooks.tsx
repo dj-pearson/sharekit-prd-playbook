@@ -11,6 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Webhook, Trash2, Eye, CheckCircle, XCircle, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface WebhookType {
   id: string;
@@ -214,7 +215,8 @@ const Webhooks = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Webhooks</h1>
@@ -486,7 +488,8 @@ const Webhooks = () => {
           </Card>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

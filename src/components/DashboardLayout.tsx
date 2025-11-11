@@ -20,6 +20,7 @@ const navItems = [
   { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
   { title: "Webhooks", url: "/dashboard/webhooks", icon: Webhook },
   { title: "Teams", url: "/dashboard/teams", icon: Users },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -86,9 +87,6 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
             
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="icon">
-                <Settings className="w-5 h-5" />
-              </Button>
               <Button 
                 variant="ghost" 
                 size="sm"

@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Users, Mail, Trash2, Crown, Shield, User as UserIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface Team {
   id: string;
@@ -340,7 +341,8 @@ const Teams = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Teams</h1>
@@ -641,7 +643,8 @@ const Teams = () => {
           </Card>
         </div>
       )}
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

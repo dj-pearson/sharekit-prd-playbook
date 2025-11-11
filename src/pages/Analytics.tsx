@@ -6,6 +6,7 @@ import { Eye, Mail, Download, TrendingUp, BarChart as BarChartIcon } from "lucid
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface AggregateStats {
   total_views: number;
@@ -174,7 +175,8 @@ const Analytics = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Analytics Overview</h1>
         <p className="text-muted-foreground mt-1">
@@ -367,7 +369,8 @@ const Analytics = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 
