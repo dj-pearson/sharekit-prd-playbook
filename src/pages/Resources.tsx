@@ -5,6 +5,7 @@ import { FileText, Plus, Trash2, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface Resource {
   id: string;
@@ -109,95 +110,97 @@ const Resources = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Resources</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your uploaded files and resources
-          </p>
-        </div>
-        <Button
-          asChild
-          className="bg-gradient-ocean hover:opacity-90 transition-opacity"
-        >
-          <Link to="/dashboard/upload">
-            <Plus className="w-4 h-4 mr-2" />
-            Upload Resource
-          </Link>
-        </Button>
-      </div>
-
-      {resources.length === 0 ? (
-        <Card>
-          <CardContent className="py-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-ocean/10 flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-8 h-8 text-primary" />
-            </div>
-            <h3 className="text-xl font-semibold mb-2">No resources yet</h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              Upload your first resource to start sharing with your audience
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Resources</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your uploaded files and resources
             </p>
-            <Button
-              asChild
-              className="bg-gradient-ocean hover:opacity-90 transition-opacity"
-            >
-              <Link to="/dashboard/upload">
-                <Plus className="w-4 h-4 mr-2" />
-                Upload Your First Resource
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {resources.map((resource) => (
-            <Card key={resource.id} className="hover:shadow-large transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-lg bg-gradient-ocean/10 flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      asChild
-                    >
-                      <a href={resource.file_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteResource(resource.id, resource.file_url)}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-
-                <h3 className="font-semibold mb-2 line-clamp-2">
-                  {resource.title}
-                </h3>
-
-                {resource.description && (
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {resource.description}
-                  </p>
-                )}
-
-                <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t">
-                  <span>{formatFileSize(resource.file_size)}</span>
-                  <span>{formatDate(resource.created_at)}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          </div>
+          <Button
+            asChild
+            className="bg-gradient-ocean hover:opacity-90 transition-opacity"
+          >
+            <Link to="/dashboard/upload">
+              <Plus className="w-4 h-4 mr-2" />
+              Upload Resource
+            </Link>
+          </Button>
         </div>
-      )}
-    </div>
+
+        {resources.length === 0 ? (
+          <Card>
+            <CardContent className="py-16 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-ocean/10 flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">No resources yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Upload your first resource to start sharing with your audience
+              </p>
+              <Button
+                asChild
+                className="bg-gradient-ocean hover:opacity-90 transition-opacity"
+              >
+                <Link to="/dashboard/upload">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Upload Your First Resource
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {resources.map((resource) => (
+              <Card key={resource.id} className="hover:shadow-large transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-ocean/10 flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        asChild
+                      >
+                        <a href={resource.file_url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteResource(resource.id, resource.file_url)}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <h3 className="font-semibold mb-2 line-clamp-2">
+                    {resource.title}
+                  </h3>
+
+                  {resource.description && (
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {resource.description}
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-4 border-t">
+                    <span>{formatFileSize(resource.file_size)}</span>
+                    <span>{formatDate(resource.created_at)}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </DashboardLayout>
   );
 };
 
