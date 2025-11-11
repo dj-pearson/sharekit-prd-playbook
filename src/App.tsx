@@ -13,6 +13,7 @@ import CreatePage from "./pages/CreatePage";
 import EditPage from "./pages/EditPage";
 import PageAnalytics from "./pages/PageAnalytics";
 import Analytics from "./pages/Analytics";
+import Webhooks from "./pages/Webhooks";
 import PublicPage from "./pages/PublicPage";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/dashboard/analytics" element={<Analytics />} />
+          <Route path="/dashboard/webhooks" element={<Webhooks />} />
           <Route path="/dashboard/upload" element={<UploadResource />} />
           <Route path="/dashboard/resources" element={<Resources />} />
           <Route path="/dashboard/pages" element={<Pages />} />

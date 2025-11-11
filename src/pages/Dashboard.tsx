@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, LayoutDashboard, FileText, BarChart3, Settings, Plus, TrendingUp, Users, Eye, LogOut } from "lucide-react";
+import { Sparkles, LayoutDashboard, FileText, BarChart3, Settings, Plus, TrendingUp, Users, Eye, LogOut, Webhook } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -115,6 +115,12 @@ const Dashboard = () => {
                     <Link to="/dashboard/analytics">
                       <BarChart3 className="w-4 h-4 mr-2" />
                       Analytics
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link to="/dashboard/webhooks">
+                      <Webhook className="w-4 h-4 mr-2" />
+                      Webhooks
                     </Link>
                   </Button>
                   <Button variant="ghost" className="w-full justify-start">

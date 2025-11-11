@@ -65,6 +65,19 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
         // Don't fail the whole process if email fails
       }
 
+      // Trigger webhooks
+      await supabase.functions.invoke('trigger-webhooks', {
+        body: {
+          event_type: 'signup',
+          page_id: pageId,
+          data: {
+            email,
+            full_name: fullName,
+            page_title: pageTitle,
+          },
+        },
+      });
+
       toast({
         title: "Success!",
         description: "Check your email for the download links.",

@@ -2,3 +2,6 @@ project_id = "tvjgpqmqybtlazabzszo"
 
 [functions.send-resource-email]
 verify_jwt = false
+
+[functions.trigger-webhooks]
+verify_jwt = false
