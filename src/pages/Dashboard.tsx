@@ -1,0 +1,191 @@
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sparkles, LayoutDashboard, FileText, BarChart3, Settings, Plus, TrendingUp, Users, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const Dashboard = () => {
+  return (
+    <div className="min-h-screen bg-gradient-subtle">
+      {/* Navigation */}
+      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-ocean flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-2xl font-bold">ShareKit</span>
+          </Link>
+          
+          <div className="flex items-center space-x-4">
+            <Button variant="ghost" size="icon">
+              <Settings className="w-5 h-5" />
+            </Button>
+            <div className="w-8 h-8 rounded-full bg-gradient-ocean flex items-center justify-center text-white text-sm font-medium">
+              JD
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex gap-8">
+          {/* Sidebar */}
+          <aside className="w-64 shrink-0 hidden lg:block">
+            <Card>
+              <CardContent className="p-4">
+                <nav className="space-y-2">
+                  <Button variant="secondary" className="w-full justify-start">
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Resources
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Analytics
+                  </Button>
+                  <Button variant="ghost" className="w-full justify-start">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </Button>
+                </nav>
+
+                <div className="mt-6 p-4 bg-gradient-ocean rounded-lg text-white">
+                  <div className="text-sm font-medium mb-1">Free Plan</div>
+                  <div className="text-xs opacity-90 mb-3">0 / 100 signups this month</div>
+                  <Button variant="secondary" size="sm" className="w-full">
+                    Upgrade to Pro
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </aside>
+
+          {/* Main Content */}
+          <main className="flex-1">
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
+                <p className="text-muted-foreground">Here's what's happening with your shares</p>
+              </div>
+              <Button className="bg-gradient-ocean hover:opacity-90 transition-opacity">
+                <Plus className="w-4 h-4 mr-2" />
+                New Share
+              </Button>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardDescription>Total Views</CardDescription>
+                  <CardTitle className="text-3xl">0</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Eye className="w-4 h-4 mr-1" />
+                    Last 30 days
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardDescription>Signups</CardDescription>
+                  <CardTitle className="text-3xl">0</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Users className="w-4 h-4 mr-1" />
+                    Last 30 days
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardDescription>Signup Rate</CardDescription>
+                  <CardTitle className="text-3xl">0%</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <TrendingUp className="w-4 h-4 mr-1" />
+                    Last 30 days
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Empty State */}
+            <Card>
+              <CardContent className="py-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-gradient-ocean/10 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">Create your first share</h3>
+                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  Upload a resource, customize your page, and start sharing in minutes
+                </p>
+                <Button className="bg-gradient-ocean hover:opacity-90 transition-opacity">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Upload Your First Resource
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Getting Started */}
+            <Card className="mt-8">
+              <CardHeader>
+                <CardTitle>Getting Started</CardTitle>
+                <CardDescription>Quick steps to start sharing</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
+                      1
+                    </div>
+                    <div>
+                      <div className="font-medium mb-1">Upload your resource</div>
+                      <p className="text-sm text-muted-foreground">
+                        Upload a PDF, guide, or checklist you want to share
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
+                      2
+                    </div>
+                    <div>
+                      <div className="font-medium mb-1">Customize your page</div>
+                      <p className="text-sm text-muted-foreground">
+                        Choose a template and make it match your brand
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
+                      3
+                    </div>
+                    <div>
+                      <div className="font-medium mb-1">Share your link</div>
+                      <p className="text-sm text-muted-foreground">
+                        Get your unique link and share it anywhere
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
