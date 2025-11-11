@@ -55,9 +55,8 @@ const Home = () => {
               <span className="text-transparent bg-clip-text bg-gradient-ocean drop-shadow-[0_4px_16px_rgba(8,145,178,0.6)] [text-shadow:_0_0_30px_rgb(8_145_178_/_50%)]">see signups in real-time</span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto drop-shadow-[0_3px_12px_rgba(255,255,255,0.6)] [text-shadow:_1px_1px_4px_rgb(255_255_255_/_50%)]">
-              While others spend hours on setup, you'll be watching live signups in 3 minutes.
-              <strong className="text-foreground drop-shadow-[0_2px_8px_rgba(255,255,255,0.7)]"> Beautiful by default. Generous, not salesy.</strong>
+            <p className="text-lg md:text-xl text-foreground/95 mb-12 max-w-2xl mx-auto font-medium [text-shadow:_0_1px_1px_rgb(0_0_0_/_35%),_0_0_8px_rgb(255_255_255_/_20%)]">
+              While others spend hours on setup, you'll be watching live signups in 3 minutes. Beautiful by default. Generous, not salesy.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
