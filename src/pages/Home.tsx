@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, CheckCircle, Download, Mail, BarChart3, Sparkles, Users, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
+import Hero3D from "@/components/Hero3D";
 
 const Home = () => {
   return (
@@ -34,8 +35,15 @@ const Home = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-20 md:py-32 bg-gradient-subtle">
-        <div className="container mx-auto px-4">
+      <section className="relative py-20 md:py-32 bg-gradient-subtle overflow-hidden">
+        {/* 3D Background Element */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-40 pointer-events-none">
+          <div className="pointer-events-auto">
+            <Hero3D />
+          </div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center px-4 py-2 mb-8 rounded-full bg-primary/10 text-primary text-sm font-medium">
               <Sparkles className="w-4 h-4 mr-2" />
