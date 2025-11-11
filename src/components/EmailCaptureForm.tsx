@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download } from "lucide-react";
+import { Download, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,11 +24,32 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailError, setEmailError] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      setEmailError("Email is required");
+      return false;
+    }
+    if (!emailRegex.test(email)) {
+      setEmailError("Please enter a valid email address");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate email before submission
+    if (!validateEmail(email)) {
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -137,34 +158,57 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
 
           <div className="space-y-2">
             <Label htmlFor="email">Email Address *</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <div className="relative">
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (emailError) validateEmail(e.target.value);
+                }}
+                onBlur={() => validateEmail(email)}
+                required
+                className={emailError ? "border-red-500" : ""}
+              />
+              {emailError && (
+                <AlertCircle className="w-4 h-4 text-red-500 absolute right-3 top-3" />
+              )}
+            </div>
+            {emailError && (
+              <p className="text-xs text-red-500">{emailError}</p>
+            )}
           </div>
 
           <Button
             type="submit"
             className="w-full bg-gradient-ocean hover:opacity-90 transition-opacity"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!emailError}
+            size="lg"
           >
             {isSubmitting ? (
-              "Submitting..."
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Preparing your download...
+              </>
             ) : (
               <>
                 <Download className="w-4 h-4 mr-2" />
-                Get Free Access
+                Get Instant Access
               </>
             )}
           </Button>
 
-          <p className="text-xs text-center text-muted-foreground">
-            We respect your privacy. Unsubscribe at any time.
-          </p>
+          <div className="space-y-2">
+            <p className="text-xs text-center text-muted-foreground">
+              By continuing, you agree to receive emails from us.
+            </p>
+            <p className="text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
+              <CheckCircle className="w-3 h-3 text-emerald-600" />
+              We respect your privacy. Unsubscribe at any time.
+            </p>
+          </div>
         </form>
       </CardContent>
     </Card>

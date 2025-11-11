@@ -8,6 +8,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
+import Pricing from "./pages/Pricing";
 import Dashboard from "./pages/Dashboard";
 import UploadResource from "./pages/UploadResource";
 import Resources from "./pages/Resources";
@@ -42,6 +43,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/pricing" element={<Pricing />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/analytics" element={<Analytics />} />
