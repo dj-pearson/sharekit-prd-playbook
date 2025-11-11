@@ -70,12 +70,13 @@ function ConnectionLines() {
   ];
 
   const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+  const lineMaterial = new THREE.LineBasicMaterial({ 
+    color: "#0891B2", 
+    opacity: 0.3, 
+    transparent: true 
+  });
 
-  return (
-    <line geometry={lineGeometry}>
-      <lineBasicMaterial color="#0891B2" opacity={0.3} transparent linewidth={2} />
-    </line>
-  );
+  return <primitive object={new THREE.Line(lineGeometry, lineMaterial)} />;
 }
 
 function CenterIcon() {
