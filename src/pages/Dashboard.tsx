@@ -111,9 +111,11 @@ const Dashboard = () => {
                       Pages
                     </Link>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Analytics
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link to="/dashboard/analytics">
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Analytics
+                    </Link>
                   </Button>
                   <Button variant="ghost" className="w-full justify-start">
                     <Settings className="w-4 h-4 mr-2" />
