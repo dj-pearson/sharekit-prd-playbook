@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, FileText, Download, CheckCircle } from "lucide-react";
+import { Sparkles, FileText, Download, CheckCircle, Users, TrendingUp, Star, Crown, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { EmailCaptureForm } from "@/components/EmailCaptureForm";
 
@@ -12,6 +12,8 @@ interface PageData {
   description: string | null;
   template: string;
   view_count: number;
+  signup_count?: number;
+  download_count?: number;
 }
 
 interface Resource {
@@ -51,7 +53,24 @@ const PublicPage = () => {
         return;
       }
 
-      setPage(pageData);
+      // Get signup count
+      const { count: signupCount } = await supabase
+        .from('email_captures')
+        .select('*', { count: 'exact', head: true })
+        .eq('page_id', pageData.id);
+
+      // Get download count
+      const { count: downloadCount } = await supabase
+        .from('analytics_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('page_id', pageData.id)
+        .eq('event_type', 'download');
+
+      setPage({
+        ...pageData,
+        signup_count: signupCount || 0,
+        download_count: downloadCount || 0,
+      });
 
       // Increment view count
       await supabase
@@ -147,6 +166,19 @@ const PublicPage = () => {
     );
   }
 
+  const getMilestoneBadge = (count: number) => {
+    if (count >= 500) {
+      return { icon: Zap, text: "🚀 Viral", color: "text-purple-600 bg-purple-50 border-purple-200" };
+    } else if (count >= 100) {
+      return { icon: Crown, text: "👑 Top Resource", color: "text-yellow-600 bg-yellow-50 border-yellow-200" };
+    } else if (count >= 50) {
+      return { icon: Star, text: "⭐ Popular", color: "text-orange-600 bg-orange-50 border-orange-200" };
+    } else if (count >= 10) {
+      return { icon: TrendingUp, text: "🔥 Trending", color: "text-red-600 bg-red-50 border-red-200" };
+    }
+    return null;
+  };
+
   const templateClasses = {
     minimal: "bg-background",
     modern: "bg-gradient-subtle",
@@ -177,6 +209,24 @@ const PublicPage = () => {
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                   {page.description}
                 </p>
+              )}
+
+              {/* Social Proof */}
+              {page.signup_count !== undefined && page.signup_count > 0 && (
+                <div className="flex items-center justify-center gap-3 mt-6">
+                  <div className="flex items-center gap-2 text-slate-700 bg-white px-4 py-2 rounded-full border shadow-sm">
+                    <Users className="w-4 h-4 text-cyan-600" />
+                    <span className="text-sm">
+                      Join <strong className="text-slate-900">{page.signup_count}</strong> {page.signup_count === 1 ? 'person' : 'people'} who got this
+                    </span>
+                  </div>
+
+                  {getMilestoneBadge(page.signup_count) && (
+                    <div className={`flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-medium ${getMilestoneBadge(page.signup_count)?.color}`}>
+                      {getMilestoneBadge(page.signup_count)?.text}
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 

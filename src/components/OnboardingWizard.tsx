@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Sparkles, Upload, FileText, Palette, Rocket, X, CheckCircle } from "lucide-react";
+import { Sparkles, Rocket, CheckCircle, Copy, Twitter, Linkedin, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import confetti from "canvas-confetti";
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -15,131 +15,56 @@ interface OnboardingWizardProps {
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isOpen, setIsOpen] = useState(true);
+  const [completedPageUrl, setCompletedPageUrl] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const steps = [
     {
-      title: "Welcome to ShareKit! 👋",
-      description: "Let's get you set up in just 2 minutes",
+      title: "Welcome to ShareKit! 🎉",
+      description: "Get set up in under 3 minutes",
       icon: Sparkles,
-      content: (
-        <div className="space-y-4 text-center py-8">
-          <div className="w-20 h-20 rounded-full bg-gradient-ocean mx-auto flex items-center justify-center">
-            <Sparkles className="w-10 h-10 text-white" />
-          </div>
-          <h2 className="text-2xl font-bold">Welcome to ShareKit!</h2>
-          <p className="text-slate-600 max-w-md mx-auto">
-            ShareKit makes it easy to share your digital resources with beautiful landing pages
-            that capture emails and deliver content automatically.
-          </p>
-          <div className="grid md:grid-cols-3 gap-4 mt-8 text-left">
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <Upload className="w-8 h-8 text-cyan-600 mb-2" />
-              <h3 className="font-semibold mb-1">Upload Resources</h3>
-              <p className="text-sm text-slate-600">PDFs, guides, templates</p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <Palette className="w-8 h-8 text-cyan-600 mb-2" />
-              <h3 className="font-semibold mb-1">Beautiful Pages</h3>
-              <p className="text-sm text-slate-600">Professional templates</p>
-            </div>
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <Rocket className="w-8 h-8 text-cyan-600 mb-2" />
-              <h3 className="font-semibold mb-1">Auto Delivery</h3>
-              <p className="text-sm text-slate-600">Email capture & send</p>
-            </div>
-          </div>
-        </div>
-      ),
     },
     {
-      title: "Upload Your First Resource",
-      description: "Add a PDF, guide, or checklist to share",
-      icon: Upload,
-      content: (
-        <div className="space-y-4 py-6">
-          <p className="text-slate-600">
-            First, let's upload a digital resource you want to share with your audience.
-            This could be a PDF guide, checklist, template, or any downloadable content.
-          </p>
-          <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
-            <p className="text-sm text-cyan-800">
-              <strong>Tip:</strong> You can upload PDFs, DOCX, ZIP files, and more.
-              Maximum file size is 25MB on the free plan.
-            </p>
-          </div>
-          <Button
-            onClick={() => navigate('/dashboard/upload')}
-            className="w-full bg-gradient-ocean hover:opacity-90"
-            size="lg"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload Your First Resource
-          </Button>
-          <Button
-            onClick={() => setCurrentStep(2)}
-            variant="ghost"
-            className="w-full"
-          >
-            I'll do this later
-          </Button>
-        </div>
-      ),
+      title: "What will you share?",
+      description: "Choose your first resource type",
+      icon: Sparkles,
     },
     {
-      title: "Create Your First Page",
-      description: "Build a beautiful landing page",
-      icon: FileText,
-      content: (
-        <div className="space-y-4 py-6">
-          <p className="text-slate-600">
-            Now let's create a landing page where people can request your resource.
-            Choose from 5 professionally designed templates.
-          </p>
-          <div className="grid grid-cols-2 gap-3 my-4">
-            <div className="p-3 border rounded-lg hover:border-cyan-400 cursor-pointer transition-colors">
-              <div className="h-20 bg-gradient-to-br from-slate-100 to-slate-200 rounded mb-2"></div>
-              <p className="text-sm font-medium">Minimal</p>
-            </div>
-            <div className="p-3 border rounded-lg hover:border-cyan-400 cursor-pointer transition-colors">
-              <div className="h-20 bg-gradient-to-br from-cyan-100 to-sky-200 rounded mb-2"></div>
-              <p className="text-sm font-medium">Modern</p>
-            </div>
-            <div className="p-3 border rounded-lg hover:border-cyan-400 cursor-pointer transition-colors">
-              <div className="h-20 bg-gradient-to-br from-slate-200 to-slate-300 rounded mb-2"></div>
-              <p className="text-sm font-medium">Professional</p>
-            </div>
-            <div className="p-3 border rounded-lg hover:border-cyan-400 cursor-pointer transition-colors">
-              <div className="h-20 bg-gradient-to-br from-emerald-100 to-teal-200 rounded mb-2"></div>
-              <p className="text-sm font-medium">Serene</p>
-            </div>
-          </div>
-          <Button
-            onClick={() => navigate('/dashboard/pages/create')}
-            className="w-full bg-gradient-ocean hover:opacity-90"
-            size="lg"
-          >
-            <FileText className="w-4 h-4 mr-2" />
-            Create Your First Page
-          </Button>
-          <Button
-            onClick={() => setCurrentStep(3)}
-            variant="ghost"
-            className="w-full"
-          >
-            I'll do this later
-          </Button>
-        </div>
-      ),
-    },
-    {
-      title: "Customize & Publish",
-      description: "Make it yours and go live",
-      icon: Palette,
-      content: null, // Will be set after handleComplete is defined
+      title: "You're live! 🚀",
+      description: "Your page is ready to share",
+      icon: Rocket,
     },
   ];
+
+  const triggerConfetti = () => {
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 99999 };
+
+    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+    const interval = window.setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+      });
+    }, 250);
+  };
 
   const handleComplete = async () => {
     try {
@@ -153,54 +78,22 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         })
         .eq('id', user.id);
 
+      // Trigger confetti celebration
+      triggerConfetti();
+
       toast({
-        title: "Welcome aboard! 🎉",
-        description: "You've completed the onboarding. Happy sharing!",
+        title: "🎉 Welcome aboard!",
+        description: "You're all set! Let's start sharing.",
       });
 
-      setIsOpen(false);
-      onComplete();
+      // Move to success step
+      setCurrentStep(2);
     } catch (error: any) {
       console.error('Failed to complete onboarding:', error);
-      // Don't block user if this fails
       setIsOpen(false);
       onComplete();
     }
   };
-
-  // Set the final step content after handleComplete is defined
-  steps[3].content = (
-    <div className="space-y-6">
-      <div className="text-center space-y-4">
-        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-ocean flex items-center justify-center">
-          <CheckCircle className="w-10 h-10 text-white" />
-        </div>
-        <div>
-          <h3 className="text-2xl font-bold mb-2">You're All Set! 🎉</h3>
-          <p className="text-slate-600">
-            Your lead magnet is ready to go. Start sharing and watch the signups roll in.
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-slate-50 p-6 rounded-lg">
-        <h3 className="font-semibold mb-2">Quick Tips:</h3>
-        <ul className="text-sm text-slate-700 space-y-2 text-left">
-          <li>✓ Share your page link on social media</li>
-          <li>✓ Add it to your email signature</li>
-          <li>✓ Embed it on your website</li>
-          <li>✓ Track analytics to see what's working</li>
-        </ul>
-      </div>
-      <Button
-        onClick={handleComplete}
-        className="w-full bg-gradient-ocean hover:opacity-90"
-        size="lg"
-      >
-        Go to Dashboard
-      </Button>
-    </div>
-  );
 
   const handleSkip = async () => {
     try {
@@ -223,55 +116,227 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     }
   };
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      handleComplete();
-    }
+  const handleStartCreating = () => {
+    navigate('/dashboard/pages/create');
+    setIsOpen(false);
+    onComplete();
   };
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
+  const handleGoToDashboard = () => {
+    setIsOpen(false);
+    onComplete();
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied!",
+      description: "Link copied to clipboard 🚀",
+    });
   };
 
   const progress = ((currentStep + 1) / steps.length) * 100;
   const currentStepData = steps[currentStep];
   const Icon = currentStepData.icon;
 
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div className="space-y-6 text-center py-8">
+            <div className="w-20 h-20 rounded-full bg-gradient-ocean mx-auto flex items-center justify-center animate-pulse">
+              <Sparkles className="w-10 h-10 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-3">Welcome to ShareKit!</h2>
+              <p className="text-slate-600 max-w-md mx-auto">
+                While ConvertKit users spend 2 hours in setup tutorials,
+                you'll be getting signups in <strong>under 3 minutes</strong>.
+              </p>
+            </div>
+            <div className="grid grid-cols-3 gap-4 mt-8 text-center">
+              <div className="p-4 bg-cyan-50 rounded-lg">
+                <div className="text-2xl font-bold text-cyan-600 mb-1">3 min</div>
+                <p className="text-xs text-slate-600">Setup time</p>
+              </div>
+              <div className="p-4 bg-emerald-50 rounded-lg">
+                <div className="text-2xl font-bold text-emerald-600 mb-1">Real-time</div>
+                <p className="text-xs text-slate-600">Live notifications</p>
+              </div>
+              <div className="p-4 bg-purple-50 rounded-lg">
+                <div className="text-2xl font-bold text-purple-600 mb-1">Beautiful</div>
+                <p className="text-xs text-slate-600">By default</p>
+              </div>
+            </div>
+            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-4 rounded-lg border border-cyan-200 mt-6">
+              <p className="text-sm text-cyan-900">
+                <strong>✨ The ShareKit Difference:</strong> Generous positioning, not salesy.
+                Real-time dopamine with live signups. Beautiful without design skills.
+              </p>
+            </div>
+          </div>
+        );
+
+      case 1:
+        return (
+          <div className="space-y-6 py-6">
+            <p className="text-slate-600 text-center">
+              ShareKit works best with <strong>guides, checklists, templates, and resources</strong>
+              that provide immediate value. What will you share first?
+            </p>
+
+            <div className="grid gap-3">
+              <Button
+                onClick={handleStartCreating}
+                className="w-full h-auto py-4 justify-start text-left bg-gradient-ocean hover:opacity-90"
+                size="lg"
+              >
+                <div className="flex items-start gap-3 w-full">
+                  <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                    📄
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold mb-1">Create your first page</div>
+                    <div className="text-sm opacity-90">Choose a beautiful template and go live in minutes</div>
+                  </div>
+                </div>
+              </Button>
+
+              <Button
+                onClick={() => {
+                  navigate('/dashboard/upload');
+                  setIsOpen(false);
+                  onComplete();
+                }}
+                variant="outline"
+                className="w-full h-auto py-4 justify-start text-left"
+                size="lg"
+              >
+                <div className="flex items-start gap-3 w-full">
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                    📤
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold mb-1">Upload a resource first</div>
+                    <div className="text-sm text-slate-600">Start by uploading your PDF or file</div>
+                  </div>
+                </div>
+              </Button>
+
+              <Button
+                onClick={handleComplete}
+                variant="ghost"
+                className="w-full"
+              >
+                I'll do this later → Go to Dashboard
+              </Button>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+              <p className="text-sm text-amber-900">
+                <strong>💡 Pro tip:</strong> You're faster than 80% of users! Keep going! 🚀
+              </p>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 flex items-center justify-center">
+                <CheckCircle className="w-12 h-12 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-2">You're All Set! 🎉</h3>
+                <p className="text-slate-600">
+                  Your ShareKit account is ready. Create your first page and start
+                  seeing live signups in real-time!
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-lg border border-cyan-200">
+              <h3 className="font-semibold mb-3 text-slate-900">🚀 What makes ShareKit special:</h3>
+              <ul className="text-sm text-slate-700 space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-cyan-600">✓</span>
+                  <span><strong>Live notifications:</strong> Watch signups happen in real-time</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-cyan-600">✓</span>
+                  <span><strong>Generous by default:</strong> No pushy sales language</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-cyan-600">✓</span>
+                  <span><strong>Beautiful instantly:</strong> Professional templates, no design needed</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-cyan-600">✓</span>
+                  <span><strong>Viral attribution:</strong> Built-in word-of-mouth growth</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={handleStartCreating}
+                className="flex-1 bg-gradient-ocean hover:opacity-90"
+                size="lg"
+              >
+                <Rocket className="w-4 h-4 mr-2" />
+                Create Your First Page
+              </Button>
+              <Button
+                onClick={handleGoToDashboard}
+                variant="outline"
+                size="lg"
+              >
+                Go to Dashboard
+              </Button>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="relative">
-          {/* Skip Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleSkip}
-            className="absolute right-0 top-0 text-slate-500 hover:text-slate-700"
-          >
-            <X className="w-4 h-4 mr-1" />
-            Skip
-          </Button>
+          {/* Skip Button - only show on first two steps */}
+          {currentStep < 2 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSkip}
+              className="absolute right-0 top-0 text-slate-500 hover:text-slate-700 z-10"
+            >
+              Skip for now
+            </Button>
+          )}
 
-          {/* Progress Bar */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-slate-600">
-                Step {currentStep + 1} of {steps.length}
-              </span>
-              <span className="text-sm font-medium text-cyan-600">
-                {Math.round(progress)}%
-              </span>
+          {/* Progress Bar - only show on first two steps */}
+          {currentStep < 2 && (
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-slate-600">
+                  Step {currentStep + 1} of {steps.length}
+                </span>
+                <span className="text-sm font-medium text-cyan-600">
+                  {Math.round(progress)}% • Almost there! ⚡
+                </span>
+              </div>
+              <Progress value={progress} className="h-2" />
             </div>
-            <Progress value={progress} className="h-2" />
-          </div>
+          )}
 
-          {/* Step Content */}
-          <div className="mb-6">
-            <div className="flex items-center gap-3 mb-4">
+          {/* Step Header */}
+          {currentStep < 2 && (
+            <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-cyan-100 flex items-center justify-center">
                 <Icon className="w-6 h-6 text-cyan-600" />
               </div>
@@ -280,27 +345,20 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 <p className="text-sm text-slate-600">{currentStepData.description}</p>
               </div>
             </div>
+          )}
 
-            {currentStepData.content}
-          </div>
+          {/* Step Content */}
+          {renderStepContent()}
 
-          {/* Navigation Buttons */}
-          {currentStep !== 1 && currentStep !== 2 && (
-            <div className="flex gap-3">
-              {currentStep > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  className="flex-1"
-                >
-                  Back
-                </Button>
-              )}
+          {/* Navigation - only for first step */}
+          {currentStep === 0 && (
+            <div className="mt-6">
               <Button
-                onClick={handleNext}
-                className="flex-1 bg-gradient-ocean hover:opacity-90"
+                onClick={() => setCurrentStep(1)}
+                className="w-full bg-gradient-ocean hover:opacity-90"
+                size="lg"
               >
-                {currentStep === steps.length - 1 ? "Complete" : "Next"}
+                Let's Get Started! →
               </Button>
             </div>
           )}
