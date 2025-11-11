@@ -6,8 +6,8 @@ verify_jwt = false
 [functions.trigger-webhooks]
 verify_jwt = false
 
-[functions.send-resource-email]
+[functions.schedule-email-sequences]
 verify_jwt = false
 
-[functions.schedule-email-sequences]
+[functions.process-scheduled-emails]
 verify_jwt = false
