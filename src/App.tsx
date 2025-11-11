@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CookieConsent } from "@/components/CookieConsent";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
@@ -30,41 +31,43 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      {/* CookieConsent moved inside BrowserRouter */}
-      <BrowserRouter>
-        <CookieConsent />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/onboarding" element={<Onboarding />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/dashboard/analytics" element={<Analytics />} />
-          <Route path="/dashboard/webhooks" element={<Webhooks />} />
-          <Route path="/dashboard/teams" element={<Teams />} />
-          <Route path="/dashboard/upload" element={<UploadResource />} />
-          <Route path="/dashboard/resources" element={<Resources />} />
-          <Route path="/dashboard/pages" element={<Pages />} />
-          <Route path="/dashboard/pages/create" element={<CreatePage />} />
-          <Route path="/dashboard/pages/:id/edit" element={<EditPage />} />
-          <Route path="/dashboard/pages/:id/analytics" element={<PageAnalytics />} />
-          <Route path="/dashboard/pages/:pageId/sequences" element={<EmailSequences />} />
-          <Route path="/dashboard/pages/:pageId/ab-testing" element={<ABTesting />} />
-          <Route path="/dashboard/settings" element={<Settings />} />
-          <Route path="/dashboard/domains" element={<CustomDomains />} />
-          <Route path="/p/:slug" element={<PublicPage />} />
-          <Route path="/d/:token" element={<DownloadPage />} />
-          <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        {/* CookieConsent moved inside BrowserRouter */}
+        <BrowserRouter>
+          <CookieConsent />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/analytics" element={<Analytics />} />
+            <Route path="/dashboard/webhooks" element={<Webhooks />} />
+            <Route path="/dashboard/teams" element={<Teams />} />
+            <Route path="/dashboard/upload" element={<UploadResource />} />
+            <Route path="/dashboard/resources" element={<Resources />} />
+            <Route path="/dashboard/pages" element={<Pages />} />
+            <Route path="/dashboard/pages/create" element={<CreatePage />} />
+            <Route path="/dashboard/pages/:id/edit" element={<EditPage />} />
+            <Route path="/dashboard/pages/:id/analytics" element={<PageAnalytics />} />
+            <Route path="/dashboard/pages/:pageId/sequences" element={<EmailSequences />} />
+            <Route path="/dashboard/pages/:pageId/ab-testing" element={<ABTesting />} />
+            <Route path="/dashboard/settings" element={<Settings />} />
+            <Route path="/dashboard/domains" element={<CustomDomains />} />
+            <Route path="/p/:slug" element={<PublicPage />} />
+            <Route path="/d/:token" element={<DownloadPage />} />
+            <Route path="/terms" element={<TermsOfService />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

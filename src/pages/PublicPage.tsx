@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sparkles, FileText, Download, CheckCircle, Users, TrendingUp, Star, Crown, Zap } from "lucide-react";
+import { Sparkles, FileText, Download, CheckCircle, Users, TrendingUp, Star, Crown, Zap, Heart, ExternalLink, Twitter, Linkedin, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { EmailCaptureForm } from "@/components/EmailCaptureForm";
 
@@ -14,6 +14,8 @@ interface PageData {
   view_count: number;
   signup_count?: number;
   download_count?: number;
+  creator_name?: string;
+  creator_id?: string;
 }
 
 interface Resource {
@@ -40,10 +42,20 @@ const PublicPage = () => {
 
   const fetchPage = async () => {
     try {
-      // Fetch page
+      // Fetch page with creator info
       const { data: pageData, error: pageError } = await supabase
         .from('pages')
-        .select('id, title, description, template, view_count')
+        .select(`
+          id,
+          title,
+          description,
+          template,
+          view_count,
+          user_id,
+          profiles!pages_user_id_fkey (
+            full_name
+          )
+        `)
         .eq('slug', slug)
         .eq('is_published', true)
         .single();
@@ -67,9 +79,15 @@ const PublicPage = () => {
         .eq('event_type', 'download');
 
       setPage({
-        ...pageData,
+        id: pageData.id,
+        title: pageData.title,
+        description: pageData.description,
+        template: pageData.template,
+        view_count: pageData.view_count,
         signup_count: signupCount || 0,
         download_count: downloadCount || 0,
+        creator_name: (pageData.profiles as any)?.full_name || 'Creator',
+        creator_id: pageData.user_id,
       });
 
       // Increment view count
@@ -132,6 +150,37 @@ const PublicPage = () => {
 
     // Open download in new tab
     window.open(resource.file_url, '_blank');
+  };
+
+  const shareToTwitter = () => {
+    const text = `I just got "${page.title}" - check it out!`;
+    const url = window.location.href;
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+      '_blank',
+      'width=550,height=420'
+    );
+  };
+
+  const shareToLinkedIn = () => {
+    const url = window.location.href;
+    window.open(
+      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+      '_blank',
+      'width=550,height=550'
+    );
+  };
+
+  const copyShareLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    // Show success toast
+    const event = new CustomEvent('toast', {
+      detail: {
+        title: 'Link copied!',
+        description: 'Share link copied to clipboard 🚀',
+      },
+    });
+    window.dispatchEvent(event);
   };
 
   if (isLoading) {
@@ -268,20 +317,66 @@ const PublicPage = () => {
               {/* Email Capture or Success */}
               <div className="md:sticky md:top-8">
                 {hasSubmitted ? (
-                  <Card className="border-2 shadow-large bg-success/5 border-success">
-                    <CardContent className="py-12 text-center">
-                      <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle className="w-8 h-8 text-success" />
-                      </div>
-                      <h3 className="text-2xl font-semibold mb-2">You're All Set!</h3>
-                      <p className="text-muted-foreground mb-6">
-                        Click the download buttons to get your resources.
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        We've also sent everything to your email for future reference.
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <div className="space-y-4">
+                    <Card className="border-2 shadow-large bg-success/5 border-success">
+                      <CardContent className="py-12 text-center">
+                        <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
+                          <CheckCircle className="w-8 h-8 text-success" />
+                        </div>
+                        <h3 className="text-2xl font-semibold mb-2">You're All Set!</h3>
+                        <p className="text-muted-foreground mb-6">
+                          Click the download buttons to get your resources.
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          We've also sent everything to your email for future reference.
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    {/* Social Share CTA */}
+                    <Card className="bg-gradient-to-br from-cyan-50 to-blue-50 border-cyan-200">
+                      <CardContent className="pt-6">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-2 text-center">
+                          Found this helpful?
+                        </h3>
+                        <p className="text-sm text-slate-600 mb-4 text-center">
+                          Share it with someone who'd benefit from it
+                        </p>
+
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start bg-white hover:bg-slate-50"
+                            onClick={shareToTwitter}
+                          >
+                            <Twitter className="w-4 h-4 mr-2 text-sky-500" />
+                            Share on Twitter
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start bg-white hover:bg-slate-50"
+                            onClick={shareToLinkedIn}
+                          >
+                            <Linkedin className="w-4 h-4 mr-2 text-blue-600" />
+                            Share on LinkedIn
+                          </Button>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start bg-white hover:bg-slate-50"
+                            onClick={copyShareLink}
+                          >
+                            <Copy className="w-4 h-4 mr-2 text-slate-600" />
+                            Copy Link
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
                 ) : (
                   <EmailCaptureForm
                     pageId={page.id}
@@ -296,20 +391,44 @@ const PublicPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-8 mt-20">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p className="mb-2">
-            Powered by{" "}
-            <Link to="/" className="underline hover:text-foreground">
-              ShareKit
-            </Link>
-          </p>
-          <p className="text-xs">
+      {/* Footer with Viral Attribution */}
+      <footer className="border-t mt-20">
+        <div className="container mx-auto px-4">
+          {/* Viral Attribution - Drives growth */}
+          <div className="py-8 text-center border-b">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-slate-600 mb-4">
+              <span>Shared with</span>
+              <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+              <span>by</span>
+              <span className="font-medium text-slate-900">{page.creator_name}</span>
+              <span>using</span>
+              <a
+                href="/?ref=page-footer"
+                className="font-semibold text-cyan-600 hover:text-cyan-700 inline-flex items-center gap-1 transition-colors"
+              >
+                ShareKit
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+
+            {/* CTA for viral growth */}
+            <div className="mt-4">
+              <a
+                href="/?ref=page-footer-cta"
+                className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-cyan-600 transition-colors group"
+              >
+                <Sparkles className="w-4 h-4 text-cyan-500 group-hover:text-cyan-600" />
+                <span className="underline">Create your own share page in 3 minutes →</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Legal links */}
+          <div className="py-6 text-center text-xs text-muted-foreground">
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
             {" · "}
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-          </p>
+          </div>
         </div>
       </footer>
     </div>
