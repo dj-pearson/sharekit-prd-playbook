@@ -21,7 +21,7 @@ const Settings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { subscription, getPlanName } = useSubscription();
+  const { subscription, getPlanName, hasFeature } = useSubscription();
 
   useEffect(() => {
     fetchProfile();
@@ -448,10 +448,10 @@ const Settings = () => {
                           <li>✓ Email capture & delivery</li>
                           <li>✓ Real-time notifications</li>
                           <li>✓ Basic analytics</li>
-                          {subscription.hasFeature('remove_branding') && <li>✓ Remove ShareKit branding</li>}
-                          {subscription.hasFeature('ai_features') && <li>✓ AI-powered tools</li>}
-                          {subscription.hasFeature('analytics_advanced') && <li>✓ Advanced analytics</li>}
-                          {subscription.hasFeature('custom_domain') && <li>✓ Custom domain</li>}
+                          {hasFeature('remove_branding') && <li>✓ Remove ShareKit branding</li>}
+                          {hasFeature('ai_features') && <li>✓ AI-powered tools</li>}
+                          {hasFeature('analytics_advanced') && <li>✓ Advanced analytics</li>}
+                          {hasFeature('custom_domain') && <li>✓ Custom domain</li>}
                         </ul>
                       </div>
 

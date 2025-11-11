@@ -345,6 +345,9 @@ export type Database = {
           full_name: string | null
           id: string
           onboarding_completed: boolean | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_plan: string | null
           updated_at: string
         }
         Insert: {
@@ -354,6 +357,9 @@ export type Database = {
           full_name?: string | null
           id: string
           onboarding_completed?: boolean | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_plan?: string | null
           updated_at?: string
         }
         Update: {
@@ -363,6 +369,9 @@ export type Database = {
           full_name?: string | null
           id?: string
           onboarding_completed?: boolean | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_plan?: string | null
           updated_at?: string
         }
         Relationships: []

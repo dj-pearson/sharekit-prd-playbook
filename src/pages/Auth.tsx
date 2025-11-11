@@ -109,7 +109,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
       <div className="w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
+        <Link to="/" className="flex items-center justify-center space-x-2 mb-8 hover:opacity-80 transition-opacity">
           <div className="w-10 h-10 rounded-lg bg-gradient-ocean flex items-center justify-center">
             <Sparkles className="w-6 h-6 text-white" />
           </div>

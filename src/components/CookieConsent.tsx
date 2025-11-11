@@ -11,8 +11,7 @@ export function CookieConsent() {
     // Check if user has already consented
     const hasConsented = localStorage.getItem("cookie-consent");
     if (!hasConsented) {
-      // Show banner after a short delay for better UX
-      setTimeout(() => setShowBanner(true), 1000);
+      setShowBanner(true);
     }
   }, []);
 
