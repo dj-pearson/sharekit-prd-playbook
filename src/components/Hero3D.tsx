@@ -243,7 +243,7 @@ function Scene() {
 
 export default function Hero3D() {
   return (
-    <div className="w-full h-[400px] md:h-[500px] pointer-events-auto">
+    <div className="w-full h-full pointer-events-auto">
       <Canvas
         camera={{ position: [0, 0, 8], fov: 50 }}
         style={{ background: 'transparent' }}

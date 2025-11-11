@@ -37,8 +37,8 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 bg-gradient-subtle overflow-hidden">
         {/* 3D Background Element */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-60 pointer-events-none">
-          <div className="pointer-events-auto">
+        <div className="absolute inset-0 w-full h-full opacity-60 pointer-events-none">
+          <div className="w-full h-full pointer-events-auto">
             <Hero3D />
           </div>
         </div>
