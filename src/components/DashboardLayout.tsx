@@ -38,13 +38,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         setUser(session.user);
       } else {
         navigate("/auth");
       }
     });
+    const subscription = data.subscription;
 
     return () => subscription.unsubscribe();
   }, [navigate]);
