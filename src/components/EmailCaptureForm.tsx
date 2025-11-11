@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +25,7 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,10 +40,14 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
           email,
           full_name: fullName || null,
         })
-        .select()
+        .select('id, download_token')
         .single();
 
       if (error) throw error;
+
+      if (!data?.download_token) {
+        throw new Error('Failed to generate download token');
+      }
 
       // Track analytics event
       await supabase
@@ -52,13 +58,14 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
           metadata: { email, full_name: fullName },
         });
 
-      // Send email with resources
+      // Send email with resources (including download token URL)
       const { error: emailError } = await supabase.functions.invoke('send-resource-email', {
         body: {
           email,
           fullName: fullName || null,
           pageTitle,
           resources,
+          downloadToken: data.download_token,
         },
       });
 
@@ -89,10 +96,13 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
 
       toast({
         title: "Success!",
-        description: "Check your email for the download links.",
+        description: "Redirecting to your download page...",
       });
 
-      onSuccess();
+      // Redirect to download page with token
+      setTimeout(() => {
+        navigate(`/d/${data.download_token}`);
+      }, 1000);
     } catch (error: any) {
       toast({
         title: "Error",

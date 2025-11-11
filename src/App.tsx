@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { CookieConsent } from "@/components/CookieConsent";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -16,9 +17,13 @@ import Analytics from "./pages/Analytics";
 import Webhooks from "./pages/Webhooks";
 import Teams from "./pages/Teams";
 import PublicPage from "./pages/PublicPage";
+import DownloadPage from "./pages/DownloadPage";
 import EmailSequences from "./pages/EmailSequences";
 import ABTesting from "./pages/ABTesting";
 import Settings from "./pages/Settings";
+import CustomDomains from "./pages/CustomDomains";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +33,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <CookieConsent />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -45,7 +51,11 @@ const App = () => (
           <Route path="/dashboard/pages/:pageId/sequences" element={<EmailSequences />} />
           <Route path="/dashboard/pages/:pageId/ab-testing" element={<ABTesting />} />
           <Route path="/dashboard/settings" element={<Settings />} />
+          <Route path="/dashboard/domains" element={<CustomDomains />} />
           <Route path="/p/:slug" element={<PublicPage />} />
+          <Route path="/d/:token" element={<DownloadPage />} />
+          <Route path="/terms" element={<TermsOfService />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

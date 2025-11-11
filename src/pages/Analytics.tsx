@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import DashboardLayout from "@/components/DashboardLayout";
+import { AdvancedAnalytics } from "@/components/AdvancedAnalytics";
 
 interface AggregateStats {
   total_views: number;
@@ -369,6 +370,19 @@ const Analytics = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Advanced Analytics */}
+      {pageStats.length > 0 && (
+        <div className="mt-8">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold">Advanced Analytics</h2>
+            <p className="text-muted-foreground">
+              Deep dive into conversion funnels, trends, and cohort analysis
+            </p>
+          </div>
+          <AdvancedAnalytics />
+        </div>
+      )}
       </div>
     </DashboardLayout>
   );
