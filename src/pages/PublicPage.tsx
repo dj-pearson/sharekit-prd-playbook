@@ -236,6 +236,7 @@ const PublicPage = () => {
                   <EmailCaptureForm
                     pageId={page.id}
                     pageTitle={page.title}
+                    resources={resources}
                     onSuccess={() => setHasSubmitted(true)}
                   />
                 )}

@@ -1,1 +1,4 @@
 project_id = "tvjgpqmqybtlazabzszo"
+
+[functions.send-resource-email]
+verify_jwt = false

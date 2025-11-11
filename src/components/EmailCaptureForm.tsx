@@ -10,10 +10,16 @@ import { useToast } from "@/hooks/use-toast";
 interface EmailCaptureFormProps {
   pageId: string;
   pageTitle: string;
+  resources: Array<{
+    title: string;
+    description: string | null;
+    file_url: string;
+    file_name: string;
+  }>;
   onSuccess: () => void;
 }
 
-export const EmailCaptureForm = ({ pageId, pageTitle, onSuccess }: EmailCaptureFormProps) => {
+export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: EmailCaptureFormProps) => {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +49,21 @@ export const EmailCaptureForm = ({ pageId, pageTitle, onSuccess }: EmailCaptureF
           event_type: 'signup',
           metadata: { email, full_name: fullName },
         });
+
+      // Send email with resources
+      const { error: emailError } = await supabase.functions.invoke('send-resource-email', {
+        body: {
+          email,
+          fullName: fullName || null,
+          pageTitle,
+          resources,
+        },
+      });
+
+      if (emailError) {
+        console.error('Failed to send email:', emailError);
+        // Don't fail the whole process if email fails
+      }
 
       toast({
         title: "Success!",
