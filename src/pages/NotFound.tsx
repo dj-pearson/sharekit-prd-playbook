@@ -2,7 +2,8 @@ import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Home, Search, ArrowLeft, Sparkles } from "lucide-react";
+import { Home, Search, ArrowLeft } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const NotFound = () => {
   const location = useLocation();
@@ -15,11 +16,8 @@ const NotFound = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
       <div className="w-full max-w-2xl">
         {/* ShareKit Logo */}
-        <Link to="/" className="flex items-center justify-center space-x-2 mb-8">
-          <div className="w-10 h-10 rounded-lg bg-gradient-ocean flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-3xl font-bold">ShareKit</span>
+        <Link to="/" className="flex items-center justify-center mb-8 hover:opacity-80 transition-opacity">
+          <Logo size="md" />
         </Link>
 
         <Card className="border-2 shadow-large text-center">

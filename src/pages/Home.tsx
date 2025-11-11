@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, CheckCircle, Download, Mail, BarChart3, Sparkles, Users, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Logo } from "@/components/Logo";
 
 const Home = () => {
   return (
@@ -9,11 +10,8 @@ const Home = () => {
       {/* Navigation */}
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-ocean flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold">ShareKit</span>
+          <Link to="/">
+            <Logo size="sm" />
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
@@ -303,11 +301,8 @@ const Home = () => {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-ocean flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">ShareKit</span>
+              <div className="mb-4">
+                <Logo size="sm" />
               </div>
               <p className="text-muted-foreground">Share what matters</p>
             </div>

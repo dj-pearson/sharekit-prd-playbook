@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Sparkles, LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users } from "lucide-react";
+import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
+import { Logo } from "@/components/Logo";
 import type { User } from "@supabase/supabase-js";
 
 interface DashboardLayoutProps {
@@ -79,11 +80,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="container mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <SidebarTrigger />
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-ocean flex items-center justify-center">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-xl font-bold">ShareKit</span>
+              <Link to="/" className="hover:opacity-80 transition-opacity">
+                <Logo size="sm" />
               </Link>
             </div>
             

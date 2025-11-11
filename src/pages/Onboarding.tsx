@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
-import { Sparkles } from "lucide-react";
+import { Logo } from "@/components/Logo";
 
 const Onboarding = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -47,8 +47,8 @@ const Onboarding = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-subtle">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-lg bg-gradient-ocean flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <Sparkles className="w-8 h-8 text-white" />
+          <div className="mx-auto mb-4 animate-pulse">
+            <Logo size="lg" showText={false} />
           </div>
           <p className="text-muted-foreground">Setting things up...</p>
         </div>

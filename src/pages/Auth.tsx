@@ -3,10 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Logo } from "@/components/Logo";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -110,10 +110,7 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
       <div className="w-full max-w-md">
         <Link to="/" className="flex items-center justify-center space-x-2 mb-8 hover:opacity-80 transition-opacity">
-          <div className="w-10 h-10 rounded-lg bg-gradient-ocean flex items-center justify-center">
-            <Sparkles className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-3xl font-bold">ShareKit</span>
+          <Logo size="md" />
         </Link>
 
         <Card className="border-2 shadow-large">

@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Sparkles, Rocket, CheckCircle, Copy, Twitter, Linkedin, Share2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Logo } from "@/components/Logo";
 import confetti from "canvas-confetti";
 
 interface OnboardingWizardProps {
@@ -144,8 +145,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       case 0:
         return (
           <div className="space-y-6 text-center py-8">
-            <div className="w-20 h-20 rounded-full bg-gradient-ocean mx-auto flex items-center justify-center animate-pulse">
-              <Sparkles className="w-10 h-10 text-white" />
+            <div className="mx-auto animate-pulse">
+              <Logo size="xl" showText={false} />
             </div>
             <div>
               <h2 className="text-2xl font-bold mb-3">Welcome to ShareKit!</h2>

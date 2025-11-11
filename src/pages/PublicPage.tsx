@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles, FileText, Download, CheckCircle, Users, TrendingUp, Star, Crown, Zap, Heart, ExternalLink, Twitter, Linkedin, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { EmailCaptureForm } from "@/components/EmailCaptureForm";
+import { Logo } from "@/components/Logo";
 
 interface PageData {
   id: string;
@@ -239,11 +240,8 @@ const PublicPage = () => {
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
-          <Link to="/" className="inline-flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-ocean flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold">ShareKit</span>
+          <Link to="/" className="inline-flex items-center space-x-2 hover:opacity-80 transition-opacity">
+            <Logo size="sm" />
           </Link>
         </div>
       </header>
