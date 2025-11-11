@@ -7,6 +7,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradePrompt, UsageWarning } from "@/components/UpgradePrompt";
 
 interface Page {
   id: string;
@@ -23,6 +25,7 @@ const Pages = () => {
   const [pages, setPages] = useState<Page[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { subscription, canCreatePage, getPlanName } = useSubscription();
 
   useEffect(() => {
     fetchPages();
@@ -134,18 +137,39 @@ const Pages = () => {
             <h1 className="text-3xl font-bold">Pages</h1>
             <p className="text-muted-foreground mt-1">
               Manage your landing pages and share links
+              {subscription && (
+                <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-cyan-100 text-cyan-700">
+                  {getPlanName()} Plan - {subscription.usage.pages}/{subscription.limits.pages === Infinity ? '∞' : subscription.limits.pages} pages
+                </span>
+              )}
             </p>
           </div>
-          <Button
-            asChild
-            className="bg-gradient-ocean hover:opacity-90 transition-opacity"
-          >
-            <Link to="/dashboard/pages/create">
+          {canCreatePage() ? (
+            <Button
+              asChild
+              className="bg-gradient-ocean hover:opacity-90 transition-opacity"
+            >
+              <Link to="/dashboard/pages/create">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Page
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              disabled
+              className="bg-gradient-ocean opacity-50 cursor-not-allowed"
+              title="Page limit reached - Upgrade to Pro"
+            >
               <Plus className="w-4 h-4 mr-2" />
-              Create Page
-            </Link>
-          </Button>
+              Create Page (Limit Reached)
+            </Button>
+          )}
         </div>
+
+        {/* Usage Warning */}
+        {subscription && subscription.usage.pages >= subscription.limits.pages && (
+          <UpgradePrompt reason="pages" currentPlan={getPlanName()} variant="alert" />
+        )}
 
         {pages.length === 0 ? (
           <Card>

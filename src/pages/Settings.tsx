@@ -3,13 +3,14 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Bell, Shield, CreditCard, Download, Trash2, AlertTriangle } from "lucide-react";
+import { User, Bell, Shield, CreditCard, Download, Trash2, AlertTriangle, ExternalLink, Crown } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/useSubscription";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -20,6 +21,7 @@ const Settings = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { subscription, getPlanName } = useSubscription();
 
   useEffect(() => {
     fetchProfile();
@@ -397,14 +399,104 @@ const Settings = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="p-6 bg-gradient-ocean rounded-lg text-white">
-                    <h3 className="text-xl font-bold mb-2">Free Plan</h3>
-                    <p className="text-sm opacity-90 mb-4">0 / 100 signups this month</p>
-                    <Button variant="secondary" size="sm">
-                      Upgrade to Pro
-                    </Button>
+                <div className="space-y-6">
+                  {/* Current Plan */}
+                  <div className={`p-6 rounded-lg ${subscription?.plan === 'free' ? 'bg-gradient-ocean' : 'bg-gradient-to-br from-purple-500 to-indigo-600'} text-white`}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        {subscription?.plan !== 'free' && <Crown className="w-5 h-5" />}
+                        <h3 className="text-xl font-bold">{getPlanName()} Plan</h3>
+                      </div>
+                      {subscription?.plan === 'free' && (
+                        <Button asChild variant="secondary" size="sm">
+                          <Link to="/pricing">
+                            Upgrade to Pro
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+
+                    {subscription && (
+                      <div className="space-y-2 text-sm opacity-90">
+                        <div className="flex justify-between">
+                          <span>Pages</span>
+                          <span className="font-medium">
+                            {subscription.usage.pages} / {subscription.limits.pages === Infinity ? '∞' : subscription.limits.pages}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Signups this month</span>
+                          <span className="font-medium">
+                            {subscription.usage.signups_this_month} / {subscription.limits.signups_per_month}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>File upload limit</span>
+                          <span className="font-medium">{subscription.limits.file_size_mb}MB</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Features */}
+                  {subscription && (
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-sm text-slate-900">Included Features</h4>
+                        <ul className="text-sm text-slate-600 space-y-1">
+                          <li>✓ Beautiful landing pages</li>
+                          <li>✓ Email capture & delivery</li>
+                          <li>✓ Real-time notifications</li>
+                          <li>✓ Basic analytics</li>
+                          {subscription.hasFeature('remove_branding') && <li>✓ Remove ShareKit branding</li>}
+                          {subscription.hasFeature('ai_features') && <li>✓ AI-powered tools</li>}
+                          {subscription.hasFeature('analytics_advanced') && <li>✓ Advanced analytics</li>}
+                          {subscription.hasFeature('custom_domain') && <li>✓ Custom domain</li>}
+                        </ul>
+                      </div>
+
+                      {subscription.plan === 'free' && (
+                        <div className="space-y-2">
+                          <h4 className="font-semibold text-sm text-slate-900">Unlock with Pro</h4>
+                          <ul className="text-sm text-slate-600 space-y-1">
+                            <li>• Unlimited pages</li>
+                            <li>• 1,000 signups/month</li>
+                            <li>• Remove branding</li>
+                            <li>• AI-powered tools</li>
+                            <li>• Advanced analytics</li>
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Customer Portal Link */}
+                  {subscription && subscription.stripe_customer_id && (
+                    <div className="border-t pt-6">
+                      <h4 className="font-semibold text-sm text-slate-900 mb-3">Payment Management</h4>
+                      <Button
+                        variant="outline"
+                        onClick={async () => {
+                          toast({
+                            title: "Opening customer portal...",
+                            description: "You'll be redirected to manage your subscription",
+                          });
+                          // In production, this would call your backend to create a portal session
+                          // For now, just show a message
+                          toast({
+                            title: "Coming soon!",
+                            description: "Stripe Customer Portal integration in progress",
+                          });
+                        }}
+                      >
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Manage Subscription & Billing
+                      </Button>
+                      <p className="text-xs text-slate-600 mt-2">
+                        Update payment method, view invoices, or cancel subscription
+                      </p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

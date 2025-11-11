@@ -7,6 +7,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { RealtimeActivityFeed } from "@/components/RealtimeActivityFeed";
 import { supabase } from "@/integrations/supabase/client";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UsageWarning } from "@/components/UpgradePrompt";
 
 interface DashboardStats {
   totalViews: number;
@@ -24,6 +26,7 @@ const Dashboard = () => {
     signupRate: 0,
     hasPages: false,
   });
+  const { subscription } = useSubscription();
 
   useEffect(() => {
     checkOnboarding();
@@ -128,6 +131,24 @@ const Dashboard = () => {
           </Link>
         </Button>
       </div>
+
+      {/* Usage Warnings */}
+      {subscription && (
+        <div className="space-y-4 mb-8">
+          <UsageWarning
+            type="pages"
+            current={subscription.usage.pages}
+            limit={subscription.limits.pages}
+            percentage={Math.round((subscription.usage.pages / subscription.limits.pages) * 100)}
+          />
+          <UsageWarning
+            type="signups"
+            current={subscription.usage.signups_this_month}
+            limit={subscription.limits.signups_per_month}
+            percentage={Math.round((subscription.usage.signups_this_month / subscription.limits.signups_per_month) * 100)}
+          />
+        </div>
+      )}
 
       {/* Stats Grid */}
       <div className="grid md:grid-cols-3 gap-6 mb-8">
