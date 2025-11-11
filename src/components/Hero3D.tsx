@@ -1,156 +1,242 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, OrbitControls } from '@react-three/drei';
-import { useRef, useState } from 'react';
+import { Float, MeshDistortMaterial, Sphere } from '@react-three/drei';
+import { useRef, useMemo } from 'react';
 import * as THREE from 'three';
 
-interface FloatingDocumentProps {
-  position: [number, number, number];
-  rotation: [number, number, number];
-  color: string;
-  delay?: number;
-}
-
-function FloatingDocument({ position, rotation, color, delay = 0 }: FloatingDocumentProps) {
+// Animated network node
+function NetworkNode({ position, color, delay = 0 }: { position: [number, number, number], color: string, delay?: number }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const [hovered, setHovered] = useState(false);
+  const glowRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
-    if (meshRef.current) {
-      // Gentle floating animation
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime + delay) * 0.3;
-      meshRef.current.rotation.y += 0.002;
+    if (meshRef.current && glowRef.current) {
+      const t = state.clock.elapsedTime + delay;
 
-      // Scale on hover
-      const targetScale = hovered ? 1.1 : 1;
-      meshRef.current.scale.lerp(
-        new THREE.Vector3(targetScale, targetScale, targetScale),
-        0.1
-      );
+      // Orbital movement
+      const radius = 3;
+      meshRef.current.position.x = position[0] + Math.cos(t * 0.3) * 0.5;
+      meshRef.current.position.y = position[1] + Math.sin(t * 0.2) * 0.5;
+      meshRef.current.position.z = position[2] + Math.sin(t * 0.25) * 0.5;
+
+      // Pulsing glow
+      const pulse = Math.sin(t * 2) * 0.3 + 1;
+      glowRef.current.scale.setScalar(pulse);
+      glowRef.current.position.copy(meshRef.current.position);
     }
   });
 
   return (
-    <mesh
-      ref={meshRef}
-      position={position}
-      rotation={rotation}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
-    >
-      {/* Document shape */}
-      <boxGeometry args={[1.2, 1.6, 0.05]} />
-      <meshStandardMaterial
-        color={color}
-        roughness={0.3}
-        metalness={0.1}
-      />
-
-      {/* Paper lines detail */}
-      <mesh position={[0, 0.3, 0.026]}>
-        <planeGeometry args={[0.8, 0.05]} />
-        <meshBasicMaterial color="#ffffff" opacity={0.3} transparent />
+    <group>
+      {/* Outer glow */}
+      <mesh ref={glowRef} position={position}>
+        <sphereGeometry args={[0.25, 16, 16]} />
+        <meshBasicMaterial color={color} transparent opacity={0.2} />
       </mesh>
-      <mesh position={[0, 0.15, 0.026]}>
-        <planeGeometry args={[0.8, 0.05]} />
-        <meshBasicMaterial color="#ffffff" opacity={0.3} transparent />
-      </mesh>
-      <mesh position={[0, 0, 0.026]}>
-        <planeGeometry args={[0.8, 0.05]} />
-        <meshBasicMaterial color="#ffffff" opacity={0.3} transparent />
-      </mesh>
-    </mesh>
-  );
-}
 
-function ConnectionLines() {
-  const points = [
-    new THREE.Vector3(-2, 1, 0),
-    new THREE.Vector3(0, 0, 0),
-    new THREE.Vector3(2, 1, 0),
-  ];
-
-  const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
-
-  return (
-    <line geometry={lineGeometry}>
-      <lineBasicMaterial color="#0891B2" opacity={0.3} transparent linewidth={2} />
-    </line>
-  );
-}
-
-function CenterIcon() {
-  return (
-    <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
-      <mesh position={[0, 0, 0]}>
-        {/* Central share icon - using a stylized shape */}
-        <torusGeometry args={[0.3, 0.08, 16, 32]} />
+      {/* Main sphere */}
+      <mesh ref={meshRef} position={position}>
+        <sphereGeometry args={[0.15, 32, 32]} />
         <meshStandardMaterial
-          color="#0891B2"
-          emissive="#0891B2"
-          emissiveIntensity={0.3}
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.5}
+          metalness={0.8}
+          roughness={0.2}
         />
       </mesh>
-      {/* Inner glow sphere */}
-      <mesh position={[0, 0, 0]}>
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshBasicMaterial color="#0EA5E9" transparent opacity={0.6} />
-      </mesh>
-    </Float>
+    </group>
+  );
+}
+
+// Dynamic connection lines
+function DynamicConnections() {
+  const linesRef = useRef<THREE.LineSegments>(null);
+
+  const nodePositions = useMemo(() => [
+    new THREE.Vector3(-2.5, 1.5, 0),
+    new THREE.Vector3(2.5, 1.5, 0),
+    new THREE.Vector3(-2, -1.5, 1),
+    new THREE.Vector3(2, -1.5, 1),
+    new THREE.Vector3(0, 2, -1),
+    new THREE.Vector3(0, -2, -1),
+  ], []);
+
+  useFrame((state) => {
+    if (linesRef.current) {
+      const t = state.clock.elapsedTime;
+      const positions = linesRef.current.geometry.attributes.position.array as Float32Array;
+
+      let idx = 0;
+      for (let i = 0; i < nodePositions.length; i++) {
+        for (let j = i + 1; j < nodePositions.length; j++) {
+          const start = nodePositions[i];
+          const end = nodePositions[j];
+
+          // Animate line positions slightly
+          positions[idx++] = start.x + Math.cos(t * 0.3 + i) * 0.5;
+          positions[idx++] = start.y + Math.sin(t * 0.2 + i) * 0.5;
+          positions[idx++] = start.z + Math.sin(t * 0.25 + i) * 0.5;
+
+          positions[idx++] = end.x + Math.cos(t * 0.3 + j) * 0.5;
+          positions[idx++] = end.y + Math.sin(t * 0.2 + j) * 0.5;
+          positions[idx++] = end.z + Math.sin(t * 0.25 + j) * 0.5;
+        }
+      }
+
+      linesRef.current.geometry.attributes.position.needsUpdate = true;
+    }
+  });
+
+  const lineGeometry = useMemo(() => {
+    const positions: number[] = [];
+
+    for (let i = 0; i < nodePositions.length; i++) {
+      for (let j = i + 1; j < nodePositions.length; j++) {
+        positions.push(
+          nodePositions[i].x, nodePositions[i].y, nodePositions[i].z,
+          nodePositions[j].x, nodePositions[j].y, nodePositions[j].z
+        );
+      }
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    return geometry;
+  }, [nodePositions]);
+
+  return (
+    <lineSegments ref={linesRef} geometry={lineGeometry}>
+      <lineBasicMaterial color="#0EA5E9" transparent opacity={0.2} />
+    </lineSegments>
+  );
+}
+
+// Central animated sphere
+function CentralOrb() {
+  const orbRef = useRef<THREE.Group>(null);
+
+  useFrame((state) => {
+    if (orbRef.current) {
+      orbRef.current.rotation.y = state.clock.elapsedTime * 0.3;
+      orbRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.2) * 0.2;
+    }
+  });
+
+  return (
+    <group ref={orbRef}>
+      <Float speed={2} rotationIntensity={0.3} floatIntensity={0.8}>
+        {/* Main glass-like sphere */}
+        <Sphere args={[1, 64, 64]}>
+          <MeshDistortMaterial
+            color="#0EA5E9"
+            attach="material"
+            distort={0.3}
+            speed={2}
+            roughness={0}
+            metalness={0.1}
+            transparent
+            opacity={0.6}
+          />
+        </Sphere>
+
+        {/* Inner core */}
+        <Sphere args={[0.5, 32, 32]}>
+          <meshStandardMaterial
+            color="#22D3EE"
+            emissive="#0EA5E9"
+            emissiveIntensity={1}
+            metalness={1}
+            roughness={0}
+          />
+        </Sphere>
+
+        {/* Outer glow ring */}
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.3, 0.03, 16, 100]} />
+          <meshBasicMaterial color="#0EA5E9" transparent opacity={0.4} />
+        </mesh>
+      </Float>
+    </group>
+  );
+}
+
+// Particle field
+function ParticleField() {
+  const particlesRef = useRef<THREE.Points>(null);
+
+  const particles = useMemo(() => {
+    const count = 150;
+    const positions = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      const radius = 8;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.random() * Math.PI;
+
+      positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+      positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      positions[i3 + 2] = radius * Math.cos(phi);
+    }
+
+    return positions;
+  }, []);
+
+  useFrame((state) => {
+    if (particlesRef.current) {
+      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.05;
+      particlesRef.current.rotation.x = state.clock.elapsedTime * 0.02;
+    }
+  });
+
+  return (
+    <points ref={particlesRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={particles.length / 3}
+          array={particles}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={0.05}
+        color="#0EA5E9"
+        transparent
+        opacity={0.6}
+        sizeAttenuation
+      />
+    </points>
   );
 }
 
 function Scene() {
-  // ShareKit brand colors - cyan/ocean theme
-  const colors = ['#0891B2', '#0EA5E9', '#06B6D4', '#22D3EE'];
+  const colors = ['#0EA5E9', '#22D3EE', '#06B6D4', '#0891B2', '#67E8F9', '#A5F3FC'];
 
   return (
     <>
-      {/* Lighting */}
-      <ambientLight intensity={0.5} />
-      <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} />
+      {/* Enhanced lighting */}
+      <ambientLight intensity={0.3} />
+      <pointLight position={[10, 10, 10]} intensity={1} color="#0EA5E9" />
+      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#22D3EE" />
+      <spotLight position={[0, 10, 0]} angle={0.3} penumbra={1} intensity={1} color="#ffffff" />
 
-      {/* Central sharing icon */}
-      <CenterIcon />
+      {/* Particle background */}
+      <ParticleField />
 
-      {/* Floating documents in circular arrangement */}
-      <FloatingDocument
-        position={[-2, 1, 0]}
-        rotation={[0.2, -0.3, 0.1]}
-        color={colors[0]}
-        delay={0}
-      />
-      <FloatingDocument
-        position={[0, -0.5, -1]}
-        rotation={[-0.1, 0.2, -0.1]}
-        color={colors[1]}
-        delay={1}
-      />
-      <FloatingDocument
-        position={[2, 1, 0]}
-        rotation={[0.1, 0.3, -0.2]}
-        color={colors[2]}
-        delay={2}
-      />
-      <FloatingDocument
-        position={[0, 2, 1]}
-        rotation={[-0.2, 0, 0.1]}
-        color={colors[3]}
-        delay={3}
-      />
+      {/* Central animated orb */}
+      <CentralOrb />
 
-      {/* Connection lines (shows sharing concept) */}
-      <ConnectionLines />
+      {/* Network nodes */}
+      <NetworkNode position={[-2.5, 1.5, 0]} color={colors[0]} delay={0} />
+      <NetworkNode position={[2.5, 1.5, 0]} color={colors[1]} delay={1} />
+      <NetworkNode position={[-2, -1.5, 1]} color={colors[2]} delay={2} />
+      <NetworkNode position={[2, -1.5, 1]} color={colors[3]} delay={3} />
+      <NetworkNode position={[0, 2, -1]} color={colors[4]} delay={4} />
+      <NetworkNode position={[0, -2, -1]} color={colors[5]} delay={5} />
 
-      {/* Orbit controls for user interaction */}
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        maxPolarAngle={Math.PI / 2}
-        minPolarAngle={Math.PI / 3}
-        autoRotate
-        autoRotateSpeed={0.5}
-      />
+      {/* Dynamic connection lines */}
+      <DynamicConnections />
     </>
   );
 }
