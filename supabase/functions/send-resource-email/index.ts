@@ -1,7 +1,23 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import React from 'npm:react@18.3.1';
-import { renderAsync } from 'npm:@react-email/components@0.0.22';
-import { ResourceDeliveryEmail } from './_templates/resource-delivery.tsx';
+// Removed React Email dependencies; using inline HTML generator
+function generateResourceEmailHtml(
+  fullName: string | null,
+  pageTitle: string,
+  resources: Array<{ title: string; description: string | null; file_url: string; file_name: string; }>
+) {
+  const greeting = fullName ? `Hi ${fullName}!` : 'Hi there!';
+  const resourcesHtml = resources
+    .map((r) => `
+      <section style="background-color:#f5f5f5;border-radius:8px;margin:20px;padding:24px;">
+        <h3 style="color:#333;font-size:20px;font-weight:600;margin:0 0 10px 0;">${r.title}</h3>
+        ${r.description ? `<p style="color:#666;font-size:14px;line-height:20px;margin:0 0 16px 0;">${r.description}</p>` : ''}
+        <a href="${r.file_url}" style="background-color:#667eea;border-radius:6px;color:#fff;font-size:16px;font-weight:600;text-decoration:none;display:inline-block;padding:12px 24px;">Download ${r.file_name}</a>
+      </section>
+    `)
+    .join('');
+
+  return `<!DOCTYPE html><html><head><meta charSet="utf-8"><title>Your resources from ${pageTitle} are ready</title></head><body style="background-color:#f6f9fc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background:#ffffff;padding:20px 0 48px; margin-bottom:64px;"><h1 style="color:#667eea;font-size:32px;font-weight:bold;margin:40px 0;text-align:center;">ShareKit</h1><h2 style="color:#333;font-size:24px;font-weight:bold;margin:30px 20px 20px;">${greeting}</h2><p style="color:#666;font-size:16px;line-height:24px;margin:16px 20px;">Thank you for your interest in <strong>${pageTitle}</strong>. Here are your downloadable resources:</p>${resourcesHtml}<section style="border-top:1px solid #e5e5e5;margin:32px 20px 0;padding-top:20px;"><p style="color:#999;font-size:14px;line-height:20px;margin:0;">This email was sent because you requested access to resources from ShareKit. If you didn't make this request, you can safely ignore this email.</p></section><p style="color:#999;font-size:12px;text-align:center;margin-top:30px;">Powered by ShareKit</p></div></body></html>`;
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -38,13 +54,11 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("RESEND_API_KEY is not configured");
     }
 
-    // Render email template using React Email
-    const html = await renderAsync(
-      React.createElement(ResourceDeliveryEmail, {
-        fullName,
-        pageTitle,
-        resources,
-      })
+    // Generate HTML without React Email to avoid npm deps
+    const html = generateResourceEmailHtml(
+      fullName,
+      pageTitle,
+      resources
     );
 
     // Send email using Resend API
