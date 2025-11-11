@@ -193,6 +193,45 @@ export type Database = {
           },
         ]
       }
+      page_variants: {
+        Row: {
+          created_at: string
+          custom_css: string | null
+          id: string
+          is_active: boolean
+          name: string
+          page_id: string
+          slug: string
+          template: string
+          traffic_percentage: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_css?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          page_id: string
+          slug: string
+          template?: string
+          traffic_percentage?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_css?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          page_id?: string
+          slug?: string
+          template?: string
+          traffic_percentage?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pages: {
         Row: {
           created_at: string
@@ -437,6 +476,30 @@ export type Database = {
           owner_id?: string
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      variant_analytics: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          variant_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          variant_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          variant_id?: string
         }
         Relationships: []
       }

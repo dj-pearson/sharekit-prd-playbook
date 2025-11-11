@@ -18,6 +18,7 @@ import Teams from "./pages/Teams";
 import PublicPage from "./pages/PublicPage";
 import NotFound from "./pages/NotFound";
 import EmailSequences from "./pages/EmailSequences";
+import ABTesting from "./pages/ABTesting";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
           <Route path="/dashboard/pages/:id/edit" element={<EditPage />} />
           <Route path="/dashboard/pages/:id/analytics" element={<PageAnalytics />} />
           <Route path="/dashboard/pages/:pageId/sequences" element={<EmailSequences />} />
+          <Route path="/dashboard/pages/:pageId/ab-testing" element={<ABTesting />} />
           <Route path="/p/:slug" element={<PublicPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

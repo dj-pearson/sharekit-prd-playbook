@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Save, Loader2, GripVertical } from "lucide-react";
+import { ArrowLeft, Save, Loader2, GripVertical, TestTube2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -229,11 +229,19 @@ const EditPage = () => {
                 Update your landing page settings and resources
               </p>
             </div>
-            <Link to={`/dashboard/pages/${id}/sequences`}>
-              <Button variant="outline">
-                Email Sequences
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to={`/dashboard/pages/${id}/sequences`}>
+                <Button variant="outline">
+                  Email Sequences
+                </Button>
+              </Link>
+              <Link to={`/dashboard/pages/${id}/ab-testing`}>
+                <Button variant="outline" className="gap-2">
+                  <TestTube2 className="h-4 w-4" />
+                  A/B Testing
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <form onSubmit={handleSave} className="space-y-6">
