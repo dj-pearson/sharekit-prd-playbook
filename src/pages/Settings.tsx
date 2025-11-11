@@ -7,7 +7,7 @@ import { User, Bell, Shield, CreditCard, Download, Trash2, AlertTriangle } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -373,14 +373,14 @@ const Settings = () => {
                   </p>
                   <div className="flex gap-3">
                     <Button variant="outline" size="sm" asChild>
-                      <a href="/privacy" target="_blank" rel="noopener noreferrer">
+                      <Link to="/privacy">
                         View Privacy Policy
-                      </a>
+                      </Link>
                     </Button>
                     <Button variant="outline" size="sm" asChild>
-                      <a href="/terms" target="_blank" rel="noopener noreferrer">
+                      <Link to="/terms">
                         View Terms of Service
-                      </a>
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
