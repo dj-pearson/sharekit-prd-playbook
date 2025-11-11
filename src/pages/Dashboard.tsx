@@ -93,13 +93,17 @@ const Dashboard = () => {
             <Card>
               <CardContent className="p-4">
                 <nav className="space-y-2">
-                  <Button variant="secondary" className="w-full justify-start">
-                    <LayoutDashboard className="w-4 h-4 mr-2" />
-                    Dashboard
+                  <Button variant="secondary" className="w-full justify-start" asChild>
+                    <Link to="/dashboard">
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </Link>
                   </Button>
-                  <Button variant="ghost" className="w-full justify-start">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Resources
+                  <Button variant="ghost" className="w-full justify-start" asChild>
+                    <Link to="/dashboard/resources">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Resources
+                    </Link>
                   </Button>
                   <Button variant="ghost" className="w-full justify-start">
                     <BarChart3 className="w-4 h-4 mr-2" />
@@ -129,9 +133,14 @@ const Dashboard = () => {
                 <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
                 <p className="text-muted-foreground">Here's what's happening with your shares</p>
               </div>
-              <Button className="bg-gradient-ocean hover:opacity-90 transition-opacity">
-                <Plus className="w-4 h-4 mr-2" />
-                New Share
+              <Button 
+                asChild
+                className="bg-gradient-ocean hover:opacity-90 transition-opacity"
+              >
+                <Link to="/dashboard/upload">
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Share
+                </Link>
               </Button>
             </div>
 
@@ -187,9 +196,14 @@ const Dashboard = () => {
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   Upload a resource, customize your page, and start sharing in minutes
                 </p>
-                <Button className="bg-gradient-ocean hover:opacity-90 transition-opacity">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Upload Your First Resource
+                <Button 
+                  asChild
+                  className="bg-gradient-ocean hover:opacity-90 transition-opacity"
+                >
+                  <Link to="/dashboard/upload">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Upload Your First Resource
+                  </Link>
                 </Button>
               </CardContent>
             </Card>
