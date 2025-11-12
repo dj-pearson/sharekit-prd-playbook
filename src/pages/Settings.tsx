@@ -11,6 +11,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
+import { createPortalSession } from "@/lib/stripe";
 import { UsernameSelector } from "@/components/UsernameSelector";
 
 const Settings = () => {
@@ -489,22 +490,26 @@ const Settings = () => {
                   )}
 
                   {/* Customer Portal Link */}
-                  {subscription && subscription.stripe_customer_id && (
+                  {subscription && subscription.plan !== 'free' && subscription.stripe_customer_id && (
                     <div className="border-t pt-6">
                       <h4 className="font-semibold text-sm text-slate-900 mb-3">Payment Management</h4>
                       <Button
                         variant="outline"
                         onClick={async () => {
-                          toast({
-                            title: "Opening customer portal...",
-                            description: "You'll be redirected to manage your subscription",
-                          });
-                          // In production, this would call your backend to create a portal session
-                          // For now, just show a message
-                          toast({
-                            title: "Coming soon!",
-                            description: "Stripe Customer Portal integration in progress",
-                          });
+                          try {
+                            toast({
+                              title: "Opening customer portal...",
+                              description: "You'll be redirected to manage your subscription",
+                            });
+                            const url = await createPortalSession();
+                            window.location.href = url;
+                          } catch (error) {
+                            toast({
+                              title: "Error",
+                              description: error instanceof Error ? error.message : "Failed to open customer portal",
+                              variant: "destructive",
+                            });
+                          }
                         }}
                       >
                         <ExternalLink className="w-4 h-4 mr-2" />

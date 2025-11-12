@@ -1,13 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Sparkles, Crown, Zap, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Check, Sparkles, Crown, Zap, ArrowRight, Loader2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
+import { createCheckoutSession, type Plan, type BillingInterval } from "@/lib/stripe";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Pricing = () => {
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("monthly");
+  const [billingPeriod, setBillingPeriod] = useState<BillingInterval>("monthly");
+  const [loading, setLoading] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const plans = [
     {
@@ -128,6 +133,35 @@ const Pricing = () => {
     return `per month, billed annually ($${plan.annualPrice}/year)`;
   };
 
+  const handlePlanSelect = async (planName: string) => {
+    // Free plan - just navigate to auth
+    if (planName === "Free") {
+      navigate("/auth");
+      return;
+    }
+
+    // Check if user is logged in
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      toast.info("Please sign up or log in to continue");
+      navigate("/auth");
+      return;
+    }
+
+    // Start checkout for paid plans
+    setLoading(planName);
+    try {
+      const plan = planName.toLowerCase() as Plan;
+      const url = await createCheckoutSession(plan, billingPeriod);
+      window.location.href = url;
+    } catch (error) {
+      console.error("Error creating checkout:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to start checkout");
+      setLoading(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
@@ -227,7 +261,8 @@ const Pricing = () => {
 
                   <CardContent>
                     <Button
-                      asChild
+                      onClick={() => handlePlanSelect(plan.name)}
+                      disabled={loading === plan.name}
                       className={`w-full mb-6 ${
                         isPopular
                           ? "bg-gradient-ocean hover:opacity-90"
@@ -236,10 +271,17 @@ const Pricing = () => {
                       size="lg"
                       variant={isPopular ? "default" : "outline"}
                     >
-                      <Link to={plan.ctaLink}>
-                        {plan.cta}
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
+                      {loading === plan.name ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          {plan.cta}
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </>
+                      )}
                     </Button>
 
                     <div className="space-y-3">
@@ -277,6 +319,16 @@ const Pricing = () => {
                 <div className="text-sm text-muted-foreground">Customer support</div>
               </div>
             </div>
+          </div>
+
+          {/* Feature Comparison Link */}
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <Link to="/pricing/compare">
+              <Button variant="outline" size="lg">
+                View Detailed Feature Comparison
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
           </div>
 
           {/* FAQ Section */}

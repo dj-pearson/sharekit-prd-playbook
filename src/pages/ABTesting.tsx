@@ -9,11 +9,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, TrendingUp } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, TrendingUp, Lock } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 
 export default function ABTesting() {
   const { pageId } = useParams();
   const navigate = useNavigate();
+  const { subscription, hasFeature } = useSubscription();
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+
+  const hasABTesting = hasFeature("ai_features"); // A/B testing is part of AI features in Pro+
   const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState(false);
   const [newVariant, setNewVariant] = useState({
@@ -129,6 +135,49 @@ export default function ABTesting() {
       queryClient.invalidateQueries({ queryKey: ["variants", pageId] });
     },
   });
+
+  // Show locked state if user doesn't have access
+  if (!hasABTesting) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="mb-6 flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">A/B Testing</h1>
+            <p className="text-muted-foreground">{page?.title}</p>
+          </div>
+        </div>
+
+        <Card className="border-2 border-dashed">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4">
+              <Lock className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-2xl font-bold mb-2">A/B Testing is a Pro Feature</h3>
+            <p className="text-muted-foreground mb-6 max-w-md">
+              Test multiple variations of your landing pages to optimize conversions and maximize your results.
+            </p>
+            <Button
+              onClick={() => setShowUpgradeDialog(true)}
+              className="bg-gradient-ocean hover:opacity-90"
+              size="lg"
+            >
+              Upgrade to Pro
+            </Button>
+          </CardContent>
+        </Card>
+
+        <UpgradeDialog
+          open={showUpgradeDialog}
+          onOpenChange={setShowUpgradeDialog}
+          requiredPlan="pro"
+          feature="A/B Testing"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-8">

@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Mail } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Mail, Lock } from "lucide-react";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 
 interface EmailSequence {
   id: string;
@@ -23,6 +25,9 @@ interface EmailSequence {
 export default function EmailSequences() {
   const { pageId } = useParams();
   const navigate = useNavigate();
+  const { hasFeature } = useSubscription();
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const hasEmailSequences = hasFeature("ai_features"); // Email sequences are part of Pro+
   const [sequences, setSequences] = useState<EmailSequence[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -118,6 +123,55 @@ export default function EmailSequences() {
       toast.error("Failed to delete sequence");
     }
   };
+
+  // Show locked state if user doesn't have access
+  if (!hasEmailSequences) {
+    return (
+      <div className="min-h-screen bg-background p-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 mb-8">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(`/dashboard/pages/${pageId}/edit`)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Email Sequences</h1>
+              <p className="text-muted-foreground">Automated follow-up emails for your leads</p>
+            </div>
+          </div>
+
+          <Card className="border-2 border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Email Sequences is a Pro Feature</h3>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Set up automated email campaigns to nurture your leads and boost engagement with drip sequences.
+              </p>
+              <Button
+                onClick={() => setShowUpgradeDialog(true)}
+                className="bg-gradient-ocean hover:opacity-90"
+                size="lg"
+              >
+                Upgrade to Pro
+              </Button>
+            </CardContent>
+          </Card>
+
+          <UpgradeDialog
+            open={showUpgradeDialog}
+            onOpenChange={setShowUpgradeDialog}
+            requiredPlan="pro"
+            feature="Email Sequences"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-8">
