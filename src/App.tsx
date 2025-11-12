@@ -31,6 +31,11 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -68,6 +73,19 @@ const App = () => (
             <Route path="/d/:token" element={<DownloadPage />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+
+            {/* Admin routes */}
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/monitoring" element={<AdminPlaceholder title="Platform Monitoring" description="System health monitoring and alerts" />} />
+            <Route path="/admin/content" element={<AdminPlaceholder title="Content Moderation" description="Moderation queue and content management" />} />
+            <Route path="/admin/subscriptions" element={<AdminPlaceholder title="Subscription Management" description="Manage subscriptions and billing" />} />
+            <Route path="/admin/support" element={<AdminPlaceholder title="Support System" description="Customer support ticket management" />} />
+            <Route path="/admin/cms" element={<AdminPlaceholder title="Content Management" description="Blog posts and help articles" />} />
+            <Route path="/admin/marketing" element={<AdminPlaceholder title="Marketing Tools" description="Email campaigns and announcements" />} />
+            <Route path="/admin/analytics" element={<AdminPlaceholder title="Business Analytics" description="Advanced analytics and reporting" />} />
+            <Route path="/admin/settings" element={<AdminPlaceholder title="Platform Settings" description="Feature flags and system configuration" />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
