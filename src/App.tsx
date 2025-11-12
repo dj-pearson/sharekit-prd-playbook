@@ -41,6 +41,7 @@ import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
 import AdminCMS from "./pages/admin/AdminCMS";
 import AdminMarketing from "./pages/admin/AdminMarketing";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminSettings from "./pages/admin/AdminSettings";
 import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
 
 const queryClient = new QueryClient();
@@ -91,7 +92,7 @@ const App = () => (
             <Route path="/admin/cms" element={<AdminCMS />} />
             <Route path="/admin/marketing" element={<AdminMarketing />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/settings" element={<AdminPlaceholder title="Platform Settings" description="Feature flags and system configuration" />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
