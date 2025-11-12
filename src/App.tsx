@@ -34,6 +34,9 @@ import NotFound from "./pages/NotFound";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminMonitoring from "./pages/admin/AdminMonitoring";
+import AdminModeration from "./pages/admin/AdminModeration";
+import AdminSupport from "./pages/admin/AdminSupport";
 import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
 
 const queryClient = new QueryClient();
@@ -77,10 +80,10 @@ const App = () => (
             {/* Admin routes */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/monitoring" element={<AdminPlaceholder title="Platform Monitoring" description="System health monitoring and alerts" />} />
-            <Route path="/admin/content" element={<AdminPlaceholder title="Content Moderation" description="Moderation queue and content management" />} />
+            <Route path="/admin/monitoring" element={<AdminMonitoring />} />
+            <Route path="/admin/content" element={<AdminModeration />} />
+            <Route path="/admin/support" element={<AdminSupport />} />
             <Route path="/admin/subscriptions" element={<AdminPlaceholder title="Subscription Management" description="Manage subscriptions and billing" />} />
-            <Route path="/admin/support" element={<AdminPlaceholder title="Support System" description="Customer support ticket management" />} />
             <Route path="/admin/cms" element={<AdminPlaceholder title="Content Management" description="Blog posts and help articles" />} />
             <Route path="/admin/marketing" element={<AdminPlaceholder title="Marketing Tools" description="Email campaigns and announcements" />} />
             <Route path="/admin/analytics" element={<AdminPlaceholder title="Business Analytics" description="Advanced analytics and reporting" />} />
