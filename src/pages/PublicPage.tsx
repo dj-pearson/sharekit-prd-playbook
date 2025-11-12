@@ -46,7 +46,6 @@ const PublicPage = () => {
   const fetchPage = async () => {
     try {
       // Fetch page with creator info and subscription plan
-      const { data: pageData, error: pageError } = await supabase
       let query = supabase
         .from('pages')
         .select(`
@@ -58,7 +57,7 @@ const PublicPage = () => {
           user_id,
           profiles!pages_user_id_fkey (
             full_name,
-            subscription_plan
+            subscription_plan,
             username
           )
         `)

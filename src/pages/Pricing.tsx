@@ -197,9 +197,9 @@ const Pricing = () => {
                 Monthly
               </button>
               <button
-                onClick={() => setBillingPeriod("annual")}
+                onClick={() => setBillingPeriod("yearly")}
                 className={`px-6 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2 ${
-                  billingPeriod === "annual"
+                  billingPeriod === "yearly"
                     ? "bg-gradient-ocean text-white"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
