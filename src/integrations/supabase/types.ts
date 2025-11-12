@@ -349,6 +349,7 @@ export type Database = {
           stripe_subscription_id: string | null
           subscription_plan: string | null
           updated_at: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -361,6 +362,7 @@ export type Database = {
           stripe_subscription_id?: string | null
           subscription_plan?: string | null
           updated_at?: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -373,6 +375,7 @@ export type Database = {
           stripe_subscription_id?: string | null
           subscription_plan?: string | null
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -677,6 +680,10 @@ export type Database = {
       }
       is_team_member: {
         Args: { _team_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_username_available: {
+        Args: { check_username: string }
         Returns: boolean
       }
     }

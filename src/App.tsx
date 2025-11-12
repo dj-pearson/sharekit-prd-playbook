@@ -62,6 +62,7 @@ const App = () => (
             <Route path="/dashboard/settings" element={<Settings />} />
             <Route path="/dashboard/domains" element={<CustomDomains />} />
             <Route path="/p/:slug" element={<PublicPage />} />
+            <Route path="/:username/:pageSlug" element={<PublicPage />} />
             <Route path="/d/:token" element={<DownloadPage />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />

@@ -7,6 +7,7 @@ import { Sparkles, Rocket, CheckCircle, Copy, Twitter, Linkedin, Share2 } from "
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Logo } from "@/components/Logo";
+import { UsernameSelector } from "@/components/UsernameSelector";
 import confetti from "canvas-confetti";
 
 interface OnboardingWizardProps {
@@ -17,6 +18,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isOpen, setIsOpen] = useState(true);
   const [completedPageUrl, setCompletedPageUrl] = useState("");
+  const [username, setUsername] = useState("");
+  const [isUsernameValid, setIsUsernameValid] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -24,6 +27,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     {
       title: "Welcome to ShareKit! 🎉",
       description: "Get set up in under 3 minutes",
+      icon: Sparkles,
+    },
+    {
+      title: "Choose Your Username",
+      description: "This will be part of your page URLs",
       icon: Sparkles,
     },
     {
@@ -72,11 +80,17 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
+      const updateData: { onboarding_completed: boolean; username?: string } = {
+        onboarding_completed: true,
+      };
+
+      if (username && isUsernameValid) {
+        updateData.username = username;
+      }
+
       await supabase
         .from('profiles')
-        .update({
-          onboarding_completed: true,
-        })
+        .update(updateData)
         .eq('id', user.id);
 
       // Trigger confetti celebration
@@ -88,7 +102,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       });
 
       // Move to success step
-      setCurrentStep(2);
+      setCurrentStep(3);
     } catch (error: any) {
       console.error('Failed to complete onboarding:', error);
       setIsOpen(false);
@@ -181,6 +195,35 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       case 1:
         return (
           <div className="space-y-6 py-6">
+            <p className="text-slate-600 text-center mb-6">
+              Choose a unique username for your ShareKit pages. This will be the first part of your page URLs.
+            </p>
+            <UsernameSelector
+              value={username}
+              onChange={setUsername}
+              onValidationChange={setIsUsernameValid}
+            />
+            <Button
+              onClick={() => setCurrentStep(2)}
+              disabled={!username || !isUsernameValid}
+              className="w-full bg-gradient-ocean hover:opacity-90"
+              size="lg"
+            >
+              Continue →
+            </Button>
+            <Button
+              onClick={handleSkip}
+              variant="ghost"
+              className="w-full"
+            >
+              Skip for now
+            </Button>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="space-y-6 py-6">
             <p className="text-slate-600 text-center">
               ShareKit works best with <strong>guides, checklists, templates, and resources</strong>
               that provide immediate value. What will you share first?
@@ -241,7 +284,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
           </div>
         );
 
-      case 2:
+      case 3:
         return (
           <div className="space-y-6">
             <div className="text-center space-y-4">
@@ -308,8 +351,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="relative">
-          {/* Skip Button - only show on first two steps */}
-          {currentStep < 2 && (
+          {/* Skip Button - only show on first three steps */}
+          {currentStep < 3 && (
             <Button
               variant="ghost"
               size="sm"
@@ -320,8 +363,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             </Button>
           )}
 
-          {/* Progress Bar - only show on first two steps */}
-          {currentStep < 2 && (
+          {/* Progress Bar - only show on first three steps */}
+          {currentStep < 3 && (
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-slate-600">
@@ -336,7 +379,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
           )}
 
           {/* Step Header */}
-          {currentStep < 2 && (
+          {currentStep < 3 && (
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 rounded-full bg-cyan-100 flex items-center justify-center">
                 <Icon className="w-6 h-6 text-cyan-600" />

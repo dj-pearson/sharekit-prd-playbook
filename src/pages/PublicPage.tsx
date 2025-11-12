@@ -29,7 +29,7 @@ interface Resource {
 }
 
 const PublicPage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, username, pageSlug } = useParams<{ slug?: string; username?: string; pageSlug?: string }>();
   const [page, setPage] = useState<PageData | null>(null);
   const [resources, setResources] = useState<Resource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,15 +37,14 @@ const PublicPage = () => {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (slug) {
+    if (slug || (username && pageSlug)) {
       fetchPage();
     }
-  }, [slug]);
+  }, [slug, username, pageSlug]);
 
   const fetchPage = async () => {
     try {
-      // Fetch page with creator info
-      const { data: pageData, error: pageError } = await supabase
+      let query = supabase
         .from('pages')
         .select(`
           id,
@@ -55,12 +54,34 @@ const PublicPage = () => {
           view_count,
           user_id,
           profiles!pages_user_id_fkey (
-            full_name
+            full_name,
+            username
           )
         `)
-        .eq('slug', slug)
-        .eq('is_published', true)
-        .single();
+        .eq('is_published', true);
+
+      // Handle both old /p/:slug and new /:username/:pageSlug formats
+      if (slug) {
+        // Old format: /p/:slug
+        query = query.eq('slug', slug);
+      } else if (username && pageSlug) {
+        // New format: /:username/:pageSlug
+        // First get the profile with this username
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', username)
+          .single();
+
+        if (profileError || !profile) {
+          setNotFound(true);
+          return;
+        }
+
+        query = query.eq('slug', pageSlug).eq('user_id', profile.id);
+      }
+
+      const { data: pageData, error: pageError } = await query.single();
 
       if (pageError || !pageData) {
         setNotFound(true);

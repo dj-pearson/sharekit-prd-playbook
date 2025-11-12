@@ -11,12 +11,15 @@ import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
+import { UsernameSelector } from "@/components/UsernameSelector";
 
 const Settings = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [isUsernameValid, setIsUsernameValid] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -36,12 +39,14 @@ const Settings = () => {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('full_name, username')
         .eq('id', user.id)
         .single();
 
       if (profile) {
         setFullName(profile.full_name || "");
+        setUsername(profile.username || "");
+        setIsUsernameValid(!!profile.username);
       }
     } catch (error: any) {
       console.error('Error fetching profile:', error);
@@ -58,9 +63,16 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      const updateData: { full_name: string; username?: string } = { full_name: fullName };
+      
+      // Only update username if it's valid and changed
+      if (username && isUsernameValid) {
+        updateData.username = username;
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: fullName })
+        .update(updateData)
         .eq('id', user.id);
 
       if (error) throw error;
@@ -249,9 +261,15 @@ const Settings = () => {
                     />
                   </div>
 
+                  <UsernameSelector
+                    value={username}
+                    onChange={setUsername}
+                    onValidationChange={setIsUsernameValid}
+                  />
+
                   <Button
                     type="submit"
-                    disabled={isSaving}
+                    disabled={isSaving || (username && !isUsernameValid)}
                     className="bg-gradient-ocean hover:opacity-90"
                   >
                     {isSaving ? "Saving..." : "Save Changes"}

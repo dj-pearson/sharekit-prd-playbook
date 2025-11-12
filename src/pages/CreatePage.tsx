@@ -26,11 +26,13 @@ const CreatePage = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [selectedResources, setSelectedResources] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [username, setUsername] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchResources();
+    fetchUsername();
   }, []);
 
   useEffect(() => {
@@ -57,6 +59,25 @@ const CreatePage = () => {
         description: error.message || "Failed to load resources",
         variant: "destructive",
       });
+    }
+  };
+
+  const fetchUsername = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.username) {
+        setUsername(profile.username);
+      }
+    } catch (error) {
+      console.error('Failed to fetch username:', error);
     }
   };
 
@@ -196,7 +217,9 @@ const CreatePage = () => {
                   <div className="space-y-2">
                     <Label htmlFor="slug">URL Slug *</Label>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">sharekit.com/</span>
+                      <span className="text-sm text-muted-foreground">
+                        {username ? `${username}/` : 'your-username/'}
+                      </span>
                       <Input
                         id="slug"
                         placeholder="social-media-guide"
@@ -206,7 +229,11 @@ const CreatePage = () => {
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      This is your unique URL. Use lowercase letters, numbers, and hyphens only.
+                      {username ? (
+                        <>Your page URL will be: <span className="font-mono">{username}/{slug || 'page-slug'}</span></>
+                      ) : (
+                        <>Set your username in Settings to see your full page URL</>
+                      )}
                     </p>
                   </div>
 
