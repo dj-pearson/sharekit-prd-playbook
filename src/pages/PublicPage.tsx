@@ -6,6 +6,7 @@ import { Sparkles, FileText, Download, CheckCircle, Users, TrendingUp, Star, Cro
 import { supabase } from "@/integrations/supabase/client";
 import { EmailCaptureForm } from "@/components/EmailCaptureForm";
 import { Logo } from "@/components/Logo";
+import { SocialProofWidget } from "@/components/SocialProofWidget";
 
 interface PageData {
   id: string;
@@ -237,6 +238,9 @@ const PublicPage = () => {
 
   return (
     <div className={`min-h-screen ${templateClasses[page.template as keyof typeof templateClasses] || templateClasses.minimal}`}>
+      {/* Social Proof Widget */}
+      <SocialProofWidget pageId={page.id} />
+      
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">

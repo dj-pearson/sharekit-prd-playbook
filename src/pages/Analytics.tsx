@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AdvancedAnalytics } from "@/components/AdvancedAnalytics";
+import { ConversionFunnel } from "@/components/ConversionFunnel";
 
 interface AggregateStats {
   total_views: number;
@@ -248,34 +249,42 @@ const Analytics = () => {
         </Card>
       </div>
 
-      {/* Performance Chart */}
+      {/* Performance Chart and Funnel */}
       {chartData.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Top Performing Pages</CardTitle>
-            <CardDescription>Views and signups comparison</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="name" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'hsl(var(--background))',
-                      border: '1px solid hsl(var(--border))',
-                      borderRadius: '6px'
-                    }}
-                  />
-                  <Bar dataKey="views" fill="hsl(var(--primary))" name="Views" />
-                  <Bar dataKey="signups" fill="hsl(var(--success))" name="Signups" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Performing Pages</CardTitle>
+              <CardDescription>Views and signups comparison</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--background))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '6px'
+                      }}
+                    />
+                    <Bar dataKey="views" fill="hsl(var(--primary))" name="Views" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="signups" fill="hsl(var(--success))" name="Signups" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          <ConversionFunnel 
+            views={aggregateStats.total_views}
+            signups={aggregateStats.total_signups}
+            downloads={aggregateStats.total_downloads}
+          />
+        </div>
       )}
 
       {/* Page Performance Table */}

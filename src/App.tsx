@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import UploadResource from "./pages/UploadResource";
 import Resources from "./pages/Resources";
 import Pages from "./pages/Pages";
+import PageBuilderPage from "./pages/PageBuilderPage";
 import CreatePage from "./pages/CreatePage";
 import EditPage from "./pages/EditPage";
 import PageAnalytics from "./pages/PageAnalytics";
@@ -57,6 +58,7 @@ const App = () => (
             <Route path="/dashboard/pages/:id/analytics" element={<PageAnalytics />} />
             <Route path="/dashboard/pages/:pageId/sequences" element={<EmailSequences />} />
             <Route path="/dashboard/pages/:pageId/ab-testing" element={<ABTesting />} />
+            <Route path="/dashboard/page-builder" element={<PageBuilderPage />} />
             <Route path="/dashboard/settings" element={<Settings />} />
             <Route path="/dashboard/domains" element={<CustomDomains />} />
             <Route path="/p/:slug" element={<PublicPage />} />
