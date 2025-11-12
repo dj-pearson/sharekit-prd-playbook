@@ -7,6 +7,7 @@ import { Mail, Download, Eye, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import confetti from "canvas-confetti";
 
 interface ActivityEvent {
   id: string;
@@ -146,6 +147,14 @@ export function RealtimeActivityFeed() {
 
             setActivities(prev => [newActivity, ...prev].slice(0, 15));
 
+            // Trigger confetti for signups
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 },
+              colors: ['#0891b2', '#06b6d4', '#22d3ee'],
+            });
+
             // Show toast notification for new signup
             toast.success('🎉 New Signup!', {
               description: `${payload.new.full_name || payload.new.email} just signed up for ${page.title}`,
@@ -191,8 +200,15 @@ export function RealtimeActivityFeed() {
 
               setActivities(prev => [newActivity, ...prev].slice(0, 15));
 
-              // Show toast notification for downloads
+              // Show toast notification for downloads with mini confetti
               if (payload.new.event_type === 'download') {
+                confetti({
+                  particleCount: 50,
+                  spread: 50,
+                  origin: { y: 0.7 },
+                  colors: ['#10b981', '#34d399'],
+                });
+
                 toast.success('📥 New Download!', {
                   description: `Someone downloaded ${resourceTitle || 'a resource'} from ${page.title}`,
                   duration: 4000,
@@ -317,7 +333,7 @@ export function RealtimeActivityFeed() {
             {activities.map((activity, index) => (
               <div
                 key={activity.id}
-                className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors animate-in fade-in slide-in-from-top-2"
+                className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50 transition-all duration-300 hover:shadow-md hover:scale-[1.02] animate-in fade-in slide-in-from-left-3"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <Avatar className="w-10 h-10 shrink-0">

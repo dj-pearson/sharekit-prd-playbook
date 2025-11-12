@@ -38,11 +38,13 @@ const EditPage = () => {
   const [resourceOrder, setResourceOrder] = useState<PageResource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     if (id) {
       fetchPageData();
       fetchResources();
+      fetchUsername();
     }
   }, [id]);
 
@@ -97,6 +99,25 @@ const EditPage = () => {
       setAvailableResources(data || []);
     } catch (error: any) {
       console.error('Error fetching resources:', error);
+    }
+  };
+
+  const fetchUsername = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.username) {
+        setUsername(profile.username);
+      }
+    } catch (error) {
+      console.error('Failed to fetch username:', error);
     }
   };
 
@@ -279,7 +300,9 @@ const EditPage = () => {
                 <div className="space-y-2">
                   <Label htmlFor="slug">URL Slug *</Label>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">/p/</span>
+                    <span className="text-sm text-muted-foreground">
+                      {username ? `${username}/` : 'your-username/'}
+                    </span>
                     <Input
                       id="slug"
                       value={slug}
@@ -289,7 +312,11 @@ const EditPage = () => {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Your page will be available at: {window.location.origin}/p/{slug || 'your-slug'}
+                    {username ? (
+                      <>Your page URL: <span className="font-mono">{username}/{slug}</span></>
+                    ) : (
+                      <>Set your username in Settings to see your full page URL</>
+                    )}
                   </p>
                 </div>
               </CardContent>

@@ -6,6 +6,7 @@ import { Sparkles, FileText, Download, CheckCircle, Users, TrendingUp, Star, Cro
 import { supabase } from "@/integrations/supabase/client";
 import { EmailCaptureForm } from "@/components/EmailCaptureForm";
 import { Logo } from "@/components/Logo";
+import { SocialProofWidget } from "@/components/SocialProofWidget";
 
 interface PageData {
   id: string;
@@ -29,7 +30,7 @@ interface Resource {
 }
 
 const PublicPage = () => {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, username, pageSlug } = useParams<{ slug?: string; username?: string; pageSlug?: string }>();
   const [page, setPage] = useState<PageData | null>(null);
   const [resources, setResources] = useState<Resource[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,15 +38,16 @@ const PublicPage = () => {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (slug) {
+    if (slug || (username && pageSlug)) {
       fetchPage();
     }
-  }, [slug]);
+  }, [slug, username, pageSlug]);
 
   const fetchPage = async () => {
     try {
       // Fetch page with creator info and subscription plan
       const { data: pageData, error: pageError } = await supabase
+      let query = supabase
         .from('pages')
         .select(`
           id,
@@ -57,11 +59,33 @@ const PublicPage = () => {
           profiles!pages_user_id_fkey (
             full_name,
             subscription_plan
+            username
           )
         `)
-        .eq('slug', slug)
-        .eq('is_published', true)
-        .single();
+        .eq('is_published', true);
+
+      // Handle both old /p/:slug and new /:username/:pageSlug formats
+      if (slug) {
+        // Old format: /p/:slug
+        query = query.eq('slug', slug);
+      } else if (username && pageSlug) {
+        // New format: /:username/:pageSlug
+        // First get the profile with this username
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('username', username)
+          .single();
+
+        if (profileError || !profile) {
+          setNotFound(true);
+          return;
+        }
+
+        query = query.eq('slug', pageSlug).eq('user_id', profile.id);
+      }
+
+      const { data: pageData, error: pageError } = await query.single();
 
       if (pageError || !pageData) {
         setNotFound(true);
@@ -240,6 +264,9 @@ const PublicPage = () => {
 
   return (
     <div className={`min-h-screen ${templateClasses[page.template as keyof typeof templateClasses] || templateClasses.minimal}`}>
+      {/* Social Proof Widget */}
+      <SocialProofWidget pageId={page.id} />
+      
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">
