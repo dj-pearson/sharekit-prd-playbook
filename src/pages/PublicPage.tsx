@@ -17,6 +17,7 @@ interface PageData {
   download_count?: number;
   creator_name?: string;
   creator_id?: string;
+  creator_plan?: 'free' | 'pro' | 'business';
 }
 
 interface Resource {
@@ -43,7 +44,7 @@ const PublicPage = () => {
 
   const fetchPage = async () => {
     try {
-      // Fetch page with creator info
+      // Fetch page with creator info and subscription plan
       const { data: pageData, error: pageError } = await supabase
         .from('pages')
         .select(`
@@ -54,7 +55,8 @@ const PublicPage = () => {
           view_count,
           user_id,
           profiles!pages_user_id_fkey (
-            full_name
+            full_name,
+            subscription_plan
           )
         `)
         .eq('slug', slug)
@@ -89,6 +91,7 @@ const PublicPage = () => {
         download_count: downloadCount || 0,
         creator_name: (pageData.profiles as any)?.full_name || 'Creator',
         creator_id: pageData.user_id,
+        creator_plan: (pageData.profiles as any)?.subscription_plan || 'free',
       });
 
       // Increment view count
@@ -392,34 +395,36 @@ const PublicPage = () => {
       {/* Footer with Viral Attribution */}
       <footer className="border-t mt-20">
         <div className="container mx-auto px-4">
-          {/* Viral Attribution - Drives growth */}
-          <div className="py-8 text-center border-b">
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-slate-600 mb-4">
-              <span>Shared with</span>
-              <Heart className="w-4 h-4 text-red-500 fill-red-500" />
-              <span>by</span>
-              <span className="font-medium text-slate-900">{page.creator_name}</span>
-              <span>using</span>
-              <a
-                href="/?ref=page-footer"
-                className="font-semibold text-cyan-600 hover:text-cyan-700 inline-flex items-center gap-1 transition-colors"
-              >
-                ShareKit
-                <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
+          {/* Viral Attribution - Only show for Free plan (Pro+ removes branding) */}
+          {page.creator_plan === 'free' && (
+            <div className="py-8 text-center border-b">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-2 text-sm text-slate-600 mb-4">
+                <span>Shared with</span>
+                <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+                <span>by</span>
+                <span className="font-medium text-slate-900">{page.creator_name}</span>
+                <span>using</span>
+                <a
+                  href="/?ref=page-footer"
+                  className="font-semibold text-cyan-600 hover:text-cyan-700 inline-flex items-center gap-1 transition-colors"
+                >
+                  ShareKit
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
 
-            {/* CTA for viral growth */}
-            <div className="mt-4">
-              <a
-                href="/?ref=page-footer-cta"
-                className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-cyan-600 transition-colors group"
-              >
-                <Sparkles className="w-4 h-4 text-cyan-500 group-hover:text-cyan-600" />
-                <span className="underline">Create your own share page in 3 minutes →</span>
-              </a>
+              {/* CTA for viral growth */}
+              <div className="mt-4">
+                <a
+                  href="/?ref=page-footer-cta"
+                  className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-cyan-600 transition-colors group"
+                >
+                  <Sparkles className="w-4 h-4 text-cyan-500 group-hover:text-cyan-600" />
+                  <span className="underline">Create your own share page in 3 minutes →</span>
+                </a>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Legal links */}
           <div className="py-6 text-center text-xs text-muted-foreground">

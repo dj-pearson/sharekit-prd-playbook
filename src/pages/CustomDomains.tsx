@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Globe, CheckCircle, XCircle, RefreshCw, Trash2, Copy, AlertTriangle } from "lucide-react";
+import { Plus, Globe, CheckCircle, XCircle, RefreshCw, Trash2, Copy, AlertTriangle, Lock } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradeDialog } from "@/components/UpgradeDialog";
 
 interface CustomDomain {
   id: string;
@@ -25,6 +27,9 @@ interface CustomDomain {
 
 export default function CustomDomains() {
   const { toast } = useToast();
+  const { hasFeature } = useSubscription();
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+  const hasCustomDomain = hasFeature("custom_domain"); // Custom domain is Business tier
   const [domains, setDomains] = useState<CustomDomain[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [newDomain, setNewDomain] = useState("");
@@ -186,24 +191,57 @@ export default function CustomDomains() {
     );
   }
 
+  // Show locked state if user doesn't have access
+  if (!hasCustomDomain) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Custom Domains</h1>
+            <p className="text-muted-foreground mt-1">
+              Connect your own domain to ShareKit pages
+            </p>
+          </div>
+
+          <Card className="border-2 border-dashed">
+            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4">
+                <Lock className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-2">Custom Domains is a Business Feature</h3>
+              <p className="text-muted-foreground mb-6 max-w-md">
+                Use your own branded domain for your landing pages. Perfect for businesses that want a professional, white-label experience.
+              </p>
+              <Button
+                onClick={() => setShowUpgradeDialog(true)}
+                className="bg-gradient-ocean hover:opacity-90"
+                size="lg"
+              >
+                Upgrade to Business
+              </Button>
+            </CardContent>
+          </Card>
+
+          <UpgradeDialog
+            open={showUpgradeDialog}
+            onOpenChange={setShowUpgradeDialog}
+            requiredPlan="business"
+            feature="Custom Domains"
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Custom Domains</h1>
           <p className="text-muted-foreground mt-1">
-            Connect your own domain to ShareKit pages (Business Plan)
+            Connect your own domain to ShareKit pages
           </p>
         </div>
-
-        {/* Business Plan Upsell */}
-        <Alert>
-          <AlertTriangle className="w-4 h-4" />
-          <AlertDescription>
-            <strong>Business Plan Feature:</strong> Custom domains are available on the Business plan.
-            Upgrade to use your own branded domain for your share pages.
-          </AlertDescription>
-        </Alert>
 
         {/* Add New Domain */}
         <Card>
