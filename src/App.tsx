@@ -29,6 +29,7 @@ import Settings from "./pages/Settings";
 import CustomDomains from "./pages/CustomDomains";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import DMCA from "./pages/DMCA";
 import NotFound from "./pages/NotFound";
 
 // Admin pages
@@ -81,6 +82,7 @@ const App = () => (
             <Route path="/d/:token" element={<DownloadPage />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/dmca" element={<DMCA />} />
 
             {/* Admin routes */}
             <Route path="/admin/dashboard" element={<AdminDashboard />} />

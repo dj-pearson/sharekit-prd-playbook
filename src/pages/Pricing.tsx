@@ -370,18 +370,30 @@ const Pricing = () => {
 
       {/* Footer */}
       <footer className="border-t py-8 mt-16">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-foreground transition-colors">
-            Home
-          </Link>
-          {" · "}
-          <Link to="/privacy" className="hover:text-foreground transition-colors">
-            Privacy
-          </Link>
-          {" · "}
-          <Link to="/terms" className="hover:text-foreground transition-colors">
-            Terms
-          </Link>
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground space-y-3">
+          <div>
+            <Link to="/" className="hover:text-foreground transition-colors">
+              Home
+            </Link>
+            {" · "}
+            <Link to="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            {" · "}
+            <Link to="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
+            {" · "}
+            <Link to="/dmca" className="hover:text-foreground transition-colors">
+              DMCA
+            </Link>
+          </div>
+          <div>
+            <p>&copy; 2025 ShareKit. All rights reserved.</p>
+            <p className="text-xs mt-1">
+              Operated by <span className="font-semibold">Pearson Media LLC</span> | DMCA Registration: DMCA-1065636
+            </p>
+          </div>
         </div>
       </footer>
     </div>

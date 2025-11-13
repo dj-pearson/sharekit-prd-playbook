@@ -337,12 +337,16 @@ const Home = () => {
               <ul className="space-y-2 text-muted-foreground">
                 <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
                 <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+                <li><Link to="/dmca" className="hover:text-foreground transition-colors">DMCA Policy</Link></li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t text-center text-muted-foreground">
+          <div className="mt-12 pt-8 border-t text-center text-muted-foreground space-y-2">
             <p>&copy; 2025 ShareKit. All rights reserved.</p>
+            <p className="text-sm">
+              Operated by <span className="font-semibold">Pearson Media LLC</span> | DMCA Designated Agent: Registration Number DMCA-1065636
+            </p>
           </div>
         </div>
       </footer>

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +14,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -28,6 +30,17 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate terms acceptance for sign-up
+    if (isSignUp && !acceptedTerms) {
+      toast({
+        title: "Terms Required",
+        description: "You must accept the Terms of Service to create an account.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -174,6 +187,30 @@ const Auth = () => {
                 </div>
               )}
 
+              {isSignUp && (
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="terms"
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                    className="mt-1"
+                  />
+                  <Label
+                    htmlFor="terms"
+                    className="text-sm leading-relaxed cursor-pointer"
+                  >
+                    I agree to ShareKit's{" "}
+                    <Link to="/terms" className="text-cyan-600 hover:underline" target="_blank">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link to="/privacy" className="text-cyan-600 hover:underline" target="_blank">
+                      Privacy Policy
+                    </Link>
+                  </Label>
+                </div>
+              )}
+
               <Button 
                 type="submit" 
                 className="w-full bg-gradient-ocean hover:opacity-90 transition-opacity"
@@ -237,8 +274,8 @@ const Auth = () => {
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           By continuing, you agree to ShareKit's{" "}
-          <a href="#" className="underline hover:text-foreground">Terms of Service</a> and{" "}
-          <a href="#" className="underline hover:text-foreground">Privacy Policy</a>
+          <Link to="/terms" className="underline hover:text-foreground">Terms of Service</Link> and{" "}
+          <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
         </p>
       </div>
     </div>
