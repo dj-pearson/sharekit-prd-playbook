@@ -31,6 +31,19 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
+// Admin pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminMonitoring from "./pages/admin/AdminMonitoring";
+import AdminModeration from "./pages/admin/AdminModeration";
+import AdminSupport from "./pages/admin/AdminSupport";
+import AdminSubscriptions from "./pages/admin/AdminSubscriptions";
+import AdminCMS from "./pages/admin/AdminCMS";
+import AdminMarketing from "./pages/admin/AdminMarketing";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminPlaceholder from "./pages/admin/AdminPlaceholder";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -68,6 +81,19 @@ const App = () => (
             <Route path="/d/:token" element={<DownloadPage />} />
             <Route path="/terms" element={<TermsOfService />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
+
+            {/* Admin routes */}
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/monitoring" element={<AdminMonitoring />} />
+            <Route path="/admin/content" element={<AdminModeration />} />
+            <Route path="/admin/support" element={<AdminSupport />} />
+            <Route path="/admin/subscriptions" element={<AdminSubscriptions />} />
+            <Route path="/admin/cms" element={<AdminCMS />} />
+            <Route path="/admin/marketing" element={<AdminMarketing />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
