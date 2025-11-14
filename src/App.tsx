@@ -75,6 +75,7 @@ const App = () => (
             <Route path="/dashboard/pages/:pageId/sequences" element={<EmailSequences />} />
             <Route path="/dashboard/pages/:pageId/ab-testing" element={<ABTesting />} />
             <Route path="/dashboard/page-builder" element={<PageBuilderPage />} />
+            <Route path="/dashboard/pages/builder/:pageId?" element={<PageBuilderPage />} />
             <Route path="/dashboard/settings" element={<Settings />} />
             <Route path="/dashboard/domains" element={<CustomDomains />} />
             <Route path="/p/:slug" element={<PublicPage />} />
