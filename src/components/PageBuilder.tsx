@@ -1,305 +1,288 @@
-import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Rect, Circle, IText, Image as FabricImage } from "fabric";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { 
-  Square, 
-  Circle as CircleIcon, 
-  Type, 
-  Image as ImageIcon, 
-  Download, 
-  Trash2, 
-  Copy,
-  Palette,
-  Undo,
-  Redo
-} from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
+import { Save, ArrowLeft, Eye, Loader2 } from "lucide-react";
+import { EditorPanel } from "./PageBuilder/EditorPanel";
+import { PreviewPanel } from "./PageBuilder/PreviewPanel";
+import { PageContent } from "@/lib/page-analyzer";
 
 interface PageBuilderProps {
-  onSave?: (canvasData: string) => void;
+  pageId?: string;
+  onSave?: (pageId: string) => void;
+  initialData?: {
+    title: string;
+    description?: string;
+    template: string;
+    content?: PageContent;
+  };
 }
 
-export function PageBuilder({ onSave }: PageBuilderProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
-  const [activeColor, setActiveColor] = useState("#0891b2");
-  const [history, setHistory] = useState<string[]>([]);
-  const [historyStep, setHistoryStep] = useState(-1);
+export function PageBuilder({ pageId, onSave, initialData }: PageBuilderProps) {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const autoSaveTimerRef = useRef<NodeJS.Timeout>();
 
+  const [template, setTemplate] = useState(initialData?.template || 'minimal');
+  const [content, setContent] = useState<PageContent>(
+    initialData?.content || {
+      headline: '',
+      subheadline: '',
+      button_text: '',
+      primary_color: '#3b82f6'
+    }
+  );
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(!!pageId);
+  const [hasResources, setHasResources] = useState(true);
+  const [resourceCount, setResourceCount] = useState(1);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Load existing page data
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (pageId) {
+      loadPage();
+    }
+  }, [pageId]);
 
-    const canvas = new FabricCanvas(canvasRef.current, {
-      width: 800,
-      height: 600,
-      backgroundColor: "#ffffff",
-    });
+  const loadPage = async () => {
+    if (!pageId) return;
 
-    setFabricCanvas(canvas);
-    saveState(canvas);
+    try {
+      setIsLoading(true);
 
-    canvas.on('object:modified', () => saveState(canvas));
-    canvas.on('object:added', () => saveState(canvas));
+      // Fetch page data
+      const { data: page, error: pageError } = await supabase
+        .from('pages')
+        .select('title, description, template, content')
+        .eq('id', pageId)
+        .single();
 
-    return () => {
-      canvas.dispose();
+      if (pageError) throw pageError;
+
+      if (page) {
+        setTitle(page.title);
+        setTemplate(page.template || 'minimal');
+
+        // Load content from JSONB field or construct from title/description
+        if (page.content && typeof page.content === 'object') {
+          setContent(page.content as PageContent);
+        } else {
+          // Fallback: use title and description if content field doesn't exist
+          setContent({
+            headline: page.title || '',
+            subheadline: page.description || '',
+            button_text: 'Download Now',
+            primary_color: '#3b82f6'
+          });
+        }
+
+        // Check for resources
+        const { count } = await supabase
+          .from('page_resources')
+          .select('*', { count: 'exact', head: true })
+          .eq('page_id', pageId);
+
+        setHasResources((count || 0) > 0);
+        setResourceCount(count || 1);
+      }
+    } catch (error) {
+      console.error('Error loading page:', error);
+      toast({
+        title: "Error loading page",
+        description: "Could not load page data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Auto-save every 30 seconds
+  useEffect(() => {
+    if (hasUnsavedChanges && pageId) {
+      autoSaveTimerRef.current = setTimeout(() => {
+        handleSave(true);
+      }, 30000); // 30 seconds
+
+      return () => {
+        if (autoSaveTimerRef.current) {
+          clearTimeout(autoSaveTimerRef.current);
+        }
+      };
+    }
+  }, [hasUnsavedChanges, content, template, pageId]);
+
+  // Mark as having unsaved changes when content or template changes
+  useEffect(() => {
+    if (!isLoading) {
+      setHasUnsavedChanges(true);
+    }
+  }, [content, template]);
+
+  // Keyboard shortcut: ⌘S or Ctrl+S to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        handleSave();
+      }
     };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [content, template, pageId]);
+
+  const handleSave = async (isAutoSave = false) => {
+    if (!pageId) {
+      toast({
+        title: "Cannot save",
+        description: "Please create a page first before using the builder.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      // Update page with new content and template
+      const { error } = await supabase
+        .from('pages')
+        .update({
+          template,
+          content,
+          title: content.headline || title, // Use headline as title if available
+          description: content.subheadline || null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', pageId);
+
+      if (error) throw error;
+
+      setLastSaved(new Date());
+      setHasUnsavedChanges(false);
+
+      if (!isAutoSave) {
+        toast({
+          title: "Saved successfully",
+          description: "Your page has been updated.",
+        });
+      }
+
+      if (onSave) {
+        onSave(pageId);
+      }
+    } catch (error) {
+      console.error('Error saving page:', error);
+      toast({
+        title: "Error saving",
+        description: "Could not save your changes. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleContentChange = useCallback((newContent: PageContent) => {
+    setContent(newContent);
   }, []);
 
-  const saveState = (canvas: FabricCanvas) => {
-    const json = JSON.stringify(canvas.toJSON());
-    setHistory(prev => {
-      const newHistory = prev.slice(0, historyStep + 1);
-      return [...newHistory, json];
-    });
-    setHistoryStep(prev => prev + 1);
-  };
+  const handleTemplateChange = useCallback((newTemplate: string) => {
+    setTemplate(newTemplate);
+  }, []);
 
-  const undo = () => {
-    if (!fabricCanvas || historyStep <= 0) return;
-    
-    const newStep = historyStep - 1;
-    setHistoryStep(newStep);
-    fabricCanvas.loadFromJSON(history[newStep], () => {
-      fabricCanvas.renderAll();
-    });
-  };
-
-  const redo = () => {
-    if (!fabricCanvas || historyStep >= history.length - 1) return;
-    
-    const newStep = historyStep + 1;
-    setHistoryStep(newStep);
-    fabricCanvas.loadFromJSON(history[newStep], () => {
-      fabricCanvas.renderAll();
-    });
-  };
-
-  const addRectangle = () => {
-    if (!fabricCanvas) return;
-
-    const rect = new Rect({
-      left: 100,
-      top: 100,
-      fill: activeColor,
-      width: 200,
-      height: 150,
-      stroke: '#000000',
-      strokeWidth: 2,
-    });
-    fabricCanvas.add(rect);
-    fabricCanvas.setActiveObject(rect);
-    toast.success("Rectangle added");
-  };
-
-  const addCircle = () => {
-    if (!fabricCanvas) return;
-
-    const circle = new Circle({
-      left: 150,
-      top: 150,
-      fill: activeColor,
-      radius: 80,
-      stroke: '#000000',
-      strokeWidth: 2,
-    });
-    fabricCanvas.add(circle);
-    fabricCanvas.setActiveObject(circle);
-    toast.success("Circle added");
-  };
-
-  const addText = () => {
-    if (!fabricCanvas) return;
-
-    const text = new IText('Double click to edit', {
-      left: 100,
-      top: 100,
-      fill: activeColor,
-      fontSize: 24,
-      fontFamily: 'Arial',
-    });
-    fabricCanvas.add(text);
-    fabricCanvas.setActiveObject(text);
-    toast.success("Text added");
-  };
-
-  const addImage = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file || !fabricCanvas) return;
-
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const imgUrl = event.target?.result as string;
-        FabricImage.fromURL(imgUrl).then((img) => {
-          img.scale(0.5);
-          img.set({ left: 100, top: 100 });
-          fabricCanvas.add(img);
-          fabricCanvas.setActiveObject(img);
-          toast.success("Image added");
-        });
-      };
-      reader.readAsDataURL(file);
-    };
-    input.click();
-  };
-
-  const deleteSelected = () => {
-    if (!fabricCanvas) return;
-    const activeObjects = fabricCanvas.getActiveObjects();
-    if (activeObjects.length === 0) {
-      toast.error("No object selected");
-      return;
+  const handleBack = () => {
+    if (hasUnsavedChanges) {
+      const confirm = window.confirm('You have unsaved changes. Do you want to leave?');
+      if (!confirm) return;
     }
-    fabricCanvas.remove(...activeObjects);
-    fabricCanvas.discardActiveObject();
-    toast.success("Deleted selected objects");
+    navigate('/dashboard/pages');
   };
 
-  const duplicateSelected = () => {
-    if (!fabricCanvas) return;
-    const activeObject = fabricCanvas.getActiveObject();
-    if (!activeObject) {
-      toast.error("No object selected");
-      return;
+  const handlePreview = () => {
+    if (pageId) {
+      // Open preview in new tab
+      const { data } = supabase.auth.getSession();
+      // For now, just navigate to the pages list
+      navigate('/dashboard/pages');
     }
-    
-    activeObject.clone().then((cloned: any) => {
-      cloned.set({
-        left: (cloned.left || 0) + 20,
-        top: (cloned.top || 0) + 20,
-      });
-      fabricCanvas.add(cloned);
-      fabricCanvas.setActiveObject(cloned);
-      toast.success("Object duplicated");
-    });
   };
 
-  const clearCanvas = () => {
-    if (!fabricCanvas) return;
-    fabricCanvas.clear();
-    fabricCanvas.backgroundColor = "#ffffff";
-    fabricCanvas.renderAll();
-    toast.success("Canvas cleared");
-  };
-
-  const exportCanvas = () => {
-    if (!fabricCanvas) return;
-    const dataURL = fabricCanvas.toDataURL({
-      format: 'png',
-      quality: 1,
-      multiplier: 1,
-    });
-    
-    const link = document.createElement('a');
-    link.download = 'page-design.png';
-    link.href = dataURL;
-    link.click();
-    toast.success("Design exported");
-  };
-
-  const handleSave = () => {
-    if (!fabricCanvas) return;
-    const json = JSON.stringify(fabricCanvas.toJSON());
-    onSave?.(json);
-    toast.success("Design saved");
-  };
-
-  const colors = [
-    "#0891b2", "#3b82f6", "#8b5cf6", "#ec4899", 
-    "#ef4444", "#f97316", "#eab308", "#22c55e"
-  ];
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>Visual Page Builder</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Toolbar */}
-          <div className="flex flex-wrap gap-2 items-center">
-            <div className="flex gap-1">
-              <Button variant="outline" size="sm" onClick={undo} disabled={historyStep <= 0}>
-                <Undo className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={redo} disabled={historyStep >= history.length - 1}>
-                <Redo className="w-4 h-4" />
-              </Button>
-            </div>
-
-            <Separator orientation="vertical" className="h-8" />
-
-            <Button variant="outline" size="sm" onClick={addRectangle}>
-              <Square className="w-4 h-4 mr-2" />
-              Rectangle
-            </Button>
-            <Button variant="outline" size="sm" onClick={addCircle}>
-              <CircleIcon className="w-4 h-4 mr-2" />
-              Circle
-            </Button>
-            <Button variant="outline" size="sm" onClick={addText}>
-              <Type className="w-4 h-4 mr-2" />
-              Text
-            </Button>
-            <Button variant="outline" size="sm" onClick={addImage}>
-              <ImageIcon className="w-4 h-4 mr-2" />
-              Image
-            </Button>
-
-            <Separator orientation="vertical" className="h-8" />
-
-            <Button variant="outline" size="sm" onClick={duplicateSelected}>
-              <Copy className="w-4 h-4 mr-2" />
-              Duplicate
-            </Button>
-            <Button variant="outline" size="sm" onClick={deleteSelected}>
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
-            </Button>
-
-            <Separator orientation="vertical" className="h-8" />
-
-            <div className="flex items-center gap-2">
-              <Palette className="w-4 h-4 text-muted-foreground" />
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  className={`w-8 h-8 rounded-md transition-transform hover:scale-110 ${
-                    activeColor === color ? 'ring-2 ring-offset-2 ring-primary' : ''
-                  }`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setActiveColor(color)}
-                />
-              ))}
-            </div>
+    <div className="h-screen flex flex-col bg-white">
+      {/* Top Bar */}
+      <div className="border-b bg-white px-6 py-3 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={handleBack}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div className="h-6 w-px bg-slate-200" />
+          <div>
+            <h2 className="font-semibold text-sm">Page Builder</h2>
+            {lastSaved && (
+              <p className="text-xs text-slate-500">
+                Last saved: {lastSaved.toLocaleTimeString()}
+              </p>
+            )}
           </div>
+        </div>
 
-          {/* Canvas */}
-          <div className="border-2 border-dashed border-slate-200 rounded-lg overflow-hidden shadow-inner">
-            <canvas ref={canvasRef} className="max-w-full" />
-          </div>
+        <div className="flex items-center gap-3">
+          {hasUnsavedChanges && (
+            <span className="text-xs text-orange-600 font-medium">Unsaved changes</span>
+          )}
+          <Button variant="outline" size="sm" onClick={handlePreview}>
+            <Eye className="w-4 h-4 mr-2" />
+            Preview
+          </Button>
+          <Button size="sm" onClick={() => handleSave()} disabled={isSaving}>
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4 mr-2" />
+            )}
+            Save
+          </Button>
+        </div>
+      </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={clearCanvas}>
-              Clear Canvas
-            </Button>
-            <Button variant="outline" onClick={exportCanvas}>
-              <Download className="w-4 h-4 mr-2" />
-              Export PNG
-            </Button>
-            <Button onClick={handleSave}>
-              Save Design
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Split Screen: Editor (40%) | Preview (60%) */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Editor Panel - Left Side (40%) */}
+        <div className="w-[40%] border-r flex flex-col">
+          <EditorPanel
+            content={content}
+            template={template}
+            onContentChange={handleContentChange}
+            onTemplateChange={handleTemplateChange}
+            hasResources={hasResources}
+          />
+        </div>
+
+        {/* Preview Panel - Right Side (60%) */}
+        <div className="w-[60%] flex flex-col">
+          <PreviewPanel
+            content={content}
+            template={template}
+            hasResources={hasResources}
+            resourceCount={resourceCount}
+          />
+        </div>
+      </div>
     </div>
   );
 }
