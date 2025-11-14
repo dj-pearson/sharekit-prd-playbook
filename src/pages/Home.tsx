@@ -4,10 +4,36 @@ import { ArrowRight, CheckCircle, Download, Mail, BarChart3, Sparkles, Users, Za
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import Hero3D from "@/components/Hero3D";
+import { SEOHead } from "@/components/SEOHead";
+import { organizationSchema, softwareAppSchema, faqSchema } from "@/lib/structured-data";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const Home = () => {
   return (
     <div className="min-h-screen">
+      <SEOHead
+        title="Simple Resource Delivery Platform for Creators, Coaches & Consultants"
+        description="ShareKit enables you to share digital resources (PDFs, guides, checklists) through beautiful landing pages with automated email delivery—without the complexity of ConvertKit or Mailchimp. Setup in 5 minutes, not hours."
+        canonical="https://sharekit.net"
+        keywords={[
+          'resource delivery platform',
+          'lead magnet tool',
+          'email capture landing page',
+          'ConvertKit alternative',
+          'share PDF with email capture',
+          'automated resource delivery',
+          'creator tools',
+          'coach resource sharing',
+          'consultant digital resources'
+        ]}
+        structuredData={[organizationSchema, softwareAppSchema, faqSchema]}
+      />
+
       {/* Navigation */}
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -50,13 +76,13 @@ const Home = () => {
               Beautiful by design, simple by default
             </div>
             
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight text-foreground drop-shadow-[0_4px_20px_rgba(255,255,255,0.8)] [text-shadow:_2px_2px_8px_rgb(255_255_255_/_60%),_0_0_40px_rgb(255_255_255_/_40%)]">
-              Share what matters,<br/>
-              <span className="text-transparent bg-clip-text bg-gradient-ocean drop-shadow-[0_4px_16px_rgba(8,145,178,0.6)] [text-shadow:_0_0_30px_rgb(8_145_178_/_50%)]">see signups in real-time</span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight text-foreground drop-shadow-[0_4px_20px_rgba(255,255,255,0.8)] [text-shadow:_2px_2px_8px_rgb(255_255_255_/_60%),_0_0_40px_rgb(255_255_255_/_40%)]">
+              Simple Resource Delivery Platform<br/>
+              <span className="text-transparent bg-clip-text bg-gradient-ocean drop-shadow-[0_4px_16px_rgba(8,145,178,0.6)] [text-shadow:_0_0_30px_rgb(8_145_178_/_50%)]">for Creators, Coaches & Consultants</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-foreground/95 mb-12 max-w-2xl mx-auto font-medium [text-shadow:_0_1px_1px_rgb(0_0_0_/_35%),_0_0_8px_rgb(255_255_255_/_20%)]">
-              While others spend hours on setup, you'll be watching live signups in 3 minutes. Beautiful by default. Generous, not salesy.
+            <p className="text-lg md:text-xl text-foreground/95 mb-12 max-w-3xl mx-auto font-medium [text-shadow:_0_1px_1px_rgb(0_0_0_/_35%),_0_0_8px_rgb(255_255_255_/_20%)]">
+              ShareKit enables you to share digital resources (PDFs, guides, checklists) through beautiful landing pages with automated email delivery—<strong>without the complexity of ConvertKit or Mailchimp</strong>. Setup in 5 minutes, not hours.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
@@ -283,6 +309,233 @@ const Home = () => {
                 </Link>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Use Cases Section */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Perfect for Life Coaches, Course Creators & Consultants</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              ShareKit is built for creators who want to share their expertise without technical complexity
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <Card className="border hover:shadow-medium transition-shadow">
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-3">Life & Business Coaches</h3>
+                <p className="text-muted-foreground text-sm">Share client worksheets, frameworks, assessments, and coaching guides with automated delivery.</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border hover:shadow-medium transition-shadow">
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-3">Course Creators</h3>
+                <p className="text-muted-foreground text-sm">Deliver lead magnets to build your audience before launch. Perfect for pre-course engagement.</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border hover:shadow-medium transition-shadow">
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-3">Consultants</h3>
+                <p className="text-muted-foreground text-sm">Share case studies, industry reports, proposal templates, and professional resources.</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border hover:shadow-medium transition-shadow">
+              <CardContent className="pt-6">
+                <h3 className="text-lg font-semibold mb-3">Wellness Creators</h3>
+                <p className="text-muted-foreground text-sm">Deliver meditation guides, meal plans, workout PDFs, and wellness resources instantly.</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Why ShareKit Over ConvertKit */}
+      <section className="py-20 bg-gradient-subtle">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Why Creators Choose ShareKit Over ConvertKit</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Do ONE thing exceptionally well, instead of everything mediocrely
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="text-5xl font-bold text-primary mb-2">10x</div>
+                <div className="text-lg font-semibold mb-2">Faster Setup</div>
+                <p className="text-muted-foreground">5 minutes with ShareKit vs 2+ hours with ConvertKit. Start sharing immediately.</p>
+              </div>
+
+              <div className="text-center">
+                <div className="text-5xl font-bold text-primary mb-2">60%</div>
+                <div className="text-lg font-semibold mb-2">Lower Cost</div>
+                <p className="text-muted-foreground">$19/month vs ConvertKit's $29-79/month. Same results, less complexity.</p>
+              </div>
+
+              <div className="text-center">
+                <div className="text-5xl font-bold text-primary mb-2">Zero</div>
+                <div className="text-lg font-semibold mb-2">Learning Curve</div>
+                <p className="text-muted-foreground">No automation builders, no complex workflows. Just upload, customize, share.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to know about ShareKit
+            </p>
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">What is ShareKit used for?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  ShareKit enables coaches, consultants, and course creators to share digital resources (PDFs, guides, checklists) through beautiful landing pages. It captures emails and delivers resources automatically—without needing a full email marketing platform like ConvertKit or Mailchimp.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-2">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">How is ShareKit different from ConvertKit?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  ShareKit focuses exclusively on resource delivery, making it simpler and 40% cheaper than ConvertKit ($19/month vs $29-79/month). While ConvertKit is a full email marketing platform, ShareKit does ONE thing exceptionally well: deliver digital resources to people who want them.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-3">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Can I use ShareKit to grow my email list?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Yes. ShareKit captures emails when people sign up for your resources. You can then export this list or connect ShareKit to your email marketing platform via integrations.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-4">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">How long does it take to set up ShareKit?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  ShareKit takes approximately 3-5 minutes to set up. Upload your PDF or guide, choose a template, customize your page, and publish. You'll have your shareable link ready in minutes, not hours.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-5">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">What file formats does ShareKit support?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  ShareKit supports PDFs, guides, checklists, ebooks, worksheets, and other digital resources. If you can upload it, we can deliver it automatically to your audience.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-6">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Is there a free trial?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Yes. ShareKit offers a free plan with 1 published page and 100 signups per month. Perfect for testing before upgrading to Pro ($19/month) or Business ($49/month).
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-7">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Can I remove ShareKit branding?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Yes. The Pro plan ($19/month) and Business plan ($49/month) allow you to remove ShareKit branding from your pages. The free plan includes ShareKit attribution.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-8">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Does ShareKit work with my email marketing platform?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Yes. ShareKit integrates with popular email marketing platforms through webhooks and Zapier. You can automatically sync new signups to your existing email list.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-9">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">What happens when someone signs up?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  When someone enters their email on your ShareKit page, they instantly receive a welcome email with a download link to your resource. You receive a real-time notification about the new signup.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-10">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Can I use my own domain?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Yes. The Business plan ($49/month) includes custom domain support. You can use your own domain (like resources.yourdomain.com) instead of sharekit.net URLs.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-11">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Who is ShareKit for?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  ShareKit is perfect for life coaches, business coaches, course creators, consultants, wellness creators, and anyone who wants to share digital resources with email capture. If you have a guide, PDF, or checklist to share, ShareKit makes it simple.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-12">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Do I need technical skills to use ShareKit?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  No. ShareKit requires zero technical skills or design experience. Upload your resource, choose a template, and you're done. Everything is point-and-click simple.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-13">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Can I track analytics and conversions?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Yes. ShareKit includes analytics for page views, signup conversions, and real-time notifications. Pro and Business plans include advanced analytics with detailed insights.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-14">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">What if I exceed my signup limit?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  You'll receive an email notification at 80% capacity. You can upgrade anytime or purchase additional signups for $10 per 500 signups. No signups are ever lost.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="item-15">
+                <AccordionTrigger className="text-left">
+                  <h3 className="text-lg font-semibold">Why should I choose ShareKit over ConvertKit or Mailchimp?</h3>
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  Choose ShareKit if you want to share resources without the complexity and cost of full email marketing platforms. ShareKit is 60% cheaper ($19 vs $29-79), 10x faster to set up (5 minutes vs 2 hours), and does ONE thing exceptionally well: deliver digital resources to people who want them.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </section>
