@@ -1,0 +1,9 @@
+name = "sharekit-prd-playbook"
+compatibility_date = "2024-11-17"
+pages_build_output_dir = "dist"
+
+[env.production]
+name = "sharekit-prd-playbook"
+
+[env.preview]
+name = "sharekit-prd-playbook-preview"
