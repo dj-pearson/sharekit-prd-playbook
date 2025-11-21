@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { EmailCaptureForm } from "@/components/EmailCaptureForm";
 import { Logo } from "@/components/Logo";
 import { SocialProofWidget } from "@/components/SocialProofWidget";
+import { SEOHead } from "@/components/SEOHead";
 
 interface PageData {
   id: string;
@@ -27,6 +28,7 @@ interface Resource {
   description: string | null;
   file_url: string;
   file_name: string;
+  cover_image?: string | null;
 }
 
 const PublicPage = () => {
@@ -142,7 +144,8 @@ const PublicPage = () => {
             title,
             description,
             file_url,
-            file_name
+            file_name,
+            cover_image
           )
         `)
         .eq('page_id', pageData.id)
@@ -261,8 +264,18 @@ const PublicPage = () => {
     professional: "bg-gradient-to-br from-background to-accent/5",
   };
 
+  const currentUrl = window.location.href;
+  const ogImage = resources[0]?.cover_image || "https://sharekit.net/og-default.png";
+
   return (
     <div className={`min-h-screen ${templateClasses[page.template as keyof typeof templateClasses] || templateClasses.minimal}`}>
+      <SEOHead
+        title={page.title}
+        description={page.description || `Download ${page.title} - Free resource shared by ${page.creator_name}`}
+        canonical={currentUrl}
+        ogImage={ogImage}
+        keywords={[page.title, 'free resource', 'download guide', 'lead magnet', page.creator_name || 'creator']}
+      />
       {/* Social Proof Widget */}
       <SocialProofWidget pageId={page.id} />
       
