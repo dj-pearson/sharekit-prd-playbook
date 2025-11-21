@@ -8,6 +8,8 @@ import { Logo } from "@/components/Logo";
 import { createCheckoutSession, type Plan, type BillingInterval } from "@/lib/stripe";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { SEOHead } from "@/components/SEOHead";
+import { organizationSchema, softwareAppSchema } from "@/lib/structured-data";
 
 const Pricing = () => {
   const [billingPeriod, setBillingPeriod] = useState<BillingInterval>("monthly");
@@ -121,6 +123,19 @@ const Pricing = () => {
     },
   ];
 
+  const pricingFAQSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  };
+
   const getPlanPrice = (plan: typeof plans[0]) => {
     if (plan.price === 0) return "Free";
     const price = billingPeriod === "monthly" ? plan.price : Math.round(plan.annualPrice / 12);
@@ -164,6 +179,13 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
+      <SEOHead
+        title="ShareKit Pricing - Simple, Transparent Plans for Creators"
+        description="ShareKit pricing plans starting at $0. Compare Free vs Pro ($19/mo) vs Business ($49/mo). 60% cheaper than ConvertKit. No credit card required. 7-day free trial, 30-day money-back guarantee."
+        canonical="https://sharekit.net/pricing"
+        keywords={['sharekit pricing', 'convertkit alternative pricing', 'lead magnet tool cost', 'resource delivery pricing', 'free lead magnet tool', 'email capture tool pricing']}
+        structuredData={[organizationSchema, softwareAppSchema, pricingFAQSchema]}
+      />
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-4">

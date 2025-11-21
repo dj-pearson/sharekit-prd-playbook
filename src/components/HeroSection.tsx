@@ -71,6 +71,8 @@ export function HeroSection() {
                                 className="absolute inset-x-0 top-56 -z-20 hidden lg:top-32 dark:block"
                                 width="3276"
                                 height="4095"
+                                loading="lazy"
+                                decoding="async"
                             />
                         </AnimatedGroup>
                         <div aria-hidden className="absolute inset-0 -z-10 size-full [background:radial-gradient(125%_125%_at_50%_100%,transparent_0%,var(--background)_75%)]" />
@@ -168,6 +170,8 @@ export function HeroSection() {
                                         alt="app screen"
                                         width="2700"
                                         height="1440"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                     <img
                                         className="z-2 border-border/25 aspect-15/8 relative rounded-2xl border dark:hidden"
@@ -175,6 +179,8 @@ export function HeroSection() {
                                         alt="app screen"
                                         width="2700"
                                         height="1440"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                 </div>
                             </div>
@@ -200,6 +206,8 @@ export function HeroSection() {
                                     alt="Nvidia Logo"
                                     height="20"
                                     width="auto"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
 
@@ -210,6 +218,8 @@ export function HeroSection() {
                                     alt="Column Logo"
                                     height="16"
                                     width="auto"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                             <div className="flex">
@@ -219,6 +229,8 @@ export function HeroSection() {
                                     alt="GitHub Logo"
                                     height="16"
                                     width="auto"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                             <div className="flex">
@@ -228,6 +240,8 @@ export function HeroSection() {
                                     alt="Nike Logo"
                                     height="20"
                                     width="auto"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                             <div className="flex">
@@ -237,6 +251,8 @@ export function HeroSection() {
                                     alt="Lemon Squeezy Logo"
                                     height="20"
                                     width="auto"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                             <div className="flex">
@@ -246,6 +262,8 @@ export function HeroSection() {
                                     alt="Laravel Logo"
                                     height="16"
                                     width="auto"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                             <div className="flex">
@@ -255,6 +273,8 @@ export function HeroSection() {
                                     alt="Lilly Logo"
                                     height="28"
                                     width="auto"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
 
@@ -265,6 +285,8 @@ export function HeroSection() {
                                     alt="OpenAI Logo"
                                     height="24"
                                     width="auto"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                         </div>
