@@ -1,14 +1,32 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users } from "lucide-react";
+import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users, Crown, Bell, Plus, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/useSubscription";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
 import { Logo } from "@/components/Logo";
 import type { User } from "@supabase/supabase-js";
+
+interface Notification {
+  id: string;
+  type: 'signup' | 'milestone';
+  message: string;
+  page_title?: string;
+  created_at: string;
+}
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -26,14 +44,18 @@ const navItems = [
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { subscription, getPlanName } = useSubscription();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
+        loadNotifications(session.user.id);
       } else {
         navigate("/auth");
       }
@@ -46,10 +68,55 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         navigate("/auth");
       }
     });
-    const subscription = data.subscription;
+    const authSubscription = data.subscription;
 
-    return () => subscription.unsubscribe();
+    return () => authSubscription.unsubscribe();
   }, [navigate]);
+
+  const loadNotifications = async (userId: string) => {
+    try {
+      // Get recent signups from user's pages
+      const { data: pages } = await supabase
+        .from('pages')
+        .select('id, title')
+        .eq('user_id', userId);
+
+      if (!pages || pages.length === 0) return;
+
+      const pageIds = pages.map(p => p.id);
+      const pageMap = new Map(pages.map(p => [p.id, p.title]));
+
+      // Get recent email captures (last 24 hours)
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const { data: recentSignups } = await supabase
+        .from('email_captures')
+        .select('id, page_id, email, captured_at')
+        .in('page_id', pageIds)
+        .gte('captured_at', yesterday.toISOString())
+        .order('captured_at', { ascending: false })
+        .limit(5);
+
+      if (recentSignups) {
+        const notifs: Notification[] = recentSignups.map(signup => ({
+          id: signup.id,
+          type: 'signup' as const,
+          message: `New signup on "${pageMap.get(signup.page_id) || 'your page'}"`,
+          page_title: pageMap.get(signup.page_id),
+          created_at: signup.captured_at,
+        }));
+        setNotifications(notifs);
+        setUnreadCount(notifs.length);
+      }
+    } catch (error) {
+      console.error('Error loading notifications:', error);
+    }
+  };
+
+  const clearNotifications = () => {
+    setUnreadCount(0);
+  };
 
   const handleSignOut = async () => {
     try {
@@ -84,15 +151,92 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Logo size="sm" />
               </Link>
             </div>
-            
-            <div className="flex items-center space-x-3">
-              <Button 
-                variant="ghost" 
+
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              {/* New Page Button */}
+              <Button
+                asChild
+                size="sm"
+                className="bg-gradient-ocean hover:opacity-90 transition-opacity hidden sm:flex"
+              >
+                <Link to="/dashboard/pages/create">
+                  <Plus className="w-4 h-4 mr-1" />
+                  New Page
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="icon"
+                className="bg-gradient-ocean hover:opacity-90 transition-opacity sm:hidden h-8 w-8"
+              >
+                <Link to="/dashboard/pages/create">
+                  <Plus className="w-4 h-4" />
+                </Link>
+              </Button>
+
+              {/* Notification Bell */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative h-8 w-8" onClick={clearNotifications}>
+                    <Bell className="w-4 h-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80">
+                  <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {notifications.length === 0 ? (
+                    <div className="py-4 text-center text-sm text-muted-foreground">
+                      No new notifications
+                    </div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <DropdownMenuItem key={notif.id} className="flex items-start gap-3 py-3">
+                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                          <UserPlus className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{notif.message}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(notif.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  )}
+                  {notifications.length > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild className="justify-center">
+                        <Link to="/dashboard/analytics" className="text-sm text-primary">
+                          View all activity
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <Button
+                variant="ghost"
                 size="sm"
                 onClick={handleSignOut}
+                className="hidden sm:flex"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSignOut}
+                className="sm:hidden h-8 w-8"
+              >
+                <LogOut className="w-4 h-4" />
               </Button>
               <div className="w-8 h-8 rounded-full bg-gradient-ocean flex items-center justify-center text-white text-sm font-medium">
                 {user?.email?.charAt(0).toUpperCase()}
@@ -128,15 +272,41 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             {/* Upgrade Card */}
             <div className="p-4 mt-auto">
-              <Card className="bg-gradient-ocean text-white">
-                <CardContent className="p-4">
-                  <div className="text-sm font-medium mb-1">Free Plan</div>
-                  <div className="text-xs opacity-90 mb-3">0 / 100 signups this month</div>
-                  <Button variant="secondary" size="sm" className="w-full">
-                    Upgrade to Pro
-                  </Button>
-                </CardContent>
-              </Card>
+              {subscription?.plan === 'free' ? (
+                <Card className="bg-gradient-ocean text-white">
+                  <CardContent className="p-4">
+                    <div className="text-sm font-medium mb-1">{getPlanName()} Plan</div>
+                    <div className="text-xs opacity-90 mb-2">
+                      {subscription.usage.signups_this_month} / {subscription.limits.signups_per_month} signups this month
+                    </div>
+                    <Progress
+                      value={(subscription.usage.signups_this_month / subscription.limits.signups_per_month) * 100}
+                      className="h-1.5 mb-3 bg-white/20"
+                    />
+                    <Button variant="secondary" size="sm" className="w-full" asChild>
+                      <Link to="/pricing">
+                        Upgrade to Pro
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Crown className="w-4 h-4" />
+                      <span className="text-sm font-medium">{getPlanName()} Plan</span>
+                    </div>
+                    <div className="text-xs opacity-90 mb-2">
+                      {subscription?.usage.signups_this_month.toLocaleString()} / {subscription?.limits.signups_per_month.toLocaleString()} signups
+                    </div>
+                    <Progress
+                      value={((subscription?.usage.signups_this_month || 0) / (subscription?.limits.signups_per_month || 1)) * 100}
+                      className="h-1.5 bg-white/20"
+                    />
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </SidebarContent>
         </Sidebar>

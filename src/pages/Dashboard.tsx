@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, TrendingUp, Users, Eye, FileText, Upload } from "lucide-react";
+import { Plus, TrendingUp, Users, Eye, FileText, Upload, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
@@ -15,6 +15,8 @@ interface DashboardStats {
   totalSignups: number;
   signupRate: number;
   hasPages: boolean;
+  hasResources: boolean;
+  hasFirstSignup: boolean;
 }
 
 const Dashboard = () => {
@@ -25,6 +27,8 @@ const Dashboard = () => {
     totalSignups: 0,
     signupRate: 0,
     hasPages: false,
+    hasResources: false,
+    hasFirstSignup: false,
   });
   const { subscription } = useSubscription();
 
@@ -63,6 +67,14 @@ const Dashboard = () => {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
+      // Get user's resources
+      const { count: resourceCount } = await supabase
+        .from('resources')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      const hasResources = (resourceCount || 0) > 0;
+
       // Get user's pages
       const { data: pages } = await supabase
         .from('pages')
@@ -70,7 +82,14 @@ const Dashboard = () => {
         .eq('user_id', user.id);
 
       if (!pages || pages.length === 0) {
-        setStats({ ...stats, hasPages: false });
+        setStats({
+          totalViews: 0,
+          totalSignups: 0,
+          signupRate: 0,
+          hasPages: false,
+          hasResources,
+          hasFirstSignup: false,
+        });
         return;
       }
 
@@ -83,6 +102,12 @@ const Dashboard = () => {
         .in('page_id', pageIds)
         .gte('created_at', thirtyDaysAgo.toISOString());
 
+      // Check if user has ever received a signup (not just last 30 days)
+      const { count: totalSignupCount } = await supabase
+        .from('email_captures')
+        .select('*', { count: 'exact', head: true })
+        .in('page_id', pageIds);
+
       const totalViews = events?.filter(e => e.event_type === 'view').length || 0;
       const totalSignups = events?.filter(e => e.event_type === 'signup').length || 0;
       const signupRate = totalViews > 0 ? (totalSignups / totalViews) * 100 : 0;
@@ -92,6 +117,8 @@ const Dashboard = () => {
         totalSignups,
         signupRate: Math.round(signupRate * 10) / 10,
         hasPages: true,
+        hasResources,
+        hasFirstSignup: (totalSignupCount || 0) > 0,
       });
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
@@ -274,52 +301,97 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Getting Started */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Getting Started</CardTitle>
-          <CardDescription>Quick steps to start sharing</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
-                1
+      {/* Getting Started - Only show if there are incomplete steps */}
+      {!(stats.hasPages && stats.hasResources && stats.hasFirstSignup) && (
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Getting Started</CardTitle>
+            <CardDescription>
+              {stats.hasPages && stats.hasResources && !stats.hasFirstSignup
+                ? "Almost there! Share your page to get your first signup"
+                : "Complete these steps to start collecting signups"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                {stats.hasPages ? (
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  </div>
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
+                    1
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className={`font-medium mb-1 ${stats.hasPages ? 'text-green-600' : ''}`}>
+                    Create a landing page
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Choose a template and customize it to match your brand
+                  </p>
+                  {!stats.hasPages && (
+                    <Button asChild size="sm" className="mt-2" variant="outline">
+                      <Link to="/dashboard/pages/create">Create Page</Link>
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div>
-                <div className="font-medium mb-1">Create a landing page</div>
-                <p className="text-sm text-muted-foreground">
-                  Choose a template and customize it to match your brand
-                </p>
-              </div>
-            </div>
 
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
-                2
+              <div className="flex items-start gap-4">
+                {stats.hasResources ? (
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  </div>
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
+                    2
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className={`font-medium mb-1 ${stats.hasResources ? 'text-green-600' : ''}`}>
+                    Add your resources
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Upload PDFs, guides, or any files you want to share
+                  </p>
+                  {!stats.hasResources && (
+                    <Button asChild size="sm" className="mt-2" variant="outline">
+                      <Link to="/dashboard/upload">Upload Resource</Link>
+                    </Button>
+                  )}
+                </div>
               </div>
-              <div>
-                <div className="font-medium mb-1">Add your resources</div>
-                <p className="text-sm text-muted-foreground">
-                  Upload PDFs, guides, or any files you want to share
-                </p>
-              </div>
-            </div>
 
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
-                3
-              </div>
-              <div>
-                <div className="font-medium mb-1">Publish and share</div>
-                <p className="text-sm text-muted-foreground">
-                  Get your unique link and start collecting email signups
-                </p>
+              <div className="flex items-start gap-4">
+                {stats.hasFirstSignup ? (
+                  <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  </div>
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary font-semibold">
+                    3
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className={`font-medium mb-1 ${stats.hasFirstSignup ? 'text-green-600' : ''}`}>
+                    Get your first signup
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Share your page link and start collecting email signups
+                  </p>
+                  {!stats.hasFirstSignup && stats.hasPages && (
+                    <Button asChild size="sm" className="mt-2" variant="outline">
+                      <Link to="/dashboard/pages">View Your Pages</Link>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </DashboardLayout>
   );
 };
