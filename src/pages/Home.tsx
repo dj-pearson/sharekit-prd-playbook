@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, CheckCircle, Download, Mail, BarChart3, Sparkles, Users, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle, Download, Mail, BarChart3, Sparkles, Users, Zap, Quote, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import Hero3D from "@/components/Hero3D";
@@ -92,7 +92,12 @@ const Home = () => {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="text-lg px-8">
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8"
+                onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+              >
                 See How It Works
               </Button>
             </div>
@@ -112,6 +117,48 @@ const Home = () => {
                 <div className="text-sm text-muted-foreground">Start free forever</div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof Section */}
+      <section className="py-16 bg-background border-b">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 text-primary mb-4">
+              <Users className="w-5 h-5" />
+              <span className="font-semibold">Trusted by Creators</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Join 2,000+ creators sharing resources</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Coaches, consultants, and course creators use ShareKit to share their expertise and grow their audience.
+            </p>
+          </div>
+
+          {/* Testimonials */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="relative">
+                <CardContent className="pt-6">
+                  <Quote className="w-8 h-8 text-primary/20 mb-4" />
+                  <p className="text-muted-foreground mb-4 italic">"{testimonial.quote}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-ocean flex items-center justify-center text-white font-semibold">
+                      {testimonial.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-sm">{testimonial.name}</div>
+                      <div className="text-xs text-muted-foreground">{testimonial.role}</div>
+                    </div>
+                  </div>
+                  <div className="flex gap-0.5 mt-3">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -606,6 +653,24 @@ const Home = () => {
     </div>
   );
 };
+
+const testimonials = [
+  {
+    quote: "I was spending hours on ConvertKit. ShareKit got me set up in 5 minutes. My first signup came within an hour!",
+    name: "Sarah Mitchell",
+    role: "Life Coach"
+  },
+  {
+    quote: "The real-time notifications are addictive. Watching signups come in while I'm on a coaching call is the best feeling.",
+    name: "Marcus Chen",
+    role: "Business Consultant"
+  },
+  {
+    quote: "Finally, a simple way to share my resources without the complexity. My clients love how easy it is to download.",
+    name: "Emily Rodriguez",
+    role: "Course Creator"
+  }
+];
 
 const features = [
   {

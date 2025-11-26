@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users } from "lucide-react";
+import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/useSubscription";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
 import { Logo } from "@/components/Logo";
@@ -29,6 +31,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { subscription, getPlanName } = useSubscription();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -128,15 +131,41 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
             {/* Upgrade Card */}
             <div className="p-4 mt-auto">
-              <Card className="bg-gradient-ocean text-white">
-                <CardContent className="p-4">
-                  <div className="text-sm font-medium mb-1">Free Plan</div>
-                  <div className="text-xs opacity-90 mb-3">0 / 100 signups this month</div>
-                  <Button variant="secondary" size="sm" className="w-full">
-                    Upgrade to Pro
-                  </Button>
-                </CardContent>
-              </Card>
+              {subscription?.plan === 'free' ? (
+                <Card className="bg-gradient-ocean text-white">
+                  <CardContent className="p-4">
+                    <div className="text-sm font-medium mb-1">{getPlanName()} Plan</div>
+                    <div className="text-xs opacity-90 mb-2">
+                      {subscription.usage.signups_this_month} / {subscription.limits.signups_per_month} signups this month
+                    </div>
+                    <Progress
+                      value={(subscription.usage.signups_this_month / subscription.limits.signups_per_month) * 100}
+                      className="h-1.5 mb-3 bg-white/20"
+                    />
+                    <Button variant="secondary" size="sm" className="w-full" asChild>
+                      <Link to="/pricing">
+                        Upgrade to Pro
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Crown className="w-4 h-4" />
+                      <span className="text-sm font-medium">{getPlanName()} Plan</span>
+                    </div>
+                    <div className="text-xs opacity-90 mb-2">
+                      {subscription?.usage.signups_this_month.toLocaleString()} / {subscription?.limits.signups_per_month.toLocaleString()} signups
+                    </div>
+                    <Progress
+                      value={((subscription?.usage.signups_this_month || 0) / (subscription?.limits.signups_per_month || 1)) * 100}
+                      className="h-1.5 bg-white/20"
+                    />
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </SidebarContent>
         </Sidebar>

@@ -11,6 +11,7 @@ import { Logo } from "@/components/Logo";
 
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -119,6 +120,44 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!email) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Check your email",
+        description: "We've sent you a password reset link. Check your inbox.",
+      });
+
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send reset email.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-subtle p-4">
       <div className="w-full max-w-md">
@@ -129,16 +168,57 @@ const Auth = () => {
         <Card className="border-2 shadow-large">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">
-              {isSignUp ? "Create your account" : "Welcome back"}
+              {isForgotPassword
+                ? "Reset your password"
+                : isSignUp
+                  ? "Create your account"
+                  : "Welcome back"}
             </CardTitle>
             <CardDescription>
-              {isSignUp 
-                ? "Start sharing your resources in minutes" 
-                : "Sign in to your ShareKit account"}
+              {isForgotPassword
+                ? "Enter your email and we'll send you a reset link"
+                : isSignUp
+                  ? "Start sharing your resources in minutes"
+                  : "Sign in to your ShareKit account"}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
+            {isForgotPassword ? (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="resetEmail">Email</Label>
+                  <Input
+                    id="resetEmail"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-ocean hover:opacity-90 transition-opacity"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Sending..." : "Send Reset Link"}
+                </Button>
+
+                <div className="text-center">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-sm"
+                    onClick={() => setIsForgotPassword(false)}
+                  >
+                    Back to sign in
+                  </Button>
+                </div>
+              </form>
+            ) : (
+            <>
             <form onSubmit={handleSubmit} className="space-y-4">
               {isSignUp && (
                 <div className="space-y-2">
@@ -181,7 +261,12 @@ const Auth = () => {
 
               {!isSignUp && (
                 <div className="text-right">
-                  <Button type="button" variant="link" className="text-sm px-0">
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="text-sm px-0"
+                    onClick={() => setIsForgotPassword(true)}
+                  >
                     Forgot password?
                   </Button>
                 </div>
@@ -269,6 +354,8 @@ const Auth = () => {
                 {isSignUp ? "Sign in" : "Sign up"}
               </Button>
             </div>
+            </>
+            )}
           </CardContent>
         </Card>
 
