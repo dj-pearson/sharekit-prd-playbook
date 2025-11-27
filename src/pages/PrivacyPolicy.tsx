@@ -2,10 +2,26 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
+import { SEOHead } from "@/components/SEOHead";
+import { organizationSchema } from "@/lib/structured-data";
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-sky-100">
+      <SEOHead
+        title="Privacy Policy"
+        description="Learn how ShareKit collects, uses, and protects your data. Our privacy policy covers GDPR compliance, data retention, cookies, and your privacy rights."
+        canonical="https://sharekit.net/privacy"
+        keywords={[
+          'ShareKit privacy policy',
+          'data protection',
+          'GDPR compliance',
+          'privacy rights',
+          'data security'
+        ]}
+        structuredData={[organizationSchema]}
+      />
+
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <Link to="/">
           <Button variant="outline" className="mb-6">

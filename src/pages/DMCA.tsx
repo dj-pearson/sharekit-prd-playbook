@@ -2,10 +2,26 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
+import { SEOHead } from "@/components/SEOHead";
+import { organizationSchema } from "@/lib/structured-data";
 
 export default function DMCA() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-sky-100">
+      <SEOHead
+        title="DMCA Policy - Copyright Takedown Procedures"
+        description="ShareKit's DMCA policy outlines how to report copyright infringement, submit takedown notices, and file counter-notifications. We respect intellectual property rights."
+        canonical="https://sharekit.net/dmca"
+        keywords={[
+          'DMCA policy',
+          'copyright takedown',
+          'DMCA notice',
+          'copyright infringement',
+          'intellectual property'
+        ]}
+        structuredData={[organizationSchema]}
+      />
+
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <Link to="/">
           <Button variant="outline" className="mb-6">
