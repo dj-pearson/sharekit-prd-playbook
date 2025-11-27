@@ -17,11 +17,71 @@ interface OnboardingWizardProps {
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isOpen, setIsOpen] = useState(true);
+  const [isLoadingStep, setIsLoadingStep] = useState(true);
   const [completedPageUrl, setCompletedPageUrl] = useState("");
   const [username, setUsername] = useState("");
   const [isUsernameValid, setIsUsernameValid] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Load saved step on mount
+  useEffect(() => {
+    const loadSavedStep = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setIsLoadingStep(false);
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_step, username')
+          .eq('id', user.id)
+          .single();
+
+        if (profile) {
+          // Resume from saved step (but don't go to completion step)
+          if (profile.onboarding_step && profile.onboarding_step > 0 && profile.onboarding_step < 3) {
+            setCurrentStep(profile.onboarding_step);
+          }
+          if (profile.username) {
+            setUsername(profile.username);
+            setIsUsernameValid(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading saved step:', error);
+      } finally {
+        setIsLoadingStep(false);
+      }
+    };
+
+    loadSavedStep();
+  }, []);
+
+  // Save step progress when it changes
+  const saveStepProgress = async (step: number) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase
+        .from('profiles')
+        .update({ onboarding_step: step })
+        .eq('id', user.id);
+    } catch (error) {
+      console.error('Error saving step progress:', error);
+    }
+  };
+
+  // Update step with persistence
+  const goToStep = (step: number) => {
+    setCurrentStep(step);
+    if (step < 3) {
+      saveStepProgress(step);
+    }
+  };
 
   const steps = [
     {
@@ -101,8 +161,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         description: "You're all set! Let's start sharing.",
       });
 
-      // Move to success step
-      setCurrentStep(3);
+      // Move to success step (no need to persist step 3)
+      goToStep(3);
     } catch (error: any) {
       console.error('Failed to complete onboarding:', error);
       setIsOpen(false);
@@ -204,7 +264,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
               onValidationChange={setIsUsernameValid}
             />
             <Button
-              onClick={() => setCurrentStep(2)}
+              onClick={() => goToStep(2)}
               disabled={!username || !isUsernameValid}
               className="w-full bg-gradient-ocean hover:opacity-90"
               size="lg"
@@ -347,6 +407,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     }
   };
 
+  // Don't render until we've loaded the saved step
+  if (isLoadingStep) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -398,7 +463,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
           {currentStep === 0 && (
             <div className="mt-6">
               <Button
-                onClick={() => setCurrentStep(1)}
+                onClick={() => goToStep(1)}
                 className="w-full bg-gradient-ocean hover:opacity-90"
                 size="lg"
               >

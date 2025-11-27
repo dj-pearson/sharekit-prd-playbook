@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -22,16 +22,46 @@ interface ActivityEvent {
 export function RealtimeActivityFeed() {
   const [activities, setActivities] = useState<ActivityEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTabVisible, setIsTabVisible] = useState(!document.hidden);
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
+  // Handle tab visibility changes
   useEffect(() => {
-    loadRecentActivity();
-    subscribeToActivity();
+    const handleVisibilityChange = () => {
+      setIsTabVisible(!document.hidden);
+    };
 
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
-      // Cleanup subscription
-      supabase.channel('activity-feed').unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
+
+  // Load initial activity and manage subscription based on tab visibility
+  useEffect(() => {
+    loadRecentActivity();
+  }, []);
+
+  // Subscribe/unsubscribe based on tab visibility
+  useEffect(() => {
+    if (isTabVisible) {
+      subscribeToActivity();
+    } else {
+      // Unsubscribe when tab is not visible to save resources
+      if (channelRef.current) {
+        channelRef.current.unsubscribe();
+        channelRef.current = null;
+      }
+    }
+
+    return () => {
+      // Cleanup subscription on unmount
+      if (channelRef.current) {
+        channelRef.current.unsubscribe();
+        channelRef.current = null;
+      }
+    };
+  }, [isTabVisible]);
 
   const loadRecentActivity = async () => {
     try {
@@ -114,11 +144,14 @@ export function RealtimeActivityFeed() {
   };
 
   const subscribeToActivity = async () => {
+    // Don't subscribe if already subscribed
+    if (channelRef.current) return;
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     // Subscribe to new email captures
-    const channel = supabase
+    channelRef.current = supabase
       .channel('activity-feed')
       .on(
         'postgres_changes',
@@ -218,7 +251,11 @@ export function RealtimeActivityFeed() {
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('Activity feed subscribed to realtime updates');
+        }
+      });
   };
 
   const getIcon = (type: string) => {
