@@ -4,45 +4,37 @@ import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { SEOHead } from "@/components/SEOHead";
 import { organizationSchema } from "@/lib/structured-data";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  published_at: string | null;
+  author: string;
+  category: string;
+  read_time: string | null;
+  featured_image: string | null;
+}
 
 const Blog = () => {
-  // This will be replaced with actual data from Supabase
-  const blogPosts = [
-    {
-      id: 1,
-      slug: "how-to-share-pdf-with-email-capture",
-      title: "How to Share a PDF with Email Capture (5-Minute Guide)",
-      excerpt: "Learn how to create professional landing pages that capture emails before delivering your PDF resources. Step-by-step guide with ShareKit.",
-      publishedAt: "2025-01-15",
-      author: "Dan Pearson",
-      category: "How-To Guides",
-      readTime: "7 min read",
-      featuredImage: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800"
+  const { data: blogPosts, isLoading, error } = useQuery({
+    queryKey: ['blog-posts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, slug, title, excerpt, published_at, author, category, read_time, featured_image')
+        .eq('status', 'published')
+        .order('published_at', { ascending: false });
+
+      if (error) throw error;
+      return data as BlogPost[];
     },
-    {
-      id: 2,
-      slug: "simple-way-to-deliver-digital-resources",
-      title: "The Simple Way to Deliver Digital Resources to Clients",
-      excerpt: "Compare 3 methods for delivering digital resources: Google Drive, manual email, and automated platforms like ShareKit. Find the best approach for your business.",
-      publishedAt: "2025-01-12",
-      author: "Dan Pearson",
-      category: "How-To Guides",
-      readTime: "6 min read",
-      featuredImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800"
-    },
-    {
-      id: 3,
-      slug: "convertkit-alternatives-for-lead-magnet-delivery",
-      title: "ConvertKit Alternatives for Simple Lead Magnet Delivery",
-      excerpt: "If you're only using ConvertKit for lead magnet delivery, you're overpaying. Discover simpler, more affordable alternatives that focus on what you actually need.",
-      publishedAt: "2025-01-10",
-      author: "Dan Pearson",
-      category: "Comparisons",
-      readTime: "8 min read",
-      featuredImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800"
-    },
-  ];
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  });
 
   return (
     <div className="min-h-screen">
@@ -102,37 +94,52 @@ const Blog = () => {
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {blogPosts.map((post) => (
-                <Link key={post.id} to={`/blog/${post.slug}`}>
-                  <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
-                    <div className="aspect-video overflow-hidden rounded-t-lg">
-                      <img
-                        src={post.featuredImage}
-                        alt={post.title}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                    <CardContent className="pt-6">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-xs font-semibold text-primary">{post.category}</span>
-                        <span className="text-xs text-muted-foreground">{post.readTime}</span>
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                <span className="ml-3 text-muted-foreground">Loading posts...</span>
+              </div>
+            ) : error ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Unable to load blog posts. Please try again later.</p>
+              </div>
+            ) : blogPosts && blogPosts.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {blogPosts.map((post) => (
+                  <Link key={post.id} to={`/blog/${post.slug}`}>
+                    <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+                      <div className="aspect-video overflow-hidden rounded-t-lg">
+                        <img
+                          src={post.featured_image || 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800'}
+                          alt={post.title}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                          decoding="async"
+                        />
                       </div>
-                      <h2 className="text-xl font-bold mb-2 line-clamp-2">{post.title}</h2>
-                      <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
-                      <div className="flex items-center justify-between text-sm text-muted-foreground">
-                        <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        <span className="flex items-center gap-1 text-primary font-medium">
-                          Read more <ArrowRight className="w-4 h-4" />
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+                      <CardContent className="pt-6">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="text-xs font-semibold text-primary">{post.category}</span>
+                          <span className="text-xs text-muted-foreground">{post.read_time}</span>
+                        </div>
+                        <h2 className="text-xl font-bold mb-2 line-clamp-2">{post.title}</h2>
+                        <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
+                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                          <span>{post.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Draft'}</span>
+                          <span className="flex items-center gap-1 text-primary font-medium">
+                            Read more <ArrowRight className="w-4 h-4" />
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No blog posts available yet. Check back soon!</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      blog_posts: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          excerpt: string
+          content: string
+          featured_image: string | null
+          author: string
+          category: string
+          status: string
+          read_time: string | null
+          published_at: string | null
+          created_at: string | null
+          updated_at: string | null
+          meta_title: string | null
+          meta_description: string | null
+          meta_keywords: string[] | null
+          canonical_url: string | null
+          views_count: number | null
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          excerpt: string
+          content: string
+          featured_image?: string | null
+          author?: string
+          category: string
+          status?: string
+          read_time?: string | null
+          published_at?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          canonical_url?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          excerpt?: string
+          content?: string
+          featured_image?: string | null
+          author?: string
+          category?: string
+          status?: string
+          read_time?: string | null
+          published_at?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+          meta_title?: string | null
+          meta_description?: string | null
+          meta_keywords?: string[] | null
+          canonical_url?: string | null
+          views_count?: number | null
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string

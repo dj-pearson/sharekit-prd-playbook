@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Logo } from "@/components/Logo";
 import { useSubscription } from "@/hooks/useSubscription";
+import { SEOHead } from "@/components/SEOHead";
+import { organizationSchema, softwareAppSchema } from "@/lib/structured-data";
 
 const PricingComparison = () => {
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "annual">("monthly");
@@ -326,6 +328,21 @@ const PricingComparison = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
+      <SEOHead
+        title="Compare ShareKit Plans - Feature Comparison"
+        description="Compare all ShareKit pricing plans side-by-side. See which features are included in Free, Pro, and Business plans. Find the perfect plan for your resource sharing needs."
+        canonical="https://sharekit.net/pricing/compare"
+        keywords={[
+          'ShareKit pricing comparison',
+          'lead magnet tool pricing',
+          'resource sharing plans',
+          'email capture tool features',
+          'ShareKit features',
+          'PDF sharing platform cost'
+        ]}
+        structuredData={[organizationSchema, softwareAppSchema]}
+      />
+
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">

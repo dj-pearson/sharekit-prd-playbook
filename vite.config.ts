@@ -15,10 +15,10 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     {
       name: 'generate-sitemap',
-      closeBundle() {
-        // Generate sitemap after build
+      async closeBundle() {
+        // Generate sitemap after build (async to fetch from Supabase)
         if (mode === 'production') {
-          generateSitemap('./dist', 'https://sharekit.net');
+          await generateSitemap('./dist', 'https://sharekit.net');
         }
       }
     }

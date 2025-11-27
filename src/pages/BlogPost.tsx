@@ -3,262 +3,96 @@ import { Link, useParams } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import { SEOHead } from "@/components/SEOHead";
 import { organizationSchema, blogPostSchema } from "@/lib/structured-data";
-import { ArrowLeft, ArrowRight, Clock, Calendar } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, Calendar, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+interface BlogPostData {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  featured_image: string | null;
+  author: string;
+  category: string;
+  read_time: string | null;
+  published_at: string | null;
+  updated_at: string | null;
+  meta_keywords: string[] | null;
+}
+
+interface RelatedPost {
+  id: string;
+  slug: string;
+  title: string;
+  category: string;
+}
 
 const BlogPost = () => {
   const { slug } = useParams();
 
-  // This will be replaced with actual data from Supabase
-  // For now, using mock data
-  const post = {
-    id: 1,
-    slug: "how-to-share-pdf-with-email-capture",
-    title: "How to Share a PDF with Email Capture (5-Minute Guide)",
-    excerpt: "Learn how to create professional landing pages that capture emails before delivering your PDF resources. Step-by-step guide with ShareKit.",
-    content: `
-## Quick Answer
-
-The simplest way to share a PDF with email capture is to use a dedicated resource delivery platform like ShareKit. Upload your PDF, choose a template, customize your landing page, and publish. When someone enters their email, they instantly receive your PDF.
-
-## What You'll Learn
-
-- How to create an email capture landing page for PDFs
-- Best practices for converting visitors to subscribers
-- Step-by-step setup with ShareKit (5 minutes)
-- Common mistakes to avoid
-
-## Why Email Capture Matters for PDF Sharing
-
-Before we dive into the how-to, let's understand why email capture is essential:
-
-1. **Build Your Audience**: Every PDF download becomes a potential customer or follower
-2. **Measure Interest**: Track how many people actually want your content
-3. **Follow Up**: Nurture relationships with people who engage with your work
-4. **Monetize**: Convert free content consumers into paying customers
-
-According to ShareKit's 2025 Creator Survey, creators who use email capture for resource sharing see 3x higher engagement rates compared to those who share resources publicly without capture.
-
-## Step-by-Step: Share a PDF with Email Capture
-
-### Step 1: Choose Your Platform
-
-You have several options for sharing PDFs with email capture:
-
-**Option 1: ShareKit** (Recommended)
-- ✅ 5-minute setup
-- ✅ Beautiful templates included
-- ✅ Automated delivery
-- ✅ Analytics included
-- ✅ $19/month (or free for 1 page)
-
-**Option 2: ConvertKit + Landing Page**
-- ⏰ 2+ hour setup
-- 💰 $29-79/month
-- 🛠️ Requires technical knowledge
-- ✅ Full email marketing suite (if you need it)
-
-**Option 3: Google Drive + Manual Email**
-- ⏰ 30 minutes per setup
-- 💰 Free
-- ❌ No automation
-- ❌ Manual email sending
-- ❌ No analytics
-
-For most creators, coaches, and consultants, ShareKit provides the best balance of simplicity and functionality.
-
-### Step 2: Upload Your PDF
-
-Once you've chosen ShareKit:
-
-1. Log into your ShareKit dashboard
-2. Click "Upload Resource"
-3. Drag and drop your PDF (or select from your computer)
-4. Add a title and description for internal reference
-5. Click "Save"
-
-**Pro Tip**: Optimize your PDF before uploading. Keep file sizes under 10MB for faster delivery. Use descriptive filenames like "Business-Plan-Template-2025.pdf" instead of "Document1.pdf".
-
-### Step 3: Create Your Landing Page
-
-Now create the page where people will enter their email:
-
-1. Click "Create New Page"
-2. Choose a template:
-   - **Minimal**: Clean, distraction-free (best for lead magnets)
-   - **Bold**: Eye-catching, colorful (best for creative content)
-   - **Professional**: Corporate, trustworthy (best for consultants)
-   - **Serene**: Calm, wellness-focused (best for coaches)
-   - **Modern**: Tech-forward (best for course creators)
-
-3. Customize your page:
-   - **Headline**: Make it benefit-focused (e.g., "Get Your Free Business Plan Template")
-   - **Description**: Explain what's inside and why it's valuable
-   - **Button text**: Use action words (e.g., "Download My Template")
-   - **Upload preview image**: Show a preview of your PDF
-
-**Example of Great Headlines**:
-- ❌ "PDF Guide"
-- ✅ "5 Email Templates That Convert 40% Better"
-- ❌ "Download Resource"
-- ✅ "Free Worksheet: Discover Your Ideal Client in 10 Minutes"
-
-### Step 4: Set Up Email Delivery
-
-Configure what happens after someone enters their email:
-
-1. **Welcome email**: ShareKit automatically sends this with the download link
-2. **Customize the sender name**: Use your name or business name
-3. **Custom message** (optional): Add a personal note
-4. **Thank you page**: Redirect to a custom thank you page (Pro feature)
-
-**Example Welcome Email**:
-\`\`\`
-Subject: Here's your [Resource Name] 🎉
-
-Hi [First Name],
-
-Thanks for downloading [Resource Name]! Here's your instant access link:
-
-[Download Button]
-
-This link is active for 7 days. Download it now and save it for later.
-
-Questions? Just reply to this email.
-
-Best,
-[Your Name]
-\`\`\`
-
-### Step 5: Publish and Share
-
-Once you're happy with your page:
-
-1. Click "Publish"
-2. Copy your shareable link (e.g., sharekit.net/yourname/guide)
-3. Share it:
-   - Social media posts
-   - Email signature
-   - Website
-   - YouTube descriptions
-   - LinkedIn profile
-
-**Pro Tip**: Use UTM parameters to track which channels drive the most signups. ShareKit automatically tracks source data for you.
-
-## Common Mistakes to Avoid
-
-### Mistake 1: Asking for Too Much Information
-
-❌ Don't ask for:
-- Phone number (unless absolutely necessary)
-- Company name
-- Job title
-- Address
-
-✅ Just ask for:
-- First name (optional)
-- Email address (required)
-
-The more fields you add, the lower your conversion rate. According to ShareKit data, forms with just email have 68% higher conversion rates than forms with 3+ fields.
-
-### Mistake 2: Generic Headlines
-
-❌ "Download My PDF"
-✅ "Get the 5-Day Email Course That Converts"
-
-Be specific about the benefit, not just the format.
-
-### Mistake 3: No Preview
-
-Always show a preview image of your PDF. People want to see what they're getting before entering their email. Pages with preview images convert 2.3x better.
-
-### Mistake 4: Complicated Setup
-
-Don't overcomplicate it. You don't need:
-- Complex email sequences
-- Multiple opt-in forms
-- A/B testing (initially)
-- Advanced automation
-
-Start simple. Get it live. Improve based on real data.
-
-## FAQ
-
-### How long should my PDF be?
-
-For lead magnets, 5-10 pages is ideal. Long enough to provide value, short enough that people actually read it.
-
-### Should I gate all my content behind email capture?
-
-No. Share 80% of your content freely. Reserve your best, most comprehensive resources for email capture.
-
-### What's a good conversion rate?
-
-- 10-15%: Average
-- 20-30%: Good
-- 30-40%: Excellent
-- 40%+: Outstanding
-
-### Can I use ShareKit with my email marketing platform?
-
-Yes. ShareKit integrates with:
-- ConvertKit
-- Mailchimp
-- ActiveCampaign
-- Any platform via Zapier or webhooks
-
-### What if someone doesn't receive the email?
-
-ShareKit automatically handles:
-- Email deliverability
-- Retry logic (if delivery fails)
-- Spam filter optimization
-
-If someone still doesn't receive it, they can request a new link on the thank you page.
-
-## Conclusion
-
-Sharing PDFs with email capture doesn't have to be complicated. With ShareKit, you can:
-
-1. Upload your PDF (1 minute)
-2. Choose a template (1 minute)
-3. Customize your page (2 minutes)
-4. Publish and share (1 minute)
-
-**Total time: 5 minutes.**
-
-No coding, no complex setup, no technical knowledge required.
-
-Ready to start? [Try ShareKit free →](https://sharekit.net/auth)
-
----
-
-**Next Steps:**
-- [The Simple Way to Deliver Digital Resources →](/blog/simple-way-to-deliver-digital-resources)
-- [ConvertKit Alternatives for Lead Magnet Delivery →](/blog/convertkit-alternatives-for-lead-magnet-delivery)
-    `,
-    publishedAt: "2025-01-15T10:00:00Z",
-    updatedAt: "2025-01-15T10:00:00Z",
-    author: "Dan Pearson",
-    category: "How-To Guides",
-    readTime: "7 min read",
-    featuredImage: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200"
-  };
-
-  const relatedPosts = [
-    {
-      id: 2,
-      slug: "simple-way-to-deliver-digital-resources",
-      title: "The Simple Way to Deliver Digital Resources to Clients",
-      category: "How-To Guides",
+  // Fetch the blog post from Supabase
+  const { data: post, isLoading, error } = useQuery({
+    queryKey: ['blog-post', slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single();
+
+      if (error) throw error;
+      return data as BlogPostData;
     },
-    {
-      id: 3,
-      slug: "convertkit-alternatives-for-lead-magnet-delivery",
-      title: "ConvertKit Alternatives for Simple Lead Magnet Delivery",
-      category: "Comparisons",
+    enabled: !!slug,
+  });
+
+  // Fetch related posts (same category, different slug)
+  const { data: relatedPosts } = useQuery({
+    queryKey: ['related-posts', post?.category, slug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('id, slug, title, category')
+        .eq('status', 'published')
+        .eq('category', post?.category || '')
+        .neq('slug', slug || '')
+        .limit(2);
+
+      if (error) throw error;
+      return data as RelatedPost[];
     },
-  ];
+    enabled: !!post?.category,
+  });
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <span className="ml-3 text-muted-foreground">Loading article...</span>
+      </div>
+    );
+  }
+
+  // Error or not found state
+  if (error || !post) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <h1 className="text-2xl font-bold mb-4">Article Not Found</h1>
+        <p className="text-muted-foreground mb-6">The article you're looking for doesn't exist or has been removed.</p>
+        <Link to="/blog">
+          <Button>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Blog
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -267,11 +101,11 @@ Ready to start? [Try ShareKit free →](https://sharekit.net/auth)
         description={post.excerpt}
         canonical={`https://sharekit.net/blog/${post.slug}`}
         ogType="article"
-        ogImage={post.featuredImage}
-        publishedTime={post.publishedAt}
-        modifiedTime={post.updatedAt}
+        ogImage={post.featured_image || undefined}
+        publishedTime={post.published_at || undefined}
+        modifiedTime={post.updated_at || undefined}
         author={post.author}
-        keywords={[
+        keywords={post.meta_keywords || [
           'share PDF with email capture',
           'PDF landing page',
           'email capture for PDFs',
@@ -283,9 +117,9 @@ Ready to start? [Try ShareKit free →](https://sharekit.net/auth)
           blogPostSchema({
             title: post.title,
             excerpt: post.excerpt,
-            featuredImage: post.featuredImage,
-            publishedAt: post.publishedAt,
-            updatedAt: post.updatedAt,
+            featuredImage: post.featured_image || 'https://sharekit.net/og-default.png',
+            publishedAt: post.published_at || new Date().toISOString(),
+            updatedAt: post.updated_at || new Date().toISOString(),
             author: post.author
           })
         ]}
@@ -333,19 +167,21 @@ Ready to start? [Try ShareKit free →](https://sharekit.net/auth)
               <div className="flex items-center gap-6 text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
-                  <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                  <span>{post.published_at ? new Date(post.published_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Draft'}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>{post.readTime}</span>
-                </div>
+                {post.read_time && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>{post.read_time}</span>
+                  </div>
+                )}
                 <span>By {post.author}</span>
               </div>
             </div>
 
             <div className="aspect-video overflow-hidden rounded-lg mb-12">
               <img
-                src={post.featuredImage}
+                src={post.featured_image || 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1200'}
                 alt={post.title}
                 className="w-full h-full object-cover"
               />
@@ -378,21 +214,23 @@ Ready to start? [Try ShareKit free →](https://sharekit.net/auth)
             </div>
 
             {/* Related Posts */}
-            <div className="mt-16">
-              <h3 className="text-2xl font-bold mb-8">Related Articles</h3>
-              <div className="grid md:grid-cols-2 gap-6">
-                {relatedPosts.map((relatedPost) => (
-                  <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`}>
-                    <Card className="h-full hover:shadow-lg transition-shadow">
-                      <CardContent className="pt-6">
-                        <span className="text-xs font-semibold text-primary mb-2 inline-block">{relatedPost.category}</span>
-                        <h4 className="text-lg font-bold">{relatedPost.title}</h4>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+            {relatedPosts && relatedPosts.length > 0 && (
+              <div className="mt-16">
+                <h3 className="text-2xl font-bold mb-8">Related Articles</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {relatedPosts.map((relatedPost) => (
+                    <Link key={relatedPost.id} to={`/blog/${relatedPost.slug}`}>
+                      <Card className="h-full hover:shadow-lg transition-shadow">
+                        <CardContent className="pt-6">
+                          <span className="text-xs font-semibold text-primary mb-2 inline-block">{relatedPost.category}</span>
+                          <h4 className="text-lg font-bold">{relatedPost.title}</h4>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </article>

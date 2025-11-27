@@ -2,10 +2,25 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
+import { SEOHead } from "@/components/SEOHead";
+import { organizationSchema } from "@/lib/structured-data";
 
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-sky-100">
+      <SEOHead
+        title="Terms of Service"
+        description="Read ShareKit's Terms of Service. Understand your rights and responsibilities when using our digital resource sharing and lead magnet delivery platform."
+        canonical="https://sharekit.net/terms"
+        keywords={[
+          'ShareKit terms of service',
+          'terms and conditions',
+          'user agreement',
+          'platform policies'
+        ]}
+        structuredData={[organizationSchema]}
+      />
+
       <div className="container mx-auto px-4 py-12 max-w-4xl">
         <Link to="/">
           <Button variant="outline" className="mb-6">
