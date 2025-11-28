@@ -22,7 +22,10 @@ interface EmailCaptureFormProps {
 
 export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: EmailCaptureFormProps) => {
   const [email, setEmail] = useState("");
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [company, setCompany] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
   const { toast } = useToast();
@@ -53,13 +56,20 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
     setIsSubmitting(true);
 
     try {
-      // Save email capture
+      // Build full name from first and last name for backwards compatibility
+      const fullName = [firstName, lastName].filter(Boolean).join(' ') || null;
+
+      // Save email capture with expanded fields
       const { data, error } = await supabase
         .from('email_captures')
         .insert({
           page_id: pageId,
           email,
-          full_name: fullName || null,
+          full_name: fullName,
+          first_name: firstName || null,
+          last_name: lastName || null,
+          phone: phone || null,
+          company: company || null,
         })
         .select('id, download_token')
         .single();
@@ -76,7 +86,7 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
         .insert({
           page_id: pageId,
           event_type: 'signup',
-          metadata: { email, full_name: fullName },
+          metadata: { email, first_name: firstName, last_name: lastName, phone, company },
         });
 
       // Send email with resources (including download token URL)
@@ -84,6 +94,8 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
         body: {
           email,
           fullName: fullName || null,
+          firstName: firstName || null,
+          lastName: lastName || null,
           pageTitle,
           resources,
           downloadToken: data.download_token,
@@ -103,6 +115,10 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
           data: {
             email,
             full_name: fullName,
+            first_name: firstName || null,
+            last_name: lastName || null,
+            phone: phone || null,
+            company: company || null,
             page_title: pageTitle,
           },
         },
@@ -145,15 +161,27 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name (Optional)</Label>
-            <Input
-              id="fullName"
-              type="text"
-              placeholder="John Doe"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                id="firstName"
+                type="text"
+                placeholder="John"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                id="lastName"
+                type="text"
+                placeholder="Doe"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -179,6 +207,29 @@ export const EmailCaptureForm = ({ pageId, pageTitle, resources, onSuccess }: Em
             {emailError && (
               <p className="text-xs text-red-500">{emailError}</p>
             )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone (Optional)</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+1 (555) 000-0000"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="company">Company (Optional)</Label>
+              <Input
+                id="company"
+                type="text"
+                placeholder="Acme Inc."
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+              />
+            </div>
           </div>
 
           <Button
