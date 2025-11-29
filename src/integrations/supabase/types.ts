@@ -56,6 +56,114 @@ export type Database = {
           },
         ]
       }
+      announcements: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          cta_text: string | null
+          cta_url: string | null
+          dismissible: boolean
+          display_location: string
+          ends_at: string | null
+          id: string
+          message: string
+          starts_at: string
+          target_audience: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          cta_text?: string | null
+          cta_url?: string | null
+          dismissible?: boolean
+          display_location?: string
+          ends_at?: string | null
+          id?: string
+          message: string
+          starts_at?: string
+          target_audience?: string
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          dismissible?: boolean
+          display_location?: string
+          ends_at?: string | null
+          id?: string
+          message?: string
+          starts_at?: string
+          target_audience?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author_id: string
+          category: string
+          content: string
+          created_at: string
+          excerpt: string | null
+          featured_image_url: string | null
+          id: string
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          category: string
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          featured_image_url?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       custom_domains: {
         Row: {
           created_at: string | null
@@ -196,6 +304,93 @@ export type Database = {
           send_order?: number
           subject?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      help_articles: {
+        Row: {
+          author_id: string
+          category: string
+          content: string
+          created_at: string
+          helpful_count: number
+          id: string
+          published_at: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+          views: number
+        }
+        Insert: {
+          author_id: string
+          category: string
+          content: string
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          published_at?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+          views?: number
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          content?: string
+          created_at?: string
+          helpful_count?: number
+          id?: string
+          published_at?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          views?: number
+        }
+        Relationships: []
+      }
+      moderation_queue: {
+        Row: {
+          created_at: string
+          id: string
+          moderated_at: string | null
+          moderator_id: string | null
+          moderator_notes: string | null
+          reason: string | null
+          resource_id: string
+          resource_type: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          moderated_at?: string | null
+          moderator_id?: string | null
+          moderator_notes?: string | null
+          reason?: string | null
+          resource_id: string
+          resource_type: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          moderated_at?: string | null
+          moderator_id?: string | null
+          moderator_notes?: string | null
+          reason?: string | null
+          resource_id?: string
+          resource_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
