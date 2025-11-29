@@ -49,16 +49,16 @@ export default function AdminDashboard() {
         resourcesResult,
         pagesResult,
         signupsResult,
-        ticketsResult,
-        moderationResult,
       ] = await Promise.all([
         supabase.from('profiles').select('id, created_at', { count: 'exact' }),
         supabase.from('resources').select('id', { count: 'exact' }),
         supabase.from('pages').select('id', { count: 'exact' }),
-        supabase.from('signups').select('id', { count: 'exact' }),
-        supabase.from('support_tickets').select('id, priority, status'),
-        supabase.from('moderation_queue').select('id').eq('status', 'pending'),
+        supabase.from('email_captures').select('id', { count: 'exact' }),
       ]);
+      
+      // Mock data for tables that don't exist yet
+      const ticketsResult = { data: [], error: null };
+      const moderationResult = { count: 0, error: null };
 
       // Calculate active users (logged in within last 30 days)
       const thirtyDaysAgo = new Date();
@@ -78,14 +78,9 @@ export default function AdminDashboard() {
         .select('id', { count: 'exact' })
         .gte('created_at', today.toISOString());
 
-      // Calculate open and urgent tickets
-      const openTickets = ticketsResult.data?.filter(
-        t => t.status === 'open' || t.status === 'in_progress'
-      ).length || 0;
-
-      const urgentTickets = ticketsResult.data?.filter(
-        t => t.priority === 'urgent'
-      ).length || 0;
+      // Mock ticket data (tables don't exist yet)
+      const openTickets = 0;
+      const urgentTickets = 0;
 
       // Calculate MRR from subscription data
       const { data: subscriptionData } = await supabase
@@ -135,22 +130,7 @@ export default function AdminDashboard() {
         });
       });
 
-      // Fetch recent support tickets
-      const { data: recentTickets } = await supabase
-        .from('support_tickets')
-        .select('id, ticket_number, subject, priority, created_at')
-        .order('created_at', { ascending: false })
-        .limit(5);
-
-      recentTickets?.forEach(ticket => {
-        activityItems.push({
-          id: `ticket-${ticket.id}`,
-          action: 'Support Ticket',
-          description: `${ticket.priority === 'urgent' ? 'Urgent ' : ''}${ticket.ticket_number} - ${ticket.subject}`,
-          timestamp: ticket.created_at,
-          type: 'support',
-        });
-      });
+      // Support tickets table doesn't exist yet - skip this section
 
       // Fetch recent email captures (lead signups)
       const { data: recentCaptures } = await supabase

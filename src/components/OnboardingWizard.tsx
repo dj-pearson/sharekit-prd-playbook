@@ -36,15 +36,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
 
         const { data: profile } = await supabase
           .from('profiles')
-          .select('onboarding_step, username')
+          .select('username')
           .eq('id', user.id)
           .single();
 
         if (profile) {
-          // Resume from saved step (but don't go to completion step)
-          if (profile.onboarding_step && profile.onboarding_step > 0 && profile.onboarding_step < 3) {
-            setCurrentStep(profile.onboarding_step);
-          }
           if (profile.username) {
             setUsername(profile.username);
             setIsUsernameValid(true);
@@ -60,19 +56,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     loadSavedStep();
   }, []);
 
-  // Save step progress when it changes
+  // Save step progress when it changes (onboarding_step column doesn't exist yet)
   const saveStepProgress = async (step: number) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      await supabase
-        .from('profiles')
-        .update({ onboarding_step: step })
-        .eq('id', user.id);
-    } catch (error) {
-      console.error('Error saving step progress:', error);
-    }
+    console.log('Onboarding step:', step);
+    // Column doesn't exist yet, skip saving
   };
 
   // Update step with persistence

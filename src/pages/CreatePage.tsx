@@ -10,6 +10,8 @@ import { ArrowLeft, Plus, X, Eye } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useSubscription } from "@/hooks/useSubscription";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 interface Resource {
   id: string;
@@ -29,6 +31,7 @@ const CreatePage = () => {
   const [username, setUsername] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { subscription, canCreatePage, getPlanName } = useSubscription();
 
   useEffect(() => {
     fetchResources();
@@ -91,6 +94,17 @@ const CreatePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check usage limits
+    if (!canCreatePage()) {
+      toast({
+        title: "Page limit reached",
+        description: `You've reached your page limit. Upgrade to ${getPlanName() === 'Free' ? 'Pro' : 'Business'} for unlimited pages.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -193,6 +207,18 @@ const CreatePage = () => {
           </p>
         </div>
 
+        {/* Usage Limit Check */}
+        {subscription && !canCreatePage() && (
+          <div className="mb-8">
+            <UpgradePrompt 
+              reason="pages" 
+              currentPlan={getPlanName()}
+              variant="card"
+            />
+          </div>
+        )}
+
+        {(!subscription || canCreatePage()) && (
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             {/* Left Column - Page Details */}
@@ -345,6 +371,7 @@ const CreatePage = () => {
             </Button>
           </div>
         </form>
+        )}
       </div>
     </div>
   );

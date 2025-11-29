@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Upload, FileText, File } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useResourceUpload } from "@/hooks/useResourceUpload";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useToast } from "@/hooks/use-toast";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 const UploadResource = () => {
   const [title, setTitle] = useState("");
@@ -15,6 +18,8 @@ const UploadResource = () => {
   const [dragActive, setDragActive] = useState(false);
   const { uploadResource, isUploading } = useResourceUpload();
   const navigate = useNavigate();
+  const { subscription, canUploadFile, getPlanName } = useSubscription();
+  const { toast } = useToast();
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -32,13 +37,37 @@ const UploadResource = () => {
     setDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0]);
+      const selectedFile = e.dataTransfer.files[0];
+      const fileSizeMB = selectedFile.size / (1024 * 1024);
+      
+      if (!canUploadFile(fileSizeMB)) {
+        toast({
+          title: "File too large",
+          description: `This file (${Math.round(fileSizeMB)}MB) exceeds your plan limit. Upgrade for larger file uploads.`,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setFile(selectedFile);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+      const selectedFile = e.target.files[0];
+      const fileSizeMB = selectedFile.size / (1024 * 1024);
+      
+      if (!canUploadFile(fileSizeMB)) {
+        toast({
+          title: "File too large",
+          description: `This file (${Math.round(fileSizeMB)}MB) exceeds your plan limit. Upgrade for larger file uploads.`,
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setFile(selectedFile);
     }
   };
 
@@ -86,6 +115,18 @@ const UploadResource = () => {
           </CardHeader>
 
           <CardContent>
+            {/* Show file size limit info */}
+            {subscription && (
+              <div className="mb-4 p-3 bg-muted rounded-lg text-sm">
+                <strong>Your plan:</strong> {getPlanName()} - Upload limit: {subscription.limits.file_size_mb}MB per file
+                {subscription.plan === 'free' && (
+                  <Link to="/pricing" className="ml-2 text-primary hover:underline">
+                    Upgrade for larger files →
+                  </Link>
+                )}
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* File Upload Area */}
               <div className="space-y-2">
@@ -152,7 +193,7 @@ const UploadResource = () => {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Supported formats: PDF, DOC, TXT, images, ZIP (max 50MB)
+                  Supported formats: PDF, DOC, TXT, images, ZIP (max {subscription?.limits.file_size_mb || 50}MB on your plan)
                 </p>
               </div>
 
