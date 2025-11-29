@@ -148,7 +148,7 @@ export default function AdminAnalytics() {
         supabase.from('profiles').select('id, created_at', { count: 'exact' }),
         supabase.from('resources').select('id', { count: 'exact' }),
         supabase.from('pages').select('id', { count: 'exact' }),
-        supabase.from('signups').select('id', { count: 'exact' }),
+        supabase.from('email_captures').select('id', { count: 'exact' }),
       ]);
 
       const totalUsers = usersResult.count || 0;

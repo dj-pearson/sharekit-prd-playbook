@@ -130,16 +130,9 @@ export default function AdminCMS() {
     try {
       setIsLoading(true);
 
-      const [blogResult, articlesResult] = await Promise.all([
-        supabase.from('blog_posts').select('*').order('created_at', { ascending: false }),
-        supabase.from('help_articles').select('*').order('category, order_index'),
-      ]);
-
-      if (blogResult.error) throw blogResult.error;
-      if (articlesResult.error) throw articlesResult.error;
-
-      setBlogPosts(blogResult.data || []);
-      setHelpArticles(articlesResult.data || []);
+      // Tables don't exist yet - use empty arrays
+      setBlogPosts([]);
+      setHelpArticles([]);
       setIsLoading(false);
     } catch (error) {
       console.error('Error loading content:', error);

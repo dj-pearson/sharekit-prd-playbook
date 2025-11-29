@@ -76,14 +76,15 @@ export function useAdmin(requireAdmin: boolean = true): UseAdminReturn {
         return;
       }
 
-      // Check if user is an admin
-      const { data: admin, error } = await supabase
-        .from('admin_users')
-        .select('*')
+      // Check if user has admin role using user_roles table
+      const { data: roles, error } = await supabase
+        .from('user_roles')
+        .select('role')
         .eq('user_id', user.id)
+        .eq('role', 'admin')
         .single();
 
-      if (error || !admin) {
+      if (error || !roles) {
         if (requireAdmin) {
           toast({
             title: 'Access Denied',
@@ -96,13 +97,18 @@ export function useAdmin(requireAdmin: boolean = true): UseAdminReturn {
         return;
       }
 
-      setAdminUser(admin as AdminUser);
+      // Create a basic AdminUser object from user_roles
+      const adminData: AdminUser = {
+        id: user.id,
+        user_id: user.id,
+        role: 'admin',
+        permissions: {},
+        last_login_at: new Date().toISOString(),
+        created_at: user.created_at,
+        updated_at: new Date().toISOString(),
+      };
 
-      // Update last login time
-      await supabase
-        .from('admin_users')
-        .update({ last_login_at: new Date().toISOString() })
-        .eq('id', admin.id);
+      setAdminUser(adminData);
 
       setIsLoading(false);
     } catch (error) {
@@ -141,17 +147,8 @@ export function useAdmin(requireAdmin: boolean = true): UseAdminReturn {
   ): Promise<void> {
     if (!adminUser) return;
 
-    try {
-      await supabase.from('admin_activity_log').insert({
-        admin_id: adminUser.id,
-        action,
-        resource_type: resourceType,
-        resource_id: resourceId,
-        metadata: metadata || {},
-      });
-    } catch (error) {
-      console.error('Error logging admin activity:', error);
-    }
+    // Log to console for now - admin_activity_log table doesn't exist yet
+    console.log('Admin activity:', { action, resourceType, resourceId, metadata });
   }
 
   return {
