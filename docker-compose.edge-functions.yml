@@ -18,7 +18,7 @@ services:
       - RESEND_API_KEY=${RESEND_API_KEY}
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "deno", "eval", "fetch('http://localhost:8000/health').then(r => r.ok ? Deno.exit(0) : Deno.exit(1))"]
+      test: ["CMD-SHELL", "deno eval \"fetch('http://localhost:8000/health').then(r => r.ok ? Deno.exit(0) : Deno.exit(1))\" || exit 1"]
       interval: 30s
       timeout: 3s
       retries: 3
