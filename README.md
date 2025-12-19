@@ -71,3 +71,43 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+## 🐳 Self-Hosting with Coolify
+
+This project includes Docker configuration for deploying edge functions to self-hosted Supabase on Coolify.
+
+### Edge Functions Setup
+
+- **Quick Start**: See `EDGE_FUNCTIONS_DEPLOYMENT_CHECKLIST.md` for step-by-step instructions
+- **Complete Guide**: See `COOLIFY_EDGE_FUNCTIONS_SETUP.md` for detailed setup and troubleshooting
+- **Quick Reference**: See `EDGE_FUNCTIONS_QUICK_REFERENCE.md` for common commands and examples
+- **Overview**: See `EDGE_FUNCTIONS_SETUP_SUMMARY.md` for architecture and benefits
+
+### Available Edge Functions (7 total)
+
+1. `create-checkout-session` - Stripe checkout sessions
+2. `create-portal-session` - Stripe customer portal
+3. `process-scheduled-emails` - Email queue processing
+4. `schedule-email-sequences` - Email campaign scheduling
+5. `send-resource-email` - Resource delivery emails
+6. `stripe-webhook` - Stripe webhook handling
+7. `trigger-webhooks` - Webhook triggers
+
+### Deployment Scripts
+
+The `deployment/` folder contains reusable scripts for:
+- Database migrations
+- Edge functions deployment (Git or SSH)
+- Database backup/restore
+- Service verification
+
+See `deployment/README.md` for full documentation.
+
+## 📝 Additional Documentation
+
+- `PRD.md` - Product Requirements Document
+- `LIVING-TECHNICAL-SPEC.md` - Technical specifications
+- `EXECUTION-ROADMAP.md` - Development roadmap
+- `ADMIN-SETUP.md` - Admin system setup
+- `STRIPE_SETUP.md` - Stripe integration guide
+- `SEO_STRATEGY.md` - SEO strategy and implementation

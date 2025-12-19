@@ -1,0 +1,70 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build outputs
+dist
+build
+.vite
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in container)
+*.md
+!supabase/functions/**/*.md
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Frontend source (not needed for edge functions)
+src
+public
+index.html
+
+# Test files
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+
+# Database backups
+database/*.gz
+database/*.backup
+db-backup
+
+# Deployment scripts
+deployment
+scripts
+
+# Config files not needed
+eslint.config.js
+vite.config.ts
+vitest.config.ts
+tailwind.config.ts
+postcss.config.js
+tsconfig*.json
+components.json
+wrangler.toml
+
+# Other Docker files
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
