@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, Mail, Lock } from "lucide-react";
+import { Plus, Trash2, Mail, Lock } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface EmailSequence {
   id: string;
@@ -127,20 +128,11 @@ export default function EmailSequences() {
   // Show locked state if user doesn't have access
   if (!hasEmailSequences) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4 mb-8">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(`/dashboard/pages/${pageId}/edit`)}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Email Sequences</h1>
-              <p className="text-muted-foreground">Automated follow-up emails for your leads</p>
-            </div>
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Email Sequences</h1>
+            <p className="text-muted-foreground">Automated follow-up emails for your leads</p>
           </div>
 
           <Card className="border-2 border-dashed">
@@ -169,26 +161,17 @@ export default function EmailSequences() {
             feature="Email Sequences"
           />
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(`/dashboard/pages/${pageId}/edit`)}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Email Sequences</h1>
-              <p className="text-muted-foreground">Automated follow-up emails for your leads</p>
-            </div>
+    <DashboardLayout>
+      <div className="space-y-6 max-w-4xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Email Sequences</h1>
+            <p className="text-muted-foreground">Automated follow-up emails for your leads</p>
           </div>
           <Button onClick={() => setShowForm(!showForm)}>
             <Plus className="h-4 w-4 mr-2" />
@@ -337,6 +320,6 @@ export default function EmailSequences() {
           </div>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

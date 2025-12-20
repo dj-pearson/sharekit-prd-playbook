@@ -9,9 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { ArrowLeft, Plus, Trash2, TrendingUp, Lock } from "lucide-react";
+import { Plus, Trash2, TrendingUp, Lock } from "lucide-react";
 import { useSubscription } from "@/hooks/useSubscription";
 import { UpgradeDialog } from "@/components/UpgradeDialog";
+import DashboardLayout from "@/components/DashboardLayout";
 
 export default function ABTesting() {
   const { pageId } = useParams();
@@ -139,16 +140,12 @@ export default function ABTesting() {
   // Show locked state if user doesn't have access
   if (!hasABTesting) {
     return (
-      <div className="container mx-auto py-8">
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
+      <DashboardLayout>
+        <div className="space-y-6">
           <div>
             <h1 className="text-3xl font-bold">A/B Testing</h1>
             <p className="text-muted-foreground">{page?.title}</p>
           </div>
-        </div>
 
         <Card className="border-2 border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
@@ -175,21 +172,18 @@ export default function ABTesting() {
           requiredPlan="pro"
           feature="A/B Testing"
         />
-      </div>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-6 flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
+    <DashboardLayout>
+      <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">A/B Testing</h1>
           <p className="text-muted-foreground">{page?.title}</p>
         </div>
-      </div>
 
       <div className="mb-6">
         <Button onClick={() => setIsCreating(true)} className="gap-2">
@@ -304,6 +298,7 @@ export default function ABTesting() {
           );
         })}
       </div>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
