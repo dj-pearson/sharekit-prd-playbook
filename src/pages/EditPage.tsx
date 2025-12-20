@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Save, Loader2, GripVertical, TestTube2 } from "lucide-react";
+import { Save, Loader2, TestTube2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface Resource {
   id: string;
@@ -221,29 +222,21 @@ const EditPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading page...</p>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading page...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <div className="container mx-auto px-4 py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/dashboard/pages')}
-          className="mb-6"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Pages
-        </Button>
-
-        <div className="max-w-3xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+    <DashboardLayout>
+      <div className="space-y-6 max-w-3xl">
+        <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2">Edit Page</h1>
               <p className="text-muted-foreground">
@@ -461,9 +454,8 @@ const EditPage = () => {
               </Button>
             </div>
           </form>
-        </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

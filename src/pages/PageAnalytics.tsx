@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Download, Eye, Mail, TrendingUp, Copy, CheckCircle } from "lucide-react";
+import { Download, Eye, Mail, TrendingUp, Copy, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface PageData {
   id: string;
@@ -141,47 +142,44 @@ const PageAnalytics = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading analytics...</p>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading analytics...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
   if (!page) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="max-w-md">
-          <CardContent className="py-16 text-center">
-            <h2 className="text-2xl font-bold mb-2">Page Not Found</h2>
-            <p className="text-muted-foreground mb-6">This page doesn't exist or you don't have access to it.</p>
-            <Button onClick={() => navigate('/dashboard/pages')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Pages
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="max-w-md">
+            <CardContent className="py-16 text-center">
+              <h2 className="text-2xl font-bold mb-2">Page Not Found</h2>
+              <p className="text-muted-foreground mb-6">This page doesn't exist or you don't have access to it.</p>
+              <Button onClick={() => navigate('/dashboard/pages')}>
+                Back to Pages
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardLayout>
     );
   }
 
-  const conversionRate = stats.total_views > 0 
+  const conversionRate = stats.total_views > 0
     ? ((stats.total_signups / stats.total_views) * 100).toFixed(1)
     : '0.0';
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <div className="container mx-auto px-4 py-8">
+    <DashboardLayout>
+      <div className="space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <Button variant="ghost" onClick={() => navigate('/dashboard/pages')} className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Pages
-          </Button>
-          
-          <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2">{page.title}</h1>
               <p className="text-muted-foreground">
@@ -314,7 +312,7 @@ const PageAnalytics = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
