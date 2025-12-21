@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus, X, Eye } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface Resource {
   id: string;
@@ -189,18 +190,9 @@ const CreatePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
-          <Link to="/dashboard/pages" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Pages
-          </Link>
-        </div>
-      </nav>
-
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-8">
+    <DashboardLayout>
+      <div className="space-y-6 max-w-4xl">
+        <div>
           <h1 className="text-3xl font-bold mb-2">Create Landing Page</h1>
           <p className="text-muted-foreground">
             Design a beautiful page to share your resources
@@ -373,7 +365,7 @@ const CreatePage = () => {
         </form>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 

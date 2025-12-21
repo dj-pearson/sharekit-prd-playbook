@@ -4,12 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Upload, FileText, File } from "lucide-react";
+import { Upload, File } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useResourceUpload } from "@/hooks/useResourceUpload";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useToast } from "@/hooks/use-toast";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const UploadResource = () => {
   const [title, setTitle] = useState("");
@@ -95,17 +96,8 @@ const UploadResource = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
-          <Link to="/dashboard" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Dashboard
-          </Link>
-        </div>
-      </nav>
-
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
+    <DashboardLayout>
+      <div className="space-y-6 max-w-3xl">
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Upload Resource</CardTitle>
@@ -240,7 +232,7 @@ const UploadResource = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => navigate("/dashboard/resources")}
                   disabled={isUploading}
                 >
                   Cancel
@@ -250,7 +242,7 @@ const UploadResource = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
