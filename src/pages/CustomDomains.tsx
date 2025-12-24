@@ -109,13 +109,47 @@ export default function CustomDomains() {
   const handleVerifyDomain = async (domainId: string, domain: string) => {
     setVerifying(domainId);
     try {
-      // In production, this would call a Supabase Edge Function
-      // that checks DNS records using a DNS API
+      // Get the verification token for this domain
+      const domainRecord = domains.find(d => d.id === domainId);
+      if (!domainRecord) throw new Error("Domain record not found");
 
-      // Simulated verification for demo
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Check TXT record using DNS-over-HTTPS (Cloudflare)
+      const txtResponse = await fetch(
+        `https://cloudflare-dns.com/dns-query?name=_sharekit-verification.${domain}&type=TXT`,
+        {
+          headers: { 'Accept': 'application/dns-json' }
+        }
+      );
+      const txtData = await txtResponse.json();
 
-      // Update domain verification status
+      // Check CNAME record
+      const cnameResponse = await fetch(
+        `https://cloudflare-dns.com/dns-query?name=${domain}&type=CNAME`,
+        {
+          headers: { 'Accept': 'application/dns-json' }
+        }
+      );
+      const cnameData = await cnameResponse.json();
+
+      // Verify TXT record matches verification token
+      const txtRecordFound = txtData.Answer?.some((record: any) =>
+        record.data?.replace(/"/g, '') === domainRecord.verification_token
+      );
+
+      // Verify CNAME points to sharekit
+      const cnameRecordFound = cnameData.Answer?.some((record: any) =>
+        record.data?.includes('sharekit') || record.data?.includes('cname.sharekit.app')
+      );
+
+      if (!txtRecordFound) {
+        throw new Error("TXT verification record not found. Please ensure you've added the _sharekit-verification TXT record.");
+      }
+
+      if (!cnameRecordFound) {
+        throw new Error("CNAME record not found or incorrect. Please ensure your CNAME points to cname.sharekit.app");
+      }
+
+      // Both records verified - update domain status
       const { error } = await supabase
         .from('custom_domains')
         .update({
@@ -131,12 +165,12 @@ export default function CustomDomains() {
 
       toast({
         title: "Domain verified",
-        description: `${domain} has been successfully verified`,
+        description: `${domain} has been successfully verified! DNS records are configured correctly.`,
       });
     } catch (error: any) {
       toast({
         title: "Verification failed",
-        description: "DNS records not found. Please check your configuration and try again.",
+        description: error.message || "DNS records not found. Please check your configuration and try again.",
         variant: "destructive",
       });
     } finally {
