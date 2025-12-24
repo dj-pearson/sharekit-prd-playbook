@@ -2,9 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Bell, Shield, CreditCard, Download, Trash2, AlertTriangle, ExternalLink, Crown } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
@@ -26,6 +28,15 @@ const Settings = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { subscription, getPlanName, hasFeature } = useSubscription();
+  const [notificationPrefs, setNotificationPrefs] = useState({
+    email_on_signup: true,
+    email_on_download: false,
+    email_on_page_view: false,
+    weekly_digest: true,
+    webhook_failures: true,
+    digest_frequency: 'weekly' as 'daily' | 'weekly' | 'never'
+  });
+  const [isSavingNotifications, setIsSavingNotifications] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -40,7 +51,7 @@ const Settings = () => {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, username')
+        .select('full_name, username, notification_preferences')
         .eq('id', user.id)
         .single();
 
@@ -48,6 +59,18 @@ const Settings = () => {
         setFullName(profile.full_name || "");
         setUsername(profile.username || "");
         setIsUsernameValid(!!profile.username);
+
+        // Load notification preferences if they exist
+        if (profile.notification_preferences) {
+          setNotificationPrefs({
+            email_on_signup: profile.notification_preferences.email_on_signup ?? true,
+            email_on_download: profile.notification_preferences.email_on_download ?? false,
+            email_on_page_view: profile.notification_preferences.email_on_page_view ?? false,
+            weekly_digest: profile.notification_preferences.weekly_digest ?? true,
+            webhook_failures: profile.notification_preferences.webhook_failures ?? true,
+            digest_frequency: profile.notification_preferences.digest_frequency ?? 'weekly'
+          });
+        }
       }
     } catch (error: any) {
       console.error('Error fetching profile:', error);
@@ -90,6 +113,37 @@ const Settings = () => {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveNotifications = async () => {
+    setIsSavingNotifications(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          notification_preferences: notificationPrefs
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Preferences saved",
+        description: "Your notification preferences have been updated",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to save preferences",
+        description: error.message || "Could not save notification preferences",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSavingNotifications(false);
     }
   };
 
@@ -285,11 +339,153 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle>Notification Preferences</CardTitle>
                 <CardDescription>
-                  Configure how you receive notifications
+                  Configure how and when you receive notifications
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Notification settings coming soon...</p>
+              <CardContent className="space-y-6">
+                {/* Email Notifications */}
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-sm font-medium mb-3">Email Notifications</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Choose which events trigger email notifications
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-2 py-2">
+                    <div className="flex-1">
+                      <Label htmlFor="email-signup" className="text-sm font-medium">
+                        New Signups
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Get notified when someone captures their email on your pages
+                      </p>
+                    </div>
+                    <Switch
+                      id="email-signup"
+                      checked={notificationPrefs.email_on_signup}
+                      onCheckedChange={(checked) =>
+                        setNotificationPrefs({...notificationPrefs, email_on_signup: checked})
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-2 py-2">
+                    <div className="flex-1">
+                      <Label htmlFor="email-download" className="text-sm font-medium">
+                        Resource Downloads
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Get notified when someone downloads your resources
+                      </p>
+                    </div>
+                    <Switch
+                      id="email-download"
+                      checked={notificationPrefs.email_on_download}
+                      onCheckedChange={(checked) =>
+                        setNotificationPrefs({...notificationPrefs, email_on_download: checked})
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-2 py-2">
+                    <div className="flex-1">
+                      <Label htmlFor="email-pageview" className="text-sm font-medium">
+                        Page Views
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Get notified about page views (included in digest only)
+                      </p>
+                    </div>
+                    <Switch
+                      id="email-pageview"
+                      checked={notificationPrefs.email_on_page_view}
+                      onCheckedChange={(checked) =>
+                        setNotificationPrefs({...notificationPrefs, email_on_page_view: checked})
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-2 py-2">
+                    <div className="flex-1">
+                      <Label htmlFor="webhook-failures" className="text-sm font-medium">
+                        Webhook Failures
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Get notified immediately when webhook deliveries fail
+                      </p>
+                    </div>
+                    <Switch
+                      id="webhook-failures"
+                      checked={notificationPrefs.webhook_failures}
+                      onCheckedChange={(checked) =>
+                        setNotificationPrefs({...notificationPrefs, webhook_failures: checked})
+                      }
+                    />
+                  </div>
+                </div>
+
+                {/* Digest Settings */}
+                <div className="space-y-4 pt-4 border-t">
+                  <div>
+                    <h3 className="text-sm font-medium mb-3">Digest Emails</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Receive a summary of your activity instead of individual emails
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between space-x-2 py-2">
+                    <div className="flex-1">
+                      <Label htmlFor="weekly-digest" className="text-sm font-medium">
+                        Enable Activity Digest
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Receive a summary email with your stats and activity
+                      </p>
+                    </div>
+                    <Switch
+                      id="weekly-digest"
+                      checked={notificationPrefs.weekly_digest}
+                      onCheckedChange={(checked) =>
+                        setNotificationPrefs({...notificationPrefs, weekly_digest: checked})
+                      }
+                    />
+                  </div>
+
+                  {notificationPrefs.weekly_digest && (
+                    <div className="space-y-2 pl-4">
+                      <Label htmlFor="digest-frequency" className="text-sm">
+                        Digest Frequency
+                      </Label>
+                      <Select
+                        value={notificationPrefs.digest_frequency}
+                        onValueChange={(value: 'daily' | 'weekly' | 'never') =>
+                          setNotificationPrefs({...notificationPrefs, digest_frequency: value})
+                        }
+                      >
+                        <SelectTrigger id="digest-frequency" className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="daily">Daily (every morning)</SelectItem>
+                          <SelectItem value="weekly">Weekly (every Monday)</SelectItem>
+                          <SelectItem value="never">Never</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Save Button */}
+                <div className="pt-4 border-t">
+                  <Button
+                    onClick={handleSaveNotifications}
+                    disabled={isSavingNotifications}
+                    className="w-full"
+                  >
+                    {isSavingNotifications ? "Saving..." : "Save Preferences"}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

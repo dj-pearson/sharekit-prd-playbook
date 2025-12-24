@@ -204,7 +204,6 @@ const PageAnalytics = () => {
                 </>
               )}
             </Button>
-          </div>
         </div>
 
         {/* Stats Grid */}
