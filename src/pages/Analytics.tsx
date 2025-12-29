@@ -187,7 +187,7 @@ const Analytics = () => {
       </div>
 
       {/* Aggregate Stats */}
-      <div className="grid md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -251,7 +251,7 @@ const Analytics = () => {
 
       {/* Performance Chart and Funnel */}
       {chartData.length > 0 && (
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <Card>
             <CardHeader>
               <CardTitle>Top Performing Pages</CardTitle>

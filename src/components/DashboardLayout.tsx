@@ -167,18 +167,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <Button
                 asChild
                 size="icon"
-                className="bg-gradient-ocean hover:opacity-90 transition-opacity sm:hidden h-8 w-8"
+                className="bg-gradient-ocean hover:opacity-90 transition-opacity sm:hidden h-10 w-10"
               >
                 <Link to="/dashboard/pages/create">
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-5 h-5" />
                 </Link>
               </Button>
 
               {/* Notification Bell */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative h-8 w-8" onClick={clearNotifications}>
-                    <Bell className="w-4 h-4" />
+                  <Button variant="ghost" size="icon" className="relative h-10 w-10 sm:h-8 sm:w-8" onClick={clearNotifications}>
+                    <Bell className="w-5 h-5 sm:w-4 sm:h-4" />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
                         {unreadCount > 9 ? '9+' : unreadCount}
@@ -186,7 +186,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     )}
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80">
+                <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-80 max-w-sm">
                   <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {notifications.length === 0 ? (
@@ -234,9 +234,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 variant="ghost"
                 size="icon"
                 onClick={handleSignOut}
-                className="sm:hidden h-8 w-8"
+                className="sm:hidden h-10 w-10"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-5 h-5" />
               </Button>
               <div className="w-8 h-8 rounded-full bg-gradient-ocean flex items-center justify-center text-white text-sm font-medium">
                 {user?.email?.charAt(0).toUpperCase()}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, CheckCircle, Download, Mail, BarChart3, Sparkles, Users, Zap, Quote, Star, X } from "lucide-react";
+import { ArrowRight, CheckCircle, Download, Mail, BarChart3, Sparkles, Users, Zap, Quote, Star, X, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
 import Hero3D from "@/components/Hero3D";
@@ -13,10 +13,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const Home = () => {
   const [showStickyCTA, setShowStickyCTA] = useState(false);
   const [dismissedStickyCTA, setDismissedStickyCTA] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,26 +58,81 @@ const Home = () => {
 
       {/* Navigation */}
       <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
           <Link to="/">
             <Logo size="sm" />
           </Link>
-          
+
           <div className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-foreground/70 hover:text-foreground transition-colors">Features</a>
             <a href="#pricing" className="text-foreground/70 hover:text-foreground transition-colors">Pricing</a>
             <a href="#how-it-works" className="text-foreground/70 hover:text-foreground transition-colors">How it works</a>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <Link to="/auth">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <Link to="/auth" className="hidden sm:block">
               <Button variant="ghost">Sign In</Button>
             </Link>
-            <Link to="/auth">
+            <Link to="/auth" className="hidden sm:block">
               <Button className="bg-gradient-ocean hover:opacity-90 transition-opacity">
                 Start Sharing Free
               </Button>
             </Link>
+
+            {/* Mobile Menu */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden h-10 w-10">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Open menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px]">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col space-y-4 mt-6">
+                  <a
+                    href="#features"
+                    className="text-lg font-medium py-2 hover:text-primary transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Features
+                  </a>
+                  <a
+                    href="#pricing"
+                    className="text-lg font-medium py-2 hover:text-primary transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Pricing
+                  </a>
+                  <a
+                    href="#how-it-works"
+                    className="text-lg font-medium py-2 hover:text-primary transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    How it works
+                  </a>
+                  <a
+                    href="#faq"
+                    className="text-lg font-medium py-2 hover:text-primary transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    FAQ
+                  </a>
+                  <div className="border-t pt-4 mt-4 space-y-3">
+                    <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">Sign In</Button>
+                    </Link>
+                    <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full bg-gradient-ocean hover:opacity-90 transition-opacity">
+                        Start Sharing Free
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </nav>
@@ -117,18 +180,18 @@ const Home = () => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t">
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">3 min</div>
-                <div className="text-sm text-muted-foreground">Setup time, not hours</div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto pt-8 border-t">
+              <div className="text-center sm:text-left">
+                <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">3 min</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Setup time, not hours</div>
               </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">Real-time</div>
-                <div className="text-sm text-muted-foreground">Live signup notifications</div>
+              <div className="text-center sm:text-left">
+                <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">Real-time</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Live signup notifications</div>
               </div>
-              <div>
-                <div className="text-3xl font-bold text-primary mb-1">$0-19</div>
-                <div className="text-sm text-muted-foreground">Start free forever</div>
+              <div className="text-center sm:text-left">
+                <div className="text-2xl sm:text-3xl font-bold text-primary mb-1">$0-19</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Start free forever</div>
               </div>
             </div>
           </div>
@@ -685,7 +748,7 @@ const Home = () => {
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-white hover:bg-white/20 p-1 h-8 w-8"
+                className="text-white hover:bg-white/20 p-1 h-10 w-10"
                 onClick={() => setDismissedStickyCTA(true)}
               >
                 <X className="w-4 h-4" />
