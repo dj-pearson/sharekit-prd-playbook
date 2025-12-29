@@ -432,9 +432,9 @@ const Teams = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
           {/* Team Selector */}
-          <Card className="lg:col-span-1">
+          <Card className="md:col-span-1">
             <CardHeader>
               <CardTitle className="text-lg">Your Teams</CardTitle>
             </CardHeader>
@@ -457,7 +457,7 @@ const Teams = () => {
           </Card>
 
           {/* Team Details */}
-          <Card className="lg:col-span-3">
+          <Card className="md:col-span-3">
             {selectedTeam ? (
               <>
                 <CardHeader>
