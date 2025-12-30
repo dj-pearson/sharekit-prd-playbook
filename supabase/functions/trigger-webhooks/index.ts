@@ -1,7 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
+// Use APP_URL for CORS to restrict origins (defaults to localhost for development)
+const allowedOrigin = Deno.env.get("APP_URL") || "http://localhost:5173";
+
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": allowedOrigin,
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
