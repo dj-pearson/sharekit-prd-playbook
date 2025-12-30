@@ -251,12 +251,19 @@ const Auth = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
+                  minLength={12}
+                  pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?&quot;:{}|<>]).{12,}$"
+                  title="Password must be at least 12 characters and include uppercase, lowercase, number, and special character"
                 />
+                {isSignUp && (
+                  <p className="text-xs text-muted-foreground">
+                    Must be 12+ characters with uppercase, lowercase, number, and special character
+                  </p>
+                )}
               </div>
 
               {!isSignUp && (

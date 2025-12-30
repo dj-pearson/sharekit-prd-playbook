@@ -7,8 +7,11 @@ function generateSequenceEmailHtml(fullName: string | null, subject: string, bod
   return `<!DOCTYPE html><html><head><meta charSet="utf-8"><title>${subject}</title></head><body style="background-color:#f6f9fc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background:#ffffff;padding:20px 0 48px; margin-bottom:64px;"><h1 style="color:#667eea;font-size:32px;font-weight:bold;margin:40px 0;text-align:center;">ShareKit</h1><h2 style="color:#333;font-size:24px;font-weight:bold;margin:30px 20px 20px;">${greeting}</h2><section style="color:#333;font-size:16px;line-height:24px;margin:16px 20px;">${bodyHtml}</section><section style="border-top:1px solid #e5e5e5;margin:32px 20px 0;padding-top:20px;"><p style="color:#999;font-size:14px;line-height:20px;margin:8px 0;">You're receiving this email because you signed up for resources from ShareKit.</p><p style="color:#999;font-size:14px;line-height:20px;margin:8px 0;">If you'd like to stop receiving these emails, please contact us.</p></section><p style="color:#999;font-size:12px;text-align:center;margin-top:30px;">Powered by ShareKit</p></div></body></html>`;
 }
 
+// Use APP_URL for CORS to restrict origins (defaults to localhost for development)
+const allowedOrigin = Deno.env.get("APP_URL") || "http://localhost:5173";
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': allowedOrigin,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
