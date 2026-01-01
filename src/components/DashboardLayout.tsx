@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users, Crown, Bell, Plus, UserPlus } from "lucide-react";
+import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users, Crown, Bell, Plus, UserPlus, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { NavLink } from "@/components/NavLink";
 import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -43,6 +44,20 @@ const navItems = [
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
+// Route to breadcrumb label mapping
+const routeLabels: Record<string, string> = {
+  "dashboard": "Dashboard",
+  "resources": "Resources",
+  "pages": "Pages",
+  "analytics": "Analytics",
+  "webhooks": "Webhooks",
+  "teams": "Teams",
+  "settings": "Settings",
+  "create": "Create",
+  "edit": "Edit",
+  "upload": "Upload",
+};
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [user, setUser] = useState<User | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -51,6 +66,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const { toast } = useToast();
   const { subscription, getPlanName } = useSubscription();
+
+  // Generate breadcrumbs from current path
+  const breadcrumbs = useMemo(() => {
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    const crumbs: { label: string; path: string }[] = [];
+
+    let currentPath = '';
+    for (const segment of pathSegments) {
+      currentPath += `/${segment}`;
+      const label = routeLabels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+      crumbs.push({ label, path: currentPath });
+    }
+
+    return crumbs;
+  }, [location.pathname]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -318,6 +348,35 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Main Content */}
         <main className="flex-1 pt-16 p-8 overflow-auto">
           <div className="container mx-auto max-w-7xl">
+            {/* Breadcrumb Navigation */}
+            {breadcrumbs.length > 1 && (
+              <Breadcrumb className="mb-6">
+                <BreadcrumbList>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link to="/dashboard" className="flex items-center gap-1">
+                        <Home className="h-3.5 w-3.5" />
+                        <span className="sr-only">Home</span>
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  {breadcrumbs.map((crumb, index) => (
+                    <span key={crumb.path} className="contents">
+                      <BreadcrumbSeparator />
+                      <BreadcrumbItem>
+                        {index === breadcrumbs.length - 1 ? (
+                          <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                        ) : (
+                          <BreadcrumbLink asChild>
+                            <Link to={crumb.path}>{crumb.label}</Link>
+                          </BreadcrumbLink>
+                        )}
+                      </BreadcrumbItem>
+                    </span>
+                  ))}
+                </BreadcrumbList>
+              </Breadcrumb>
+            )}
             {children}
           </div>
         </main>
