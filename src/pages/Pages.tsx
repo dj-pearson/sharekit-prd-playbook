@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Edit, Trash2, Copy, ExternalLink, BarChart, Sparkles } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Eye, Edit, Trash2, Copy, ExternalLink, BarChart, Sparkles, Search, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useSubscription } from "@/hooks/useSubscription";
 import { UpgradePrompt, UsageWarning } from "@/components/UpgradePrompt";
+import { PagesListSkeleton } from "@/components/LoadingSkeletons";
 
 interface Page {
   id: string;
@@ -24,8 +27,26 @@ interface Page {
 const Pages = () => {
   const [pages, setPages] = useState<Page[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
   const { toast } = useToast();
   const { subscription, canCreatePage, getPlanName } = useSubscription();
+
+  // Filter pages based on search query and status
+  const filteredPages = useMemo(() => {
+    return pages.filter(page => {
+      const matchesSearch = searchQuery === "" ||
+        page.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        page.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (page.description && page.description.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      const matchesStatus = statusFilter === "all" ||
+        (statusFilter === "published" && page.is_published) ||
+        (statusFilter === "draft" && !page.is_published);
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [pages, searchQuery, statusFilter]);
 
   useEffect(() => {
     fetchPages();
@@ -120,12 +141,19 @@ const Pages = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading pages...</p>
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Pages</h1>
+              <p className="text-muted-foreground mt-1">
+                Manage your landing pages and share links
+              </p>
+            </div>
+          </div>
+          <PagesListSkeleton count={3} />
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -171,6 +199,32 @@ const Pages = () => {
           <UpgradePrompt reason="pages" currentPlan={getPlanName()} variant="alert" />
         )}
 
+        {/* Search and Filter */}
+        {pages.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search pages by title, slug, or description..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={(value: "all" | "published" | "draft") => setStatusFilter(value)}>
+              <SelectTrigger className="w-full sm:w-[160px]">
+                <Filter className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Filter status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Pages</SelectItem>
+                <SelectItem value="published">Published</SelectItem>
+                <SelectItem value="draft">Drafts</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
         {pages.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
@@ -192,9 +246,30 @@ const Pages = () => {
               </Button>
             </CardContent>
           </Card>
+        ) : filteredPages.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Search className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="text-lg font-semibold mb-2">No pages found</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery
+                  ? `No pages match "${searchQuery}"`
+                  : `No ${statusFilter === "published" ? "published" : "draft"} pages`}
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("all");
+                }}
+              >
+                Clear filters
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           <div className="space-y-4">
-            {pages.map((page) => (
+            {filteredPages.map((page) => (
               <Card key={page.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">

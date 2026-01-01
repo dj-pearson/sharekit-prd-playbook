@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CookieConsent } from "@/components/CookieConsent";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { KeyboardShortcutsDialog } from "@/components/KeyboardShortcuts";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
@@ -58,6 +59,7 @@ const App = () => (
         {/* CookieConsent moved inside BrowserRouter */}
         <BrowserRouter>
           <CookieConsent />
+          <KeyboardShortcutsDialog />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/auth" element={<Auth />} />
