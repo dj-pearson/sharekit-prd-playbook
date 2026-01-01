@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, TrendingUp, Users, Eye, FileText, Upload, CheckCircle } from "lucide-react";
+import { Plus, TrendingUp, Users, Eye, FileText, Upload, CheckCircle, Copy, ExternalLink, Check } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { RealtimeActivityFeed } from "@/components/RealtimeActivityFeed";
@@ -19,6 +20,15 @@ interface DashboardStats {
   hasFirstSignup: boolean;
 }
 
+interface RecentPage {
+  id: string;
+  title: string;
+  slug: string;
+  published: boolean;
+  view_count: number;
+  created_at: string;
+}
+
 const Dashboard = () => {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,11 +40,15 @@ const Dashboard = () => {
     hasResources: false,
     hasFirstSignup: false,
   });
+  const [recentPages, setRecentPages] = useState<RecentPage[]>([]);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const { subscription } = useSubscription();
+  const { toast } = useToast();
 
   useEffect(() => {
     checkOnboarding();
     loadDashboardStats();
+    loadRecentPages();
   }, []);
 
   const checkOnboarding = async () => {
@@ -122,6 +136,61 @@ const Dashboard = () => {
       });
     } catch (error) {
       console.error('Error loading dashboard stats:', error);
+    }
+  };
+
+  const loadRecentPages = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: pages } = await supabase
+        .from('pages')
+        .select('id, title, slug, published, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (pages && pages.length > 0) {
+        // Get view counts for these pages
+        const pageIds = pages.map(p => p.id);
+        const { data: events } = await supabase
+          .from('analytics_events')
+          .select('page_id')
+          .in('page_id', pageIds)
+          .eq('event_type', 'view');
+
+        const viewCounts = pageIds.reduce((acc, id) => {
+          acc[id] = events?.filter(e => e.page_id === id).length || 0;
+          return acc;
+        }, {} as Record<string, number>);
+
+        setRecentPages(pages.map(p => ({
+          ...p,
+          view_count: viewCounts[p.id] || 0,
+        })));
+      }
+    } catch (error) {
+      console.error('Error loading recent pages:', error);
+    }
+  };
+
+  const copyPageLink = async (slug: string, pageId: string) => {
+    const url = `${window.location.origin}/s/${slug}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(pageId);
+      toast({
+        title: "Link copied!",
+        description: "Share link copied to clipboard",
+      });
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (error) {
+      toast({
+        title: "Failed to copy",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
@@ -245,60 +314,139 @@ const Dashboard = () => {
           </Card>
         </>
       ) : (
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Recent Activity Feed */}
-          <RealtimeActivityFeed />
+        <>
+          {/* Quick Share Widget */}
+          {recentPages.length > 0 && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ExternalLink className="w-5 h-5" />
+                  Quick Share
+                </CardTitle>
+                <CardDescription>Copy links to your recent pages in one click</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {recentPages.map((page) => (
+                    <div
+                      key={page.id}
+                      className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0 mr-4">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium truncate">{page.title}</span>
+                          {page.published ? (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                              Live
+                            </span>
+                          ) : (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400">
+                              Draft
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+                          <span className="flex items-center gap-1">
+                            <Eye className="w-3.5 h-3.5" />
+                            {page.view_count} views
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => copyPageLink(page.slug, page.id)}
+                          className="min-w-[100px]"
+                        >
+                          {copiedId === page.id ? (
+                            <>
+                              <Check className="w-4 h-4 mr-1 text-green-600" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-4 h-4 mr-1" />
+                              Copy Link
+                            </>
+                          )}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          asChild
+                        >
+                          <a
+                            href={`/s/${page.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common tasks to manage your shares</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button
-                asChild
-                variant="outline"
-                className="w-full justify-start"
-              >
-                <Link to="/dashboard/pages/create">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create New Page
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full justify-start"
-              >
-                <Link to="/dashboard/upload">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload Resource
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full justify-start"
-              >
-                <Link to="/dashboard/analytics">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  View Analytics
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full justify-start"
-              >
-                <Link to="/dashboard/pages">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Manage Pages
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Recent Activity Feed */}
+            <RealtimeActivityFeed />
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>Common tasks to manage your shares</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <Link to="/dashboard/pages/create">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create New Page
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <Link to="/dashboard/upload">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Resource
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <Link to="/dashboard/analytics">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    View Analytics
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <Link to="/dashboard/pages">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Manage Pages
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </>
       )}
 
       {/* Getting Started - Only show if there are incomplete steps */}
