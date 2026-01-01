@@ -18,6 +18,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { NavLink } from "@/components/NavLink";
 import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import type { User } from "@supabase/supabase-js";
 
 interface Notification {
@@ -173,6 +174,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <Plus className="w-5 h-5" />
                 </Link>
               </Button>
+
+              {/* Theme Toggle */}
+              <ThemeToggle />
 
               {/* Notification Bell */}
               <DropdownMenu>
