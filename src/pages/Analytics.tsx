@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, Mail, Download, TrendingUp, BarChart as BarChartIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Eye, Mail, Download, TrendingUp, BarChart as BarChartIcon, FileDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AdvancedAnalytics } from "@/components/AdvancedAnalytics";
 import { ConversionFunnel } from "@/components/ConversionFunnel";
+import { exportToCSV } from "@/lib/csv-export";
 
 interface AggregateStats {
   total_views: number;
@@ -46,10 +48,74 @@ const Analytics = () => {
   const [pageStats, setPageStats] = useState<PageStats[]>([]);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
   useEffect(() => {
     fetchAnalytics();
   }, []);
+
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Get user's pages
+      const { data: pages } = await supabase
+        .from('pages')
+        .select('id, title')
+        .eq('user_id', user.id);
+
+      if (!pages || pages.length === 0) {
+        toast({
+          title: "No data to export",
+          description: "You don't have any pages with email captures yet.",
+        });
+        return;
+      }
+
+      const pageIds = pages.map(p => p.id);
+      const pageMap = new Map(pages.map(p => [p.id, p.title]));
+
+      // Fetch all email captures
+      const { data: captures, error } = await supabase
+        .from('email_captures')
+        .select('email, first_name, last_name, phone, company, captured_at, page_id')
+        .in('page_id', pageIds)
+        .order('captured_at', { ascending: false });
+
+      if (error) throw error;
+
+      if (!captures || captures.length === 0) {
+        toast({
+          title: "No data to export",
+          description: "No email captures found for your pages.",
+        });
+        return;
+      }
+
+      // Add page title to each capture
+      const capturesWithPageTitle = captures.map(capture => ({
+        ...capture,
+        page_title: pageMap.get(capture.page_id) || 'Unknown Page'
+      }));
+
+      exportToCSV(capturesWithPageTitle, 'sharekit-email-captures');
+
+      toast({
+        title: "Export successful",
+        description: `Exported ${captures.length} email captures to CSV.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Export failed",
+        description: error.message || "Failed to export email captures",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const fetchAnalytics = async () => {
     try {
@@ -179,11 +245,22 @@ const Analytics = () => {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Analytics Overview</h1>
-        <p className="text-muted-foreground mt-1">
-          Track performance across all your landing pages
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Analytics Overview</h1>
+          <p className="text-muted-foreground mt-1">
+            Track performance across all your landing pages
+          </p>
+        </div>
+        <Button
+          onClick={handleExportCSV}
+          disabled={isExporting || aggregateStats.total_signups === 0}
+          variant="outline"
+          className="shrink-0"
+        >
+          <FileDown className="w-4 h-4 mr-2" />
+          {isExporting ? "Exporting..." : "Export Leads CSV"}
+        </Button>
       </div>
 
       {/* Aggregate Stats */}
