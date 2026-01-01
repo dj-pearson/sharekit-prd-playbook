@@ -144,33 +144,45 @@ const Analytics = () => {
         total_pages: pages?.length || 0,
       };
 
-      // Fetch detailed stats for each page
-      const pageStatsPromises = pages?.map(async (page) => {
-        const { data: pageEvents } = await supabase
-          .from('analytics_events')
-          .select('event_type')
-          .eq('page_id', page.id);
+      // Fetch all analytics events in a single batch query (instead of N queries)
+      const pageIds = pages?.map(p => p.id) || [];
+      const { data: allEvents } = await supabase
+        .from('analytics_events')
+        .select('page_id, event_type')
+        .in('page_id', pageIds);
 
-        const views = pageEvents?.filter(e => e.event_type === 'view').length || 0;
-        const signups = pageEvents?.filter(e => e.event_type === 'signup').length || 0;
-        const downloads = pageEvents?.filter(e => e.event_type === 'download').length || 0;
+      // Aggregate event counts by page_id and event_type
+      const eventCounts: Record<string, { views: number; signups: number; downloads: number }> = {};
+      pageIds.forEach(id => {
+        eventCounts[id] = { views: 0, signups: 0, downloads: 0 };
+      });
 
-        stats.total_views += views;
-        stats.total_signups += signups;
-        stats.total_downloads += downloads;
+      (allEvents || []).forEach(event => {
+        if (!eventCounts[event.page_id]) {
+          eventCounts[event.page_id] = { views: 0, signups: 0, downloads: 0 };
+        }
+        if (event.event_type === 'view') eventCounts[event.page_id].views++;
+        else if (event.event_type === 'signup') eventCounts[event.page_id].signups++;
+        else if (event.event_type === 'download') eventCounts[event.page_id].downloads++;
+      });
+
+      // Build page stats from aggregated counts
+      const pageStatsData = pages?.map(page => {
+        const counts = eventCounts[page.id] || { views: 0, signups: 0, downloads: 0 };
+        stats.total_views += counts.views;
+        stats.total_signups += counts.signups;
+        stats.total_downloads += counts.downloads;
 
         return {
           id: page.id,
           title: page.title,
           slug: page.slug,
-          views,
-          signups,
-          downloads,
-          conversion_rate: views > 0 ? (signups / views) * 100 : 0,
+          views: counts.views,
+          signups: counts.signups,
+          downloads: counts.downloads,
+          conversion_rate: counts.views > 0 ? (counts.signups / counts.views) * 100 : 0,
         };
       }) || [];
-
-      const pageStatsData = await Promise.all(pageStatsPromises);
       setPageStats(pageStatsData.sort((a, b) => b.views - a.views));
       setAggregateStats(stats);
 

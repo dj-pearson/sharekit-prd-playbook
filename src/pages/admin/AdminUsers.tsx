@@ -85,21 +85,31 @@ export default function AdminUsers() {
 
       if (error) throw error;
 
-      // Fetch resource and page counts for each user
-      const usersWithCounts = await Promise.all(
-        (profiles || []).map(async (profile) => {
-          const [resourcesResult, pagesResult] = await Promise.all([
-            supabase.from('resources').select('id', { count: 'exact' }).eq('user_id', profile.id),
-            supabase.from('pages').select('id', { count: 'exact' }).eq('user_id', profile.id),
-          ]);
+      // Fetch resource and page counts in batch (2 queries instead of N*2)
+      const userIds = (profiles || []).map(p => p.id);
 
-          return {
-            ...profile,
-            resource_count: resourcesResult.count || 0,
-            page_count: pagesResult.count || 0,
-          };
-        })
-      );
+      const [resourcesResult, pagesResult] = await Promise.all([
+        supabase.from('resources').select('user_id').in('user_id', userIds),
+        supabase.from('pages').select('user_id').in('user_id', userIds),
+      ]);
+
+      // Aggregate counts client-side
+      const resourceCounts: Record<string, number> = {};
+      const pageCounts: Record<string, number> = {};
+
+      (resourcesResult.data || []).forEach(r => {
+        resourceCounts[r.user_id] = (resourceCounts[r.user_id] || 0) + 1;
+      });
+
+      (pagesResult.data || []).forEach(p => {
+        pageCounts[p.user_id] = (pageCounts[p.user_id] || 0) + 1;
+      });
+
+      const usersWithCounts = (profiles || []).map(profile => ({
+        ...profile,
+        resource_count: resourceCounts[profile.id] || 0,
+        page_count: pageCounts[profile.id] || 0,
+      }));
 
       setUsers(usersWithCounts);
       setIsLoading(false);
