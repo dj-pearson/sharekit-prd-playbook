@@ -10,6 +10,26 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split Three.js and related 3D libraries into separate chunk
+          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          // Split React core libraries
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Split charting library (heavy)
+          'charts': ['recharts'],
+          // Split Supabase client
+          'supabase': ['@supabase/supabase-js'],
+          // Split TanStack Query
+          'query': ['@tanstack/react-query'],
+          // Split animation libraries
+          'motion': ['framer-motion'],
+        }
+      }
+    }
+  },
   plugins: [
     react(),
     mode === "development" && componentTagger(),

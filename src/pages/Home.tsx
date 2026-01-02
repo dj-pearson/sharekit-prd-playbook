@@ -1,11 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, CheckCircle, Download, Mail, BarChart3, Sparkles, Users, Zap, Quote, Star, X, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Logo } from "@/components/Logo";
-import Hero3D from "@/components/Hero3D";
+import Hero3DFallback from "@/components/Hero3DFallback";
 import { SEOHead } from "@/components/SEOHead";
+
+// Lazy load the heavy Three.js component
+const Hero3D = lazy(() => import("@/components/Hero3D"));
 import { organizationSchema, softwareAppSchema, faqSchema } from "@/lib/structured-data";
 import {
   Accordion,
@@ -139,10 +142,12 @@ const Home = () => {
 
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 bg-gradient-subtle overflow-hidden">
-        {/* 3D Background Element */}
+        {/* 3D Background Element - Lazy loaded with lightweight CSS fallback */}
         <div className="absolute inset-0 w-full h-full opacity-60 pointer-events-none">
           <div className="w-full h-full pointer-events-auto">
-            <Hero3D />
+            <Suspense fallback={<Hero3DFallback />}>
+              <Hero3D />
+            </Suspense>
           </div>
         </div>
 
