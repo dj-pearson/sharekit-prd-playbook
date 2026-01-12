@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Bell, Shield, CreditCard, Download, Trash2, AlertTriangle, ExternalLink, Crown } from "lucide-react";
+import { User, Bell, Shield, CreditCard, Download, Trash2, AlertTriangle, ExternalLink, Crown, Eye } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
 import { createPortalSession } from "@/lib/stripe";
 import { UsernameSelector } from "@/components/UsernameSelector";
+import { AccessibilitySettings } from "@/components/settings/AccessibilitySettings";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -279,6 +280,10 @@ const Settings = () => {
             <TabsTrigger value="billing">
               <CreditCard className="w-4 h-4 mr-2" />
               Billing
+            </TabsTrigger>
+            <TabsTrigger value="accessibility">
+              <Eye className="w-4 h-4 mr-2" />
+              Accessibility
             </TabsTrigger>
           </TabsList>
 
@@ -719,6 +724,10 @@ const Settings = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="accessibility">
+            <AccessibilitySettings />
           </TabsContent>
         </Tabs>
       </div>

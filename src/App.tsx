@@ -8,6 +8,8 @@ import { CookieConsent } from "@/components/CookieConsent";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { KeyboardShortcutsDialog } from "@/components/KeyboardShortcuts";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
+import { SkipNavigation, LiveAnnouncerProvider } from "@/components/accessibility";
 
 // Eagerly loaded pages (critical path)
 import Home from "./pages/Home";
@@ -40,6 +42,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DMCA = lazy(() => import("./pages/DMCA"));
 const Blog = lazy(() => import("./pages/Blog"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Accessibility = lazy(() => import("./pages/Accessibility"));
 
 // Lazy loaded admin pages
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
@@ -68,15 +71,18 @@ const queryClient = new QueryClient();
 const App = () => (
   <ErrorBoundary>
     <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <CookieConsent />
-            <KeyboardShortcutsDialog />
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
+      <AccessibilityProvider>
+        <LiveAnnouncerProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <SkipNavigation />
+                <CookieConsent />
+                <KeyboardShortcutsDialog />
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/pricing" element={<Pricing />} />
@@ -104,8 +110,9 @@ const App = () => (
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/dmca" element={<DMCA />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/blog/:slug" element={<BlogPost />} />
+                    <Route path="/accessibility" element={<Accessibility />} />
+                    <Route path="/blog" element={<Blog />} />
+                    <Route path="/blog/:slug" element={<BlogPost />} />
 
                 {/* Admin routes */}
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -121,11 +128,13 @@ const App = () => (
 
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
+                  </Routes>
+                </Suspense>
+              </BrowserRouter>
+            </TooltipProvider>
+          </QueryClientProvider>
+        </LiveAnnouncerProvider>
+      </AccessibilityProvider>
     </ThemeProvider>
   </ErrorBoundary>
 );
