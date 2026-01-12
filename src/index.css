@@ -140,3 +140,378 @@ All colors MUST be HSL.
     font-weight: 600;
   }
 }
+
+/* ==========================================================================
+   ACCESSIBILITY STYLES - ADA/WCAG 2.1 AA Compliance
+   ========================================================================== */
+
+/* Skip Navigation Links
+   Visible only when focused for keyboard users */
+@layer components {
+  .skip-navigation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .skip-link {
+    @apply absolute left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium text-sm;
+    transform: translateY(-100%);
+    transition: transform 0.2s ease-in-out;
+    pointer-events: auto;
+  }
+
+  .skip-link:focus {
+    transform: translateY(0.5rem);
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+/* Screen Reader Only Content */
+@layer utilities {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  .sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Not screen reader only - make visible */
+  .not-sr-only {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}
+
+/* High Contrast Mode
+   Enhanced contrast for users with visual impairments */
+@layer base {
+  .high-contrast {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 220 100% 25%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 20%;
+    --accent: 45 100% 40%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 30%;
+    --input: 0 0% 30%;
+    --ring: 220 100% 25%;
+  }
+
+  .high-contrast.dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 200 100% 70%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 80%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 80%;
+    --accent: 45 100% 60%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 0 0% 0%;
+    --border: 0 0% 70%;
+    --input: 0 0% 70%;
+    --ring: 200 100% 70%;
+  }
+}
+
+/* Reduced Motion
+   Respects user preference for reduced motion */
+@layer base {
+  .reduce-motion,
+  .reduce-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* System preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Font Size Adjustments
+   Support for user-controlled font sizing */
+@layer base {
+  .font-size-normal {
+    font-size: 100%;
+  }
+
+  .font-size-large {
+    font-size: 112.5%; /* 18px base */
+  }
+
+  .font-size-larger {
+    font-size: 125%; /* 20px base */
+  }
+}
+
+/* Focus Visibility
+   Enhanced focus indicators for keyboard navigation */
+@layer base {
+  /* Ensure all focusable elements have visible focus */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* High contrast focus for high contrast mode */
+  .high-contrast :focus-visible {
+    outline: 3px solid currentColor !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+  }
+
+  /* Focus within for container elements */
+  [data-focus-container]:focus-within {
+    @apply ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+/* Accessible Form Styles */
+@layer components {
+  /* Required field indicator */
+  .form-required::after {
+    content: " *";
+    @apply text-destructive;
+  }
+
+  /* Error state styling */
+  .form-error {
+    @apply border-destructive focus-visible:ring-destructive;
+  }
+
+  /* Success state styling */
+  .form-success {
+    @apply border-success focus-visible:ring-success;
+  }
+
+  /* Input with icon - ensure adequate padding */
+  .input-with-icon {
+    @apply pl-10;
+  }
+
+  /* Accessible checkbox/radio custom styling */
+  .custom-checkbox:focus-visible + label,
+  .custom-radio:focus-visible + label {
+    @apply ring-2 ring-ring ring-offset-2 ring-offset-background rounded;
+  }
+}
+
+/* Touch Target Sizes
+   Minimum 44x44 pixel touch targets for motor accessibility */
+@layer components {
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .touch-target-lg {
+    min-width: 48px;
+    min-height: 48px;
+  }
+}
+
+/* Link Accessibility
+   Ensure links are distinguishable from text */
+@layer base {
+  /* Links in content areas */
+  .prose a,
+  [data-content-area] a {
+    @apply underline decoration-primary/50 underline-offset-2 hover:decoration-primary;
+  }
+
+  /* High contrast links */
+  .high-contrast a {
+    text-decoration: underline !important;
+    text-decoration-thickness: 2px !important;
+  }
+}
+
+/* Table Accessibility */
+@layer components {
+  /* Ensure table headers are distinguishable */
+  [role="table"] [role="columnheader"],
+  table th {
+    @apply font-semibold text-left bg-muted/50;
+  }
+
+  /* Stripe rows for easier reading */
+  [data-striped-rows] tr:nth-child(even),
+  .table-striped tbody tr:nth-child(even) {
+    @apply bg-muted/30;
+  }
+
+  /* Row hover state for interactive tables */
+  [data-hoverable-rows] tr:hover,
+  .table-hover tbody tr:hover {
+    @apply bg-muted/50;
+  }
+}
+
+/* Card Accessibility */
+@layer components {
+  /* Ensure cards with links have proper focus indication */
+  .card-link:focus-within {
+    @apply ring-2 ring-ring ring-offset-2 ring-offset-background rounded-lg;
+  }
+}
+
+/* Icon Button Accessibility */
+@layer components {
+  /* Icon-only buttons must have adequate touch targets and labels */
+  .icon-button {
+    @apply touch-target inline-flex items-center justify-center;
+  }
+}
+
+/* Loading States Accessibility */
+@layer components {
+  /* Ensure loading spinners have appropriate ARIA attributes */
+  [aria-busy="true"] {
+    cursor: wait;
+  }
+
+  /* Reduced motion loading indicator */
+  .reduce-motion [aria-busy="true"]::after,
+  @media (prefers-reduced-motion: reduce) {
+    [aria-busy="true"]::after {
+      content: "Loading...";
+      @apply sr-only;
+    }
+  }
+}
+
+/* Dialog/Modal Accessibility */
+@layer components {
+  /* Ensure dialogs trap focus appropriately */
+  [role="dialog"] {
+    @apply outline-none;
+  }
+
+  /* Dialog backdrop for visual separation */
+  [data-dialog-backdrop] {
+    @apply bg-background/80 backdrop-blur-sm;
+  }
+}
+
+/* Notification/Alert Accessibility */
+@layer components {
+  /* Status notifications */
+  [role="status"] {
+    @apply sr-only;
+  }
+
+  /* Alert notifications - more prominent */
+  [role="alert"]:not(.sr-only) {
+    @apply p-4 rounded-lg border-l-4;
+  }
+
+  [role="alert"].alert-error {
+    @apply bg-destructive/10 border-destructive text-destructive;
+  }
+
+  [role="alert"].alert-success {
+    @apply bg-success/10 border-success text-success;
+  }
+
+  [role="alert"].alert-warning {
+    @apply bg-accent/10 border-accent text-accent-foreground;
+  }
+
+  [role="alert"].alert-info {
+    @apply bg-primary/10 border-primary text-primary;
+  }
+}
+
+/* Print Styles for Accessibility */
+@media print {
+  /* Ensure adequate contrast when printing */
+  * {
+    color: #000 !important;
+    background: #fff !important;
+  }
+
+  /* Show URLs for links when printing */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+
+  /* Hide decorative elements */
+  [aria-hidden="true"],
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Windows High Contrast Mode Support */
+@media (forced-colors: active) {
+  /* Ensure buttons and links are visible */
+  button,
+  a {
+    forced-color-adjust: none;
+  }
+
+  /* Ensure focus is visible */
+  :focus-visible {
+    outline: 3px solid CanvasText !important;
+    outline-offset: 2px !important;
+  }
+
+  /* Ensure form inputs have visible borders */
+  input,
+  textarea,
+  select {
+    border: 1px solid CanvasText !important;
+  }
+}

@@ -40,7 +40,9 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" role="document">
+      {/* Main content landmark for skip navigation */}
+      <a id="main-content" tabIndex={-1} className="sr-only">Main content start</a>
       <SEOHead
         title="Simple Resource Delivery Platform for Creators, Coaches & Consultants"
         description="ShareKit enables you to share digital resources (PDFs, guides, checklists) through beautiful landing pages with automated email delivery—without the complexity of ConvertKit or Mailchimp. Setup in 5 minutes, not hours."
@@ -60,7 +62,7 @@ const Home = () => {
       />
 
       {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <nav id="navigation" aria-label="Main navigation" className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
           <Link to="/">
             <Logo size="sm" />
@@ -686,7 +688,7 @@ const Home = () => {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-12 bg-background">
+      <footer className="border-t py-12 bg-background" role="contentinfo" aria-label="Site footer">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
@@ -720,6 +722,7 @@ const Home = () => {
                 <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
                 <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
                 <li><Link to="/dmca" className="hover:text-foreground transition-colors">DMCA Policy</Link></li>
+                <li><Link to="/accessibility" className="hover:text-foreground transition-colors">Accessibility</Link></li>
               </ul>
             </div>
           </div>
