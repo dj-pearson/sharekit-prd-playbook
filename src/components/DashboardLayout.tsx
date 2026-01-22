@@ -198,7 +198,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 className="bg-gradient-ocean hover:opacity-90 transition-opacity hidden sm:flex"
               >
                 <Link to="/dashboard/pages/create">
-                  <Plus className="w-4 h-4 mr-1" />
+                  <Plus className="w-4 h-4 mr-1" aria-hidden="true" />
                   New Page
                 </Link>
               </Button>
@@ -207,8 +207,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 size="icon"
                 className="bg-gradient-ocean hover:opacity-90 transition-opacity sm:hidden h-10 w-10"
               >
-                <Link to="/dashboard/pages/create">
-                  <Plus className="w-5 h-5" />
+                <Link to="/dashboard/pages/create" aria-label="Create new page">
+                  <Plus className="w-5 h-5" aria-hidden="true" />
                 </Link>
               </Button>
 
@@ -218,10 +218,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               {/* Notification Bell */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative h-10 w-10 sm:h-8 sm:w-8" onClick={clearNotifications}>
-                    <Bell className="w-5 h-5 sm:w-4 sm:h-4" />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative h-10 w-10 sm:h-8 sm:w-8"
+                    onClick={clearNotifications}
+                    aria-label={unreadCount > 0 ? `Notifications (${unreadCount} unread)` : 'Notifications'}
+                  >
+                    <Bell className="w-5 h-5 sm:w-4 sm:h-4" aria-hidden="true" />
                     {unreadCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
+                      <span
+                        className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center"
+                        aria-hidden="true"
+                      >
                         {unreadCount > 9 ? '9+' : unreadCount}
                       </span>
                     )}
@@ -237,7 +246,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   ) : (
                     notifications.map((notif) => (
                       <DropdownMenuItem key={notif.id} className="flex items-start gap-3 py-3">
-                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0" aria-hidden="true">
                           <UserPlus className="w-4 h-4 text-green-600" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -268,7 +277,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 onClick={handleSignOut}
                 className="hidden sm:flex"
               >
-                <LogOut className="w-4 h-4 mr-2" />
+                <LogOut className="w-4 h-4 mr-2" aria-hidden="true" />
                 Sign Out
               </Button>
               <Button
@@ -276,10 +285,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 size="icon"
                 onClick={handleSignOut}
                 className="sm:hidden h-10 w-10"
+                aria-label="Sign out"
               >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-5 h-5" aria-hidden="true" />
               </Button>
-              <div className="w-8 h-8 rounded-full bg-gradient-ocean flex items-center justify-center text-white text-sm font-medium">
+              <div
+                className="w-8 h-8 rounded-full bg-gradient-ocean flex items-center justify-center text-white text-sm font-medium"
+                role="img"
+                aria-label={`User avatar for ${user?.email}`}
+              >
                 {user?.email?.charAt(0).toUpperCase()}
               </div>
             </div>
@@ -295,13 +309,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   {navItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
-                        <NavLink 
-                          to={item.url} 
+                        <NavLink
+                          to={item.url}
                           end={item.url === "/dashboard"}
-                          className="hover:bg-muted/50" 
+                          className="hover:bg-muted/50"
                           activeClassName="bg-muted text-primary font-medium"
                         >
-                          <item.icon className="h-4 w-4" />
+                          <item.icon className="h-4 w-4" aria-hidden="true" />
                           <span>{item.title}</span>
                         </NavLink>
                       </SidebarMenuButton>
@@ -317,12 +331,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Card className="bg-gradient-ocean text-white">
                   <CardContent className="p-4">
                     <div className="text-sm font-medium mb-1">{getPlanName()} Plan</div>
-                    <div className="text-xs opacity-90 mb-2">
+                    <div className="text-xs opacity-90 mb-2" id="free-plan-usage">
                       {subscription.usage.signups_this_month} / {subscription.limits.signups_per_month} signups this month
                     </div>
                     <Progress
                       value={(subscription.usage.signups_this_month / subscription.limits.signups_per_month) * 100}
                       className="h-1.5 mb-3 bg-white/20"
+                      aria-label="Monthly signup usage"
+                      aria-describedby="free-plan-usage"
                     />
                     <Button variant="secondary" size="sm" className="w-full" asChild>
                       <Link to="/pricing">
@@ -335,15 +351,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <Crown className="w-4 h-4" />
+                      <Crown className="w-4 h-4" aria-hidden="true" />
                       <span className="text-sm font-medium">{getPlanName()} Plan</span>
                     </div>
-                    <div className="text-xs opacity-90 mb-2">
+                    <div className="text-xs opacity-90 mb-2" id="pro-plan-usage">
                       {subscription?.usage.signups_this_month.toLocaleString()} / {subscription?.limits.signups_per_month.toLocaleString()} signups
                     </div>
                     <Progress
                       value={((subscription?.usage.signups_this_month || 0) / (subscription?.limits.signups_per_month || 1)) * 100}
                       className="h-1.5 bg-white/20"
+                      aria-label="Monthly signup usage"
+                      aria-describedby="pro-plan-usage"
                     />
                   </CardContent>
                 </Card>
