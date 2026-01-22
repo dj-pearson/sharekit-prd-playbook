@@ -243,10 +243,20 @@ const Settings = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="flex items-center justify-center min-h-[400px]">
+        <div
+          className="flex items-center justify-center min-h-[400px]"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+          aria-label="Loading settings"
+        >
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div
+              className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"
+              aria-hidden="true"
+            ></div>
             <p className="text-muted-foreground">Loading settings...</p>
+            <span className="sr-only">Please wait while settings load</span>
           </div>
         </div>
       </DashboardLayout>

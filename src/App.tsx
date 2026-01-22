@@ -56,12 +56,22 @@ const AdminMarketing = lazy(() => import("./pages/admin/AdminMarketing"));
 const AdminAnalytics = lazy(() => import("./pages/admin/AdminAnalytics"));
 const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
 
-// Loading fallback component
+// Loading fallback component with accessibility support
 const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
+  <div
+    className="flex items-center justify-center min-h-screen"
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+    aria-label="Loading page content"
+  >
     <div className="text-center">
-      <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+      <div
+        className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"
+        aria-hidden="true"
+      ></div>
       <p className="text-muted-foreground text-sm">Loading...</p>
+      <span className="sr-only">Please wait while the page loads</span>
     </div>
   </div>
 );

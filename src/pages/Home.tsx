@@ -758,8 +758,9 @@ const Home = () => {
                 variant="ghost"
                 className="text-white hover:bg-white/20 p-1 h-10 w-10"
                 onClick={() => setDismissedStickyCTA(true)}
+                aria-label="Dismiss promotional banner"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </Button>
             </div>
           </div>
