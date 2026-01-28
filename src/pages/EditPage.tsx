@@ -11,6 +11,8 @@ import { Save, Loader2, TestTube2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
+import { useRequireOwnership } from "@/hooks/useResourceOwnership";
+import { useRequirePermissions, PERMISSIONS } from "@/hooks/usePermissions";
 
 interface Resource {
   id: string;
@@ -28,6 +30,22 @@ const EditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Layer 2: Authorization - require edit permission
+  const { isAuthorized: hasPermission, isLoading: permissionLoading } = useRequirePermissions(
+    [PERMISSIONS.PAGES_EDIT_OWN],
+    '/dashboard/pages'
+  );
+
+  // Layer 3: Resource Ownership - verify user owns this page
+  const { isOwner, isLoading: ownershipLoading } = useRequireOwnership(
+    'pages',
+    id || '',
+    {
+      allowTeamAccess: true, // Allow team members to edit team pages
+      redirectTo: '/dashboard/pages',
+    }
+  );
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -220,17 +238,25 @@ const EditPage = () => {
     }
   };
 
-  if (isLoading) {
+  // Show loading state while checking security and loading data
+  if (isLoading || permissionLoading || ownershipLoading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading page...</p>
+            <p className="text-muted-foreground">
+              {permissionLoading || ownershipLoading ? 'Verifying access...' : 'Loading page...'}
+            </p>
           </div>
         </div>
       </DashboardLayout>
     );
+  }
+
+  // Security check failed - ownership hook will handle redirect
+  if (!hasPermission || !isOwner) {
+    return null;
   }
 
   return (

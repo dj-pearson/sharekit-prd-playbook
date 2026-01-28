@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users, Crown, Bell, Plus, UserPlus, Home } from "lucide-react";
+import { LogOut, Settings, LayoutDashboard, FileText, Eye, BarChart3, Webhook, Users, Crown, Bell, Plus, UserPlus, Home, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -15,6 +15,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSubscription } from "@/hooks/useSubscription";
+import { useAuth } from "@/hooks/useAuth";
+import { usePermissions, PERMISSIONS } from "@/hooks/usePermissions";
 import { SidebarProvider, Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { NavLink } from "@/components/NavLink";
@@ -34,15 +36,16 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
+// Navigation items with permission requirements
 const navItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Resources", url: "/dashboard/resources", icon: FileText },
-  { title: "Pages", url: "/dashboard/pages", icon: Eye },
-  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3 },
-  { title: "Webhooks", url: "/dashboard/webhooks", icon: Webhook },
-  { title: "Teams", url: "/dashboard/teams", icon: Users },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
-];
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, permission: null },
+  { title: "Resources", url: "/dashboard/resources", icon: FileText, permission: PERMISSIONS.RESOURCES_VIEW_OWN },
+  { title: "Pages", url: "/dashboard/pages", icon: Eye, permission: PERMISSIONS.PAGES_VIEW_OWN },
+  { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: PERMISSIONS.ANALYTICS_VIEW_OWN },
+  { title: "Webhooks", url: "/dashboard/webhooks", icon: Webhook, permission: PERMISSIONS.WEBHOOKS_VIEW },
+  { title: "Teams", url: "/dashboard/teams", icon: Users, permission: PERMISSIONS.TEAMS_VIEW },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings, permission: PERMISSIONS.SETTINGS_VIEW },
+] as const;
 
 // Route to breadcrumb label mapping
 const routeLabels: Record<string, string> = {
@@ -59,13 +62,21 @@ const routeLabels: Record<string, string> = {
 };
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const [user, setUser] = useState<User | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
   const { subscription, getPlanName } = useSubscription();
+
+  // Layer 1 & 2: Authentication and basic authorization
+  const { user, isAuthenticated, isLoading: authLoading, signOut } = useAuth({
+    requireAuth: true,
+    showToast: true,
+  });
+
+  // Layer 2: Permissions for conditional UI rendering
+  const { can, role, isLoading: permissionsLoading } = usePermissions();
 
   // Generate breadcrumbs from current path
   const breadcrumbs = useMemo(() => {
@@ -82,27 +93,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return crumbs;
   }, [location.pathname]);
 
+  // Load notifications when user is authenticated
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-        loadNotifications(session.user.id);
-      } else {
-        navigate("/auth");
-      }
-    });
-
-    const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-      } else {
-        navigate("/auth");
-      }
-    });
-    const authSubscription = data.subscription;
-
-    return () => authSubscription.unsubscribe();
-  }, [navigate]);
+    if (isAuthenticated && user?.id) {
+      loadNotifications(user.id);
+    }
+  }, [isAuthenticated, user?.id]);
 
   const loadNotifications = async (userId: string) => {
     try {
@@ -150,23 +146,20 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   const handleSignOut = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Signed out",
-        description: "You've been successfully signed out.",
-      });
-      navigate("/");
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to sign out.",
-        variant: "destructive",
-      });
-    }
+    await signOut();
   };
 
-  if (!user) {
+  // Show loading state while checking authentication
+  if (authLoading || permissionsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" role="status" aria-label="Loading">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (redirect handled by useAuth)
+  if (!isAuthenticated || !user) {
     return null;
   }
 
@@ -306,7 +299,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {navItems.map((item) => (
+                  {navItems
+                    .filter((item) => !item.permission || can(item.permission))
+                    .map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
                         <NavLink
@@ -321,6 +316,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
+                  {/* Admin link - only shown to admins */}
+                  {can(PERMISSIONS.ADMIN_ACCESS) && (
+                    <SidebarMenuItem>
+                      <SidebarMenuButton asChild>
+                        <NavLink
+                          to="/admin/dashboard"
+                          className="hover:bg-muted/50"
+                          activeClassName="bg-muted text-primary font-medium"
+                        >
+                          <Shield className="h-4 w-4" aria-hidden="true" />
+                          <span>Admin Panel</span>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )}
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
