@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 interface SitemapUrl {
   loc: string;
@@ -9,11 +9,24 @@ interface SitemapUrl {
   priority?: number;
 }
 
-// Initialize Supabase client for sitemap generation
-const supabaseUrl = process.env.SUPABASE_URL || 'https://tvjgpqmqybtlazabzszo.supabase.co';
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2amdwcW1xeWJ0bGF6YWJ6c3pvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4MjQyNTgsImV4cCI6MjA3ODQwMDI1OH0.vvqlkJy7OfaBUHgZBlQVLZrCkz6FTydza35Wn03fxSQ';
+// Supabase client is initialized lazily when generateSitemap is called
+// This allows the module to be imported without environment variables for vite config
+let supabase: SupabaseClient | null = null;
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+function getSupabaseClient(): SupabaseClient | null {
+  if (!supabase) {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('Missing SUPABASE_URL or SUPABASE_ANON_KEY - sitemap will only include static routes');
+      return null;
+    }
+
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+  }
+  return supabase;
+}
 
 // Static routes that should always be in the sitemap
 const staticRoutes: SitemapUrl[] = [
@@ -56,8 +69,11 @@ const staticRoutes: SitemapUrl[] = [
 
 // Fetch blog posts from Supabase
 async function fetchBlogPosts(): Promise<SitemapUrl[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
   try {
-    const { data: posts, error } = await supabase
+    const { data: posts, error } = await client
       .from('blog_posts')
       .select('slug, updated_at, published_at')
       .eq('status', 'published')
@@ -82,8 +98,11 @@ async function fetchBlogPosts(): Promise<SitemapUrl[]> {
 
 // Fetch published public pages from Supabase
 async function fetchPublicPages(): Promise<SitemapUrl[]> {
+  const client = getSupabaseClient();
+  if (!client) return [];
+
   try {
-    const { data: pages, error } = await supabase
+    const { data: pages, error } = await client
       .from('pages')
       .select('slug, updated_at, user_id')
       .eq('is_published', true);
@@ -127,16 +146,18 @@ ${urlsXml}
 }
 
 export async function generateSitemap(outDir: string, hostname = 'https://sharekit.net') {
-  console.log('🔄 Fetching dynamic content from Supabase...');
+  console.log('Generating sitemap...');
 
-  // Fetch dynamic content from Supabase
+  // Fetch dynamic content from Supabase (will be empty if env vars not set)
   const [blogPosts, publicPages] = await Promise.all([
     fetchBlogPosts(),
     fetchPublicPages()
   ]);
 
-  console.log(`  📝 Found ${blogPosts.length} blog posts`);
-  console.log(`  📄 Found ${publicPages.length} public pages`);
+  if (blogPosts.length > 0 || publicPages.length > 0) {
+    console.log(`  Found ${blogPosts.length} blog posts`);
+    console.log(`  Found ${publicPages.length} public pages`);
+  }
 
   const allUrls = [...staticRoutes, ...blogPosts, ...publicPages];
   const sitemapXml = generateSitemapXML(allUrls, hostname);
@@ -150,7 +171,7 @@ export async function generateSitemap(outDir: string, hostname = 'https://sharek
 
   fs.writeFileSync(sitemapPath, sitemapXml);
 
-  console.log(`✅ Sitemap generated with ${allUrls.length} URLs at ${sitemapPath}`);
+  console.log(`Sitemap generated with ${allUrls.length} URLs at ${sitemapPath}`);
 
   return sitemapPath;
 }

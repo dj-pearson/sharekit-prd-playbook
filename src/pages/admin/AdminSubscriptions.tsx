@@ -131,18 +131,18 @@ export default function AdminSubscriptions() {
       if (error) throw error;
 
       // Mock subscription data (in production, this would come from Stripe)
-      // For now, we'll use the subscription_tier field from profiles
+      // For now, we'll use the subscription_plan field from profiles
       const mockSubscriptions: Subscription[] = (profiles || [])
-        .filter((p) => p.subscription_tier && p.subscription_tier !== 'free')
+        .filter((p) => p.subscription_plan && p.subscription_plan !== 'free')
         .map((profile, index) => {
-          const plan = profile.subscription_tier || 'free';
+          const plan = profile.subscription_plan || 'free';
           const priceMonthly = plan === 'pro' ? 19 : plan === 'business' ? 49 : 0;
 
           return {
             id: profile.id,
             user_id: profile.id,
             user_email: profile.email || '',
-            user_name: profile.display_name || '',
+            user_name: profile.full_name || '',
             plan,
             status: 'active',
             current_period_start: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
@@ -174,9 +174,9 @@ export default function AdminSubscriptions() {
 
   function calculateMetrics(profiles: any[], subscriptions: Subscription[]) {
     const totalUsers = profiles.length;
-    const freeCount = profiles.filter((p) => !p.subscription_tier || p.subscription_tier === 'free').length;
-    const proCount = profiles.filter((p) => p.subscription_tier === 'pro').length;
-    const businessCount = profiles.filter((p) => p.subscription_tier === 'business').length;
+    const freeCount = profiles.filter((p) => !p.subscription_plan || p.subscription_plan === 'free').length;
+    const proCount = profiles.filter((p) => p.subscription_plan === 'pro').length;
+    const businessCount = profiles.filter((p) => p.subscription_plan === 'business').length;
 
     const proMRR = proCount * 19;
     const businessMRR = businessCount * 49;
