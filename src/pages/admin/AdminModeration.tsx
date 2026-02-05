@@ -79,7 +79,7 @@ export default function AdminModeration() {
           *,
           profiles:user_id (
             email,
-            display_name
+            full_name
           )
         `)
         .order('created_at', { ascending: false });
@@ -124,7 +124,7 @@ export default function AdminModeration() {
           return {
             ...item,
             user_email: item.profiles?.email,
-            user_name: item.profiles?.display_name,
+            user_name: item.profiles?.full_name,
             preview,
           };
         })

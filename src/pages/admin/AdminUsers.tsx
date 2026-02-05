@@ -35,9 +35,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 interface UserData {
   id: string;
   email: string;
-  display_name: string | null;
+  full_name: string | null;
   username: string | null;
-  subscription_tier: string | null;
+  subscription_plan: string | null;
   created_at: string;
   last_sign_in_at: string | null;
   resource_count?: number;
@@ -133,7 +133,7 @@ export default function AdminUsers() {
       filtered = filtered.filter(
         (user) =>
           user.email.toLowerCase().includes(query) ||
-          user.display_name?.toLowerCase().includes(query) ||
+          user.full_name?.toLowerCase().includes(query) ||
           user.username?.toLowerCase().includes(query)
       );
     }
@@ -141,7 +141,7 @@ export default function AdminUsers() {
     // Plan filter
     if (filters.plan !== 'all') {
       filtered = filtered.filter(
-        (user) => (user.subscription_tier || 'free') === filters.plan
+        (user) => (user.subscription_plan || 'free') === filters.plan
       );
     }
 
@@ -181,9 +181,9 @@ export default function AdminUsers() {
         ...filteredUsers.map((user) =>
           [
             user.email,
-            user.display_name || '',
+            user.full_name || '',
             user.username || '',
-            user.subscription_tier || 'free',
+            user.subscription_plan || 'free',
             new Date(user.created_at).toLocaleDateString(),
             user.resource_count || 0,
             user.page_count || 0,
@@ -347,8 +347,8 @@ export default function AdminUsers() {
                       <TableCell>
                         <div>
                           <p className="font-medium">{user.email}</p>
-                          {user.display_name && (
-                            <p className="text-sm text-gray-500">{user.display_name}</p>
+                          {user.full_name && (
+                            <p className="text-sm text-gray-500">{user.full_name}</p>
                           )}
                           {user.username && (
                             <p className="text-xs text-gray-400">@{user.username}</p>
@@ -356,8 +356,8 @@ export default function AdminUsers() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={user.subscription_tier === 'free' ? 'secondary' : 'default'}>
-                          {user.subscription_tier || 'free'}
+                        <Badge variant={user.subscription_plan === 'free' ? 'secondary' : 'default'}>
+                          {user.subscription_plan || 'free'}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -406,8 +406,8 @@ export default function AdminUsers() {
                     <p className="text-sm">{selectedUser.email}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Display Name</label>
-                    <p className="text-sm">{selectedUser.display_name || 'Not set'}</p>
+                    <label className="text-sm font-medium text-gray-500">Full Name</label>
+                    <p className="text-sm">{selectedUser.full_name || 'Not set'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-500">Username</label>
@@ -415,7 +415,7 @@ export default function AdminUsers() {
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-500">Plan</label>
-                    <p className="text-sm capitalize">{selectedUser.subscription_tier || 'free'}</p>
+                    <p className="text-sm capitalize">{selectedUser.subscription_plan || 'free'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-500">Resources</label>

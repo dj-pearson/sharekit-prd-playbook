@@ -147,8 +147,32 @@ export function useAdmin(requireAdmin: boolean = true): UseAdminReturn {
   ): Promise<void> {
     if (!adminUser) return;
 
-    // Log to console for now - admin_activity_log table doesn't exist yet
-    console.log('Admin activity:', { action, resourceType, resourceId, metadata });
+    try {
+      // Try to get the admin_users entry for this user
+      const { data: adminUserRecord } = await supabase
+        .from('admin_users')
+        .select('id')
+        .eq('user_id', adminUser.user_id)
+        .single();
+
+      if (adminUserRecord) {
+        // Log to admin_activity_log table
+        await supabase.from('admin_activity_log').insert({
+          admin_id: adminUserRecord.id,
+          action,
+          resource_type: resourceType,
+          resource_id: resourceId || null,
+          metadata: metadata || null,
+        });
+      } else {
+        // Fallback to console logging if admin_users entry doesn't exist
+        console.log('Admin activity:', { action, resourceType, resourceId, metadata });
+      }
+    } catch (error) {
+      // Silently fail and log to console - activity logging shouldn't break the app
+      console.error('Failed to log admin activity:', error);
+      console.log('Admin activity:', { action, resourceType, resourceId, metadata });
+    }
   }
 
   return {

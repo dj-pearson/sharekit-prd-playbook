@@ -96,8 +96,8 @@ export default function AdminSupport() {
           *,
           profiles:user_id (
             email,
-            display_name,
-            subscription_tier
+            full_name,
+            subscription_plan
           )
         `)
         .order('created_at', { ascending: false });
@@ -115,8 +115,8 @@ export default function AdminSupport() {
           return {
             ...ticket,
             user_email: ticket.profiles?.email,
-            user_name: ticket.profiles?.display_name,
-            user_plan: ticket.profiles?.subscription_tier,
+            user_name: ticket.profiles?.full_name,
+            user_plan: ticket.profiles?.subscription_plan,
             message_count: count || 0,
           };
         })
@@ -159,7 +159,7 @@ export default function AdminSupport() {
         .select(`
           *,
           profiles:sender_id (
-            display_name,
+            full_name,
             email
           )
         `)
@@ -170,7 +170,7 @@ export default function AdminSupport() {
 
       const messagesWithNames = (data || []).map((msg) => ({
         ...msg,
-        sender_name: msg.is_admin ? 'Admin' : (msg.profiles?.display_name || msg.profiles?.email),
+        sender_name: msg.is_admin ? 'Admin' : (msg.profiles?.full_name || msg.profiles?.email),
       }));
 
       setMessages(messagesWithNames);

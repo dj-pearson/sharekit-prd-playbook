@@ -853,6 +853,315 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_users: {
+        Row: {
+          id: string
+          user_id: string
+          role: string
+          permissions: Json
+          last_login_at: string | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          role: string
+          permissions?: Json
+          last_login_at?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          role?: string
+          permissions?: Json
+          last_login_at?: string | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_users_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_activity_log: {
+        Row: {
+          id: string
+          admin_id: string
+          action: string
+          resource_type: string
+          resource_id: string | null
+          metadata: Json | null
+          ip_address: string | null
+          user_agent: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          admin_id: string
+          action: string
+          resource_type: string
+          resource_id?: string | null
+          metadata?: Json | null
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          admin_id?: string
+          action?: string
+          resource_type?: string
+          resource_id?: string | null
+          metadata?: Json | null
+          ip_address?: string | null
+          user_agent?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_activity_log_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          id: string
+          ticket_number: string
+          user_id: string | null
+          assigned_to: string | null
+          subject: string
+          description: string
+          status: string
+          priority: string
+          category: string | null
+          tags: string[] | null
+          metadata: Json | null
+          resolved_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          ticket_number?: string
+          user_id?: string | null
+          assigned_to?: string | null
+          subject: string
+          description: string
+          status?: string
+          priority?: string
+          category?: string | null
+          tags?: string[] | null
+          metadata?: Json | null
+          resolved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          ticket_number?: string
+          user_id?: string | null
+          assigned_to?: string | null
+          subject?: string
+          description?: string
+          status?: string
+          priority?: string
+          category?: string | null
+          tags?: string[] | null
+          metadata?: Json | null
+          resolved_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_messages: {
+        Row: {
+          id: string
+          ticket_id: string
+          sender_id: string
+          is_admin: boolean
+          is_internal: boolean
+          message: string
+          attachments: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          ticket_id: string
+          sender_id: string
+          is_admin?: boolean
+          is_internal?: boolean
+          message: string
+          attachments?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          ticket_id?: string
+          sender_id?: string
+          is_admin?: boolean
+          is_internal?: boolean
+          message?: string
+          attachments?: Json | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feature_flags: {
+        Row: {
+          id: string
+          name: string
+          key: string
+          description: string | null
+          enabled: boolean
+          rollout_type: string
+          rollout_percentage: number | null
+          rollout_user_ids: string[] | null
+          rollout_plans: string[] | null
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          key: string
+          description?: string | null
+          enabled?: boolean
+          rollout_type?: string
+          rollout_percentage?: number | null
+          rollout_user_ids?: string[] | null
+          rollout_plans?: string[] | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          key?: string
+          description?: string | null
+          enabled?: boolean
+          rollout_type?: string
+          rollout_percentage?: number | null
+          rollout_user_ids?: string[] | null
+          rollout_plans?: string[] | null
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_flags_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      system_metrics: {
+        Row: {
+          id: string
+          metric_name: string
+          metric_value: number
+          dimensions: Json | null
+          timestamp: string
+        }
+        Insert: {
+          id?: string
+          metric_name: string
+          metric_value: number
+          dimensions?: Json | null
+          timestamp?: string
+        }
+        Update: {
+          id?: string
+          metric_name?: string
+          metric_value?: number
+          dimensions?: Json | null
+          timestamp?: string
+        }
+        Relationships: []
+      }
+      canned_responses: {
+        Row: {
+          id: string
+          title: string
+          category: string
+          shortcut: string
+          content: string
+          variables: string[] | null
+          usage_count: number
+          created_by: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          category: string
+          shortcut: string
+          content: string
+          variables?: string[] | null
+          usage_count?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          category?: string
+          shortcut?: string
+          content?: string
+          variables?: string[] | null
+          usage_count?: number
+          created_by?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "canned_responses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -885,6 +1194,10 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       team_role: "owner" | "admin" | "member"
+      admin_role: "super_admin" | "admin" | "support_manager" | "content_manager" | "read_only"
+      ticket_status: "open" | "in_progress" | "waiting" | "resolved" | "closed"
+      ticket_priority: "low" | "normal" | "high" | "urgent"
+      ticket_category: "billing" | "technical" | "feature" | "bug" | "account" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1014,6 +1327,10 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       team_role: ["owner", "admin", "member"],
+      admin_role: ["super_admin", "admin", "support_manager", "content_manager", "read_only"],
+      ticket_status: ["open", "in_progress", "waiting", "resolved", "closed"],
+      ticket_priority: ["low", "normal", "high", "urgent"],
+      ticket_category: ["billing", "technical", "feature", "bug", "account", "other"],
     },
   },
 } as const
