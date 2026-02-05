@@ -25,3 +25,4 @@ dist-ssr
 ~$gal_GPT.txt
 Legal_GPT.docx
 CLOUDFLARE_PAGES_FIX.md
+vite.config.ts.timestamp*
